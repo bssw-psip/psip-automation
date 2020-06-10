@@ -6,11 +6,11 @@ activities:
      used by your project. The table below shows your progress in each practice area. Click on the "Start Here" button to begin.
    scores:
     - name: Basic
-      color: #ff9933
+      color: "#ff9933"
     - name: Intermediate
-      color: #99cc66
+      color: "#99cc66"
     - name: Advanced
-      color: #066999
+      color: "#066999"
      
    categories:
     - name: Better Development
@@ -19,7 +19,6 @@ activities:
         increase software productivity, quality, and sustainability, as key aspects of advancing overall scientific productivity. 
         The table below shows how well your team is doing for each practice. Click on the "Begin Assessment" button to start 
         assessing your skills.
-         
       items:
        - name: Revision Control
          path: revision_control
@@ -29,7 +28,6 @@ activities:
           - Uses revision control system such as Git
           - Uses a basic development workflow (e.g. basic Git workflow)
           - Uses an advanced development workflow (e.g. Gitflow)
-           
        - name: Code Reviews
          path: code_reviews
          description: The act of consciously and systematically convening with one''s fellow programmers to check each other''s code for mistakes, and has 
@@ -38,7 +36,6 @@ activities:
           - Ad-hoc code reviews
           - Regular code reviews (e.g. weekly meetings)
           - Code reviews automated in workflow (e.g. via pull requests)
-
        - name: Issue Tracking
          path: issue_tracking
          description: The process of capturing, reporting, tracking, and managing information about issues related to software. Issues include bugs, 
@@ -47,7 +44,6 @@ activities:
           - Manual issue tracking via email or other medium
           - Dedicated issue tracking system being used
           - Integrated issue tracking  (e.g. pull requests)
-
        - name: Deployment
          path: deployment
          description: Approaches for versioning, packaging, releasing, and deploying software, documentation, or data for users to then obtain, install, and use.
@@ -55,7 +51,6 @@ activities:
           - Manual deployment using a script
           - Deployment as part of development workflow with manual intervention
           - Continuous deployment
-
        - name: Documentation
          path: documentation
          description: Creating, maintaining, and hosting quality documentation (written text or illustration) about the use, operation, or design of software.
@@ -69,7 +64,6 @@ activities:
       description: Improving strategies for planning in order to increase software productivity, quality, and sustainability, while underscoring the 
         unique characteristics of scientific software, including that requirements often change during discovery. The table below shows how well your team
         is doing for each practice. Click on the "Begin Assessment" button to start assessing your skills.
-
       items:
        - name: Development Process
          path: development_process
@@ -113,6 +107,19 @@ activities:
           - Formal requirements gathering is undertaken as part of the project
           - Requirements management process is employed
 
+    - name: Better Performance
+      path: performance
+      description: Improving strategies for writing scientific software that is efficient, scalable, and portable—from laptops to emerging extreme-scale 
+        architectures—while preserving other code quality metrics such as correctness and usability. The table below shows how well your team
+        is doing for each practice. Click on the "Begin Assessment" button to start assessing your skills
+      items: []
+
+    - name: Better Reliability
+      path: reliability
+      description: Improving methods of testing and verification to ensure that software is robust and produces reliable results, thereby 
+        helping to ensure the integrity of research and enable collaboration across teams. The table below shows how well your team
+        is doing for each practice. Click on the "Begin Assessment" button to start assessing your skills.
+      items:
        - name: Testing
          path: testing
          description: The process of ensuring that a software product is meeting its requirements at each stage of development, delivery, and deployment. 
@@ -130,31 +137,23 @@ activities:
           - Inclusion of data when code is published
           - Automatic provenance capture system is employed
 
-    - name: Better Performance
-      path: performance
-      description: Improving strategies for writing scientific software that is efficient, scalable, and portable—from laptops to emerging extreme-scale 
-        architectures—while preserving other code quality metrics such as correctness and usability. The table below shows how well your team
-        is doing for each practice. Click on the "Begin Assessment" button to start assessing your skills
-
-    - name: Better Reliability
-      path: reliability
-      description: Improving methods of testing and verification to ensure that software is robust and produces reliable results, thereby 
-        helping to ensure the integrity of research and enable collaboration across teams. The table below shows how well your team
-        is doing for each practice. Click on the "Begin Assessment" button to start assessing your skills.
-
     - name: Better Collaboration
       path: collaboration
       description: Improving ways to facilitate work across teams and to promote partnerships and community contributions via software. 
         We consider projects of all sizes, from small teams through multi-institutional aggregate teams. The table below shows how well your team
         is doing for each practice. Click on the "Begin Assessment" button to start assessing your skills.
+      items: []
 
  - name: Tracking
    path: tracking
    icon: TASKS
-   description: >
-     The tracking section is used to estimate the degree to which software engineering practices are currently being used by your project.
+   description: The tracking section is used to estimate the degree to which software engineering practices are currently being used by your project.
+   scores: []
+   categories: []
+   
  - name: Integration
    path: integration
    icon: COGS
-   description: >
-     The integration section is used to aid the integration of progress tracking cards into your development workflow.
+   description: The integration section is used to aid the integration of progress tracking cards into your development workflow.
+   scores: []
+   categories: []

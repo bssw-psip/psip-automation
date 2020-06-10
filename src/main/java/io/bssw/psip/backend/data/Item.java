@@ -1,9 +1,11 @@
 package io.bssw.psip.backend.data;
 
+import java.util.List;
+import java.util.Optional;
+
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotBlank;
@@ -25,6 +27,9 @@ public class Item extends AbstractEntity {
 	
 	@Column(columnDefinition = "TEXT") // Variable length string
 	private String description;
+	
+	@ElementCollection
+	private List<String> questions;
 
 	@Column(columnDefinition = "TEXT") // Variable length string
 	private String basicDescription;
@@ -35,9 +40,10 @@ public class Item extends AbstractEntity {
 	@Column(columnDefinition = "TEXT") // Variable length string
 	private String advancedDescription;
 	
-	@Column(columnDefinition = "INTEGER DEFAULT 0")
-	@Enumerated(EnumType.ORDINAL)
-	private ItemScore score;
+//	@Column(columnDefinition = "INTEGER DEFAULT 0")
+//	@Enumerated(EnumType.ORDINAL)
+//	private ItemScore score;
+	private Integer score; // index into scores/questions
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Category category;
@@ -46,39 +52,85 @@ public class Item extends AbstractEntity {
 		return name;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public String getIcon() {
 		return icon;
 	}
-	
+
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
 	public String getPath() {
 		return path;
 	}
-	
-	public Category getCategory() {
-		return category;
+
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 	public String getDescription() {
 		return description;
 	}
 
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public List<String> getQuestions() {
+		return questions;
+	}
+
+	public void setQuestions(List<String> questions) {
+		this.questions = questions;
+	}
+
 	public String getBasicDescription() {
 		return basicDescription;
+	}
+
+	public void setBasicDescription(String basicDescription) {
+		this.basicDescription = basicDescription;
 	}
 
 	public String getIntermediateDescription() {
 		return intermediateDescription;
 	}
 
+	public void setIntermediateDescription(String intermediateDescription) {
+		this.intermediateDescription = intermediateDescription;
+	}
+
 	public String getAdvancedDescription() {
 		return advancedDescription;
 	}
-	
-	public ItemScore getScore() {
-		return score;
+
+	public void setAdvancedDescription(String advancedDescription) {
+		this.advancedDescription = advancedDescription;
 	}
-	
-	public void setScore(ItemScore score) {
+
+	public Optional<Integer> getScore() {
+		return Optional.ofNullable(score);
+	}
+
+	public void setScore(Integer score) {
 		this.score = score;
+	}
+
+	public Category getCategory() {
+		return category;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
+	}
+
+	@Override
+	public String toString() {
+		return "Item [name=" + name + ", icon=" + icon + ", path=" + path + ", description=" + description
+				+ ", questions=" + questions + "]";
 	}
 }

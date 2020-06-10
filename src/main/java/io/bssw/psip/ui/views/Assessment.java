@@ -57,8 +57,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	
 	private void createItemLayout(Item item) {
 		mainLayout.removeAll();
-		ScoreItem scoreItem = new ScoreItem();
-		scoreItem.setValue(item);
+		ScoreItem scoreItem = new ScoreItem(item);
 		String path = item.getCategory().getActivity().getPath() + "/" + item.getCategory().getPath() + "/" + item.getPath();
 		Item prevItem =  MainLayout.getPrevItem(path);
 		Button button1 = UIUtils.createLargeButton(VaadinIcon.CHEVRON_CIRCLE_LEFT);
@@ -88,17 +87,17 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		FormLayout form = new FormLayout();
 		for (Item item : category.getItems()) {
 			Component component;
-			if (item.getScore() == ItemScore.NONE) {
+			if (!item.getScore().isPresent()) {
 				Label label = new Label("Not Started");
 				component = label;
 			} else {
-				RadialChart chartBuilder = new RadialChart(itemScoreToColor(item.getScore()));
+				RadialChart chartBuilder = new RadialChart(itemScoreToColor(item));
 				ApexCharts chart = chartBuilder.build();
 				chart.setHeight("100px");
 				chart.setWidth("100px");
 				chart.getStyle().set("vertical-align", "middle");
 				chart.getStyle().set("display", "inline-flex");
-				chart.updateSeries(itemScoreToPercent(item.getScore()));
+				chart.updateSeries(itemScoreToPercent(item));
 				component = chart;
 			}
 			FormItem formItem = form.addFormItem(component, item.getName());
@@ -118,21 +117,18 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		mainLayout.addAndExpand(form, hz);
 	}
 	
-	private Double itemScoreToPercent(ItemScore score) {
-		return score.ordinal() * 25.0;
+	private Double itemScoreToPercent(Item item) {
+		return item.getScore().isPresent() ? item.getScore().get() * 25.0 : 0.0;
 	}
 	
-	private String itemScoreToColor(ItemScore score) {
-		switch (score) {
-		case BASIC:
-			return "#ff9933";
-		case INTERMEDIATE:
-			return "#99cc66";
-		case ADVANCED:
-			return "#066999";
-		default:
-			return "#000000";
+	private String itemScoreToColor(Item item) {
+		if (item.getScore().isPresent()) {
+			try {
+				return item.getCategory().getActivity().getScores().get(item.getScore().get()).getColor();
+			} catch (IndexOutOfBoundsException e) {
+			}
 		}
+		return "";
 	}
 	
 	private void createActivityLayout(Activity activity) {
@@ -141,7 +137,9 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		for (Category category : activity.getCategories()) {
 			int score = 0;
 			for (Item item : category.getItems()) {
-				score += item.getScore().ordinal();
+				if (item.getScore().isPresent()) {
+					score += item.getScore().get();
+				}
 			}
 			ProgressBar bar = new ProgressBar(0, category.getItems().size() > 0 ? ItemScore.ADVANCED.ordinal() * category.getItems().size() : 1);
 			bar.getElement().getStyle().set("height", "10px");

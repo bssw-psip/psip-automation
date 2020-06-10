@@ -30,6 +30,12 @@ public class Activity extends AbstractEntity {
 	@OneToMany(
 			mappedBy = "activity",
 			cascade = CascadeType.ALL,
+			orphanRemoval = true) 
+	private List<Score> scores;
+	
+	@OneToMany(
+			mappedBy = "activity",
+			cascade = CascadeType.ALL,
 			orphanRemoval = true,
 			fetch = FetchType.EAGER) 
 	// FIXME: EAGER only to avoid LazyInitializationException
@@ -38,20 +44,54 @@ public class Activity extends AbstractEntity {
 	public String getName() {
 		return name;
 	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public String getIcon() {
 		return icon;
 	}
 	
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
 	public String getPath() {
 		return path;
 	}
 	
+	public void setPath(String path) {
+		this.path = path;
+	}
+
 	public String getDescription() {
 		return description;
 	}
 
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public List<Score> getScores() {
+		return scores;
+	}
+
+	public void setScores(List<Score> scores) {
+		this.scores = scores;
+	}
+
 	public List<Category> getCategories() {
 		return categories;
+	}
+	
+	public void setCategories(List<Category> categories) {
+		this.categories = categories;
+	}
+
+	@Override
+	public String toString() {
+		return "Activity [name=" + name + ", icon=" + icon + ", path=" + path + ", description=" + description
+				+ ", scores=" + scores + ", categories=" + categories + "]";
 	}
 }

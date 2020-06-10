@@ -41,25 +41,54 @@ public class Category extends AbstractEntity {
 	public String getName() {
 		return name;
 	}
-	
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public String getIcon() {
 		return icon;
 	}
-	
+
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
 	public String getPath() {
 		return path;
 	}
-	
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public Activity getActivity() {
 		return activity;
 	}
-	
-	public String getDescription() {
-		return description;
+
+	public void setActivity(Activity activity) {
+		this.activity = activity;
 	}
 
 	public List<Item> getItems() {
 		return items;
 	}
 
+	public void setItems(List<Item> items) {
+		this.items = items;
+	}
+
+	@Override
+	public String toString() {
+		return "Category [name=" + name + ", icon=" + icon + ", path=" + path + ", description=" + description
+				+ ", items=" + items + "]";
+	}
 }
