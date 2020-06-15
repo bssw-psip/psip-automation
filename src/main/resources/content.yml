@@ -1,3 +1,22 @@
+# Definitions of activities, categories and items for the PSIP automation site.
+# 
+# Activity: An activity is a top level menu on the site nav bar that is displayed using the 'name' and 'icon' elements.
+#           The page will display the 'description' along with a summary of each of the categories (see below) using
+#           a progress bar element that indicates how close to completion the activity is. The pages can be directly
+#           accessed using the 'path' element. Scores define the scores being used for assessment.
+#
+# Category: A category allows lower level pages to be grouped. The are normally the "Better ..." categories taken from
+#           the BSSW web site, but could be other things. Category pages display the 'description' text along with a
+#           score for of each of the items (see below) using a radial chart. The pages can be directly accessed using
+#           the parent activity path concatenated with the 'path' element.
+#
+# Item:    An item is the lowest level page that is used for scoring or other information. Assessment items are displayed
+#          using the scores from the parent activity, along with the corresponding items from the 'questions' element. The
+#          pages can be directly access using the category path (see above) concatenated with the 'path' element.
+#
+#
+# NOTE: Please preserve indenting! YAML only recognizes spaces for indents.
+#
 activities:
  - name: Assessment
    path: assessment
@@ -143,6 +162,10 @@ activities:
         We consider projects of all sizes, from small teams through multi-institutional aggregate teams. The table below shows how well your team
         is doing for each practice. Click on the "Begin Assessment" button to start assessing your skills.
       items: []
+
+#
+# These activities have not been defined yet
+#
 
  - name: Tracking
    path: tracking
