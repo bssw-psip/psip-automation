@@ -25,10 +25,13 @@ activities:
      used by your project. The table below shows your progress in each practice area. Click on the "Start Here" button to begin.
    scores:
     - name: Basic
+      value: 1
       color: "#ff9933"
     - name: Intermediate
+      value: 10
       color: "#99cc66"
     - name: Advanced
+      value: 100
       color: "#066999"
      
    categories:
