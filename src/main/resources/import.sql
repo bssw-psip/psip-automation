@@ -2,8 +2,8 @@ insert into activity (id, name, icon, path, description) values (1, 'Assessment'
 insert into activity (id, name, icon, path, description) values (2, 'Tracking', 'TASKS', 'tracking', 'The tracking section is used to estimate the degree to which software engineering practices are currently being used by your project.');
 insert into activity (id, name, icon, path, description) values (3, 'Integration', 'COGS', 'integration', 'The integration section is used to aid the integration of progress tracking cards into your development workflow.');
 commit;
-insert into score (id, name, value, color, activity_id) values (1, 'Basic', 1, '#ff9933', 1);
-insert into score (id, name, value, color, activity_id) values (2, 'Intermediate', 10, '#99cc66', 1);
+insert into score (id, name, value, color, activity_id) values (1, 'Basic', 25, '#ff9933', 1);
+insert into score (id, name, value, color, activity_id) values (2, 'Intermediate', 50, '#99cc66', 1);
 insert into score (id, name, value, color, activity_id) values (3, 'Advanced', 100, '#066999', 1);
 commit;
 insert into category (id, name, activity_id, icon, path, description) values (1, 'Better Development', 1, '', 'development', 
