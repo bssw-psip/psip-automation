@@ -1,7 +1,8 @@
 package io.bssw.psip.ui.components;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.vaadin.flow.component.AbstractCompositeField;
@@ -20,29 +21,26 @@ import io.bssw.psip.ui.util.UIUtils;
 
 @Tag("score-group")
 public class ScoreItem extends AbstractCompositeField<VerticalLayout, ScoreItem, Item> {
-	private List<HorizontalLayout> scoreLayouts = new ArrayList<>();	
+	private Map<Integer, HorizontalLayout> scoreLayouts = new LinkedHashMap<>();	// Keep ordered by keys
 	private Item item;
 
-	public ScoreItem(Item item) {
+	public ScoreItem(Item item, List<Score> scores) {
 		super(null);
 		this.item = item;
 
-		List<Score> scores = item.getCategory().getActivity().getScores();
-		
 		for (int i = 0; i < scores.size(); i++) {
 			Score score = scores.get(i);
-			final int idx = i;
 			Button button = UIUtils.createPrimaryButton(score.getName());
-			button.setWidth("130px");
+			button.setWidth("140px");
 			button.getElement().getStyle().set("background-color", score.getColor());
-			button.addClickListener(e -> setScore(Optional.of(idx)));
+			button.addClickListener(e -> setScore(Optional.of(score.getValue())));
 			Label label = UIUtils.createLabel(FontSize.M, TextColor.BODY, item.getQuestions().get(i));
 			HorizontalLayout scoreLayout = new HorizontalLayout(button, label);
 			scoreLayout.setAlignItems(Alignment.CENTER);
 			scoreLayout.setWidthFull();
 			scoreLayout.setPadding(true);
 			getContent().add(scoreLayout);
-			scoreLayouts.add(scoreLayout);
+			scoreLayouts.put(score.getValue(), scoreLayout);
 		}
 		
 		resetScores();
@@ -53,7 +51,7 @@ public class ScoreItem extends AbstractCompositeField<VerticalLayout, ScoreItem,
 	 * Set the border to 1px transparent. Note this may not work on all browsers
 	 */
 	private void resetScores() {
-		for (HorizontalLayout score : scoreLayouts) {
+		for (HorizontalLayout score : scoreLayouts.values()) {
 			score.getElement().getStyle().set("border", "1px solid transparent");
 		}
 	}

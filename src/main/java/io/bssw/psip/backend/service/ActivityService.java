@@ -2,6 +2,9 @@ package io.bssw.psip.backend.service;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +22,11 @@ public class ActivityService implements CrudService<ActivityRepository, Activity
 		return repository;
 	}
 	
+	@Transactional
 	public List<Activity> getActivities() {
-		return getRepository().findAll();
+		List<Activity> activities = getRepository().findAll();
+		activities.forEach(a -> Hibernate.initialize(a.getScores())); // TODO: should be lazy loaded
+		return activities;
 	}
 	
 	public Activity getActivity(String name) {

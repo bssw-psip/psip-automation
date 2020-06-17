@@ -6,9 +6,10 @@ import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
+
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
-import io.bssw.psip.ui.util.css.FlexDirection;
 
 /**
  * A view frame that establishes app design guidelines. It consists of four

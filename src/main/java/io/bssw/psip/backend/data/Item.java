@@ -28,7 +28,7 @@ public class Item extends AbstractEntity {
 	@Column(columnDefinition = "TEXT") // Variable length string
 	private String description;
 	
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> questions;
 
 	@Column(columnDefinition = "TEXT") // Variable length string
@@ -40,10 +40,7 @@ public class Item extends AbstractEntity {
 	@Column(columnDefinition = "TEXT") // Variable length string
 	private String advancedDescription;
 	
-//	@Column(columnDefinition = "INTEGER DEFAULT 0")
-//	@Enumerated(EnumType.ORDINAL)
-//	private ItemScore score;
-	private Integer score; // index into scores/questions
+	private Integer score; // score value
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Category category;

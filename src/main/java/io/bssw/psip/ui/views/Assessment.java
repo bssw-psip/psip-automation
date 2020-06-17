@@ -1,5 +1,7 @@
 package io.bssw.psip.ui.views;
 
+import java.util.List;
+
 import com.github.appreciated.apexcharts.ApexCharts;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -9,6 +11,7 @@ import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
+import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
@@ -21,27 +24,28 @@ import com.vaadin.flow.router.WildcardParameter;
 import io.bssw.psip.backend.data.Activity;
 import io.bssw.psip.backend.data.Category;
 import io.bssw.psip.backend.data.Item;
-import io.bssw.psip.backend.data.ItemScore;
+import io.bssw.psip.backend.data.Score;
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
+import io.bssw.psip.ui.components.RadarChart;
 import io.bssw.psip.ui.components.RadialChart;
 import io.bssw.psip.ui.components.ScoreItem;
 import io.bssw.psip.ui.layout.size.Horizontal;
 import io.bssw.psip.ui.layout.size.Uniform;
 import io.bssw.psip.ui.util.UIUtils;
-import io.bssw.psip.ui.util.css.FlexDirection;
 
 @PageTitle("Assessment")
 @Route(value = "assessment", layout = MainLayout.class)
 public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	private Label description;
 	private VerticalLayout mainLayout;
-
+	
 	public Assessment() {
 		setViewContent(createContent());
 	}
 
 	private Component createContent() {
+		System.out.println("activityService="+MainLayout.getActivityService());
 		description = new Label();
 		description.setHeight("100px");
 		mainLayout = new VerticalLayout();
@@ -57,7 +61,8 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	
 	private void createItemLayout(Item item) {
 		mainLayout.removeAll();
-		ScoreItem scoreItem = new ScoreItem(item);
+		List<Score> scores = item.getCategory().getActivity().getScores();
+		ScoreItem scoreItem = new ScoreItem(item, scores);
 		String path = item.getCategory().getActivity().getPath() + "/" + item.getCategory().getPath() + "/" + item.getPath();
 		Item prevItem =  MainLayout.getPrevItem(path);
 		Button button1 = UIUtils.createLargeButton(VaadinIcon.CHEVRON_CIRCLE_LEFT);
@@ -105,7 +110,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 			formItem.getElement().getStyle().set("align-self", "flex-start");
 			form.setColspan(formItem, 2); // FormLayout defaults to 2 columns so span both
 		}
-		Button button = new Button("Begin Assessment");
+		Button button = new Button("Assess Practices");
 		button.getElement().addEventListener("click", e -> {
 			MainLayout.navigate(Assessment.class, category.getPath() + "/" + category.getItems().get(0).getPath());
 		});
@@ -114,18 +119,19 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		HorizontalLayout hz = new HorizontalLayout(button);
 		hz.setJustifyContentMode(JustifyContentMode.CENTER);
 		hz.setWidthFull();
-		mainLayout.addAndExpand(form, hz);
+		mainLayout.addAndExpand(hz, form);
 	}
 	
 	private Double itemScoreToPercent(Item item) {
-		return item.getScore().isPresent() ? item.getScore().get() * 25.0 : 0.0;
+		return item.getScore().isPresent() ? item.getScore().get() : 0.0;
 	}
 	
 	private String itemScoreToColor(Item item) {
 		if (item.getScore().isPresent()) {
-			try {
-				return item.getCategory().getActivity().getScores().get(item.getScore().get()).getColor();
-			} catch (IndexOutOfBoundsException e) {
+			for (Score score : item.getCategory().getActivity().getScores()) {
+				if (score.getValue() == item.getScore().get()) {
+					return score.getColor();
+				}
 			}
 		}
 		return "";
@@ -133,6 +139,26 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	
 	private void createActivityLayout(Activity activity) {
 		mainLayout.removeAll();
+		Component summary = createActivitySummary(activity);
+		Button button = new Button("Begin Assessment");
+		button.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, activity.getCategories().get(0).getPath()));
+		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		button.setWidth("200px");
+		button.setHeight("50px");
+		HorizontalLayout hz = new HorizontalLayout(button);
+		hz.setJustifyContentMode(JustifyContentMode.CENTER);
+		hz.setWidthFull();
+		mainLayout.addAndExpand(hz, summary);
+	}
+	
+	private Component createActivitySummary(Activity activity) {
+		ApexCharts chart = new RadarChart(activity).build();
+		chart.setWidth("100%");
+		return chart;
+	}
+	
+	@SuppressWarnings("unused")
+	private Component createActivitySummaryAsProgress(Activity activity) {
 		FormLayout form = new FormLayout();
 		for (Category category : activity.getCategories()) {
 			int score = 0;
@@ -141,7 +167,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 					score += item.getScore().get();
 				}
 			}
-			ProgressBar bar = new ProgressBar(0, category.getItems().size() > 0 ? ItemScore.ADVANCED.ordinal() * category.getItems().size() : 1);
+			ProgressBar bar = new ProgressBar(0, category.getItems().size() > 0 ? 100 * category.getItems().size() : 1);
 			bar.getElement().getStyle().set("height", "10px");
 			bar.setValue(score);
 			if (category.getItems().isEmpty()) {
@@ -151,15 +177,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 			formItem.getElement().getStyle().set("--vaadin-form-item-label-width", "15em"); // Set width of label otherwise it will wrap
 			form.setColspan(formItem, 2); // FormLayout defaults to 2 columns so span both
 		}
-		Button button = new Button("Begin Assessment");
-		button.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, activity.getCategories().get(0).getPath()));
-		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		button.setWidth("200px");
-		button.setHeight("50px");
-		HorizontalLayout hz = new HorizontalLayout(button);
-		hz.setJustifyContentMode(JustifyContentMode.CENTER);
-		hz.setWidthFull();
-		mainLayout.addAndExpand(form, hz);
+		return form;
 	}
 
 	@Override

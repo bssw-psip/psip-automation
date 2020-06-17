@@ -4,6 +4,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
+import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexWrap;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -13,8 +15,6 @@ import io.bssw.psip.ui.layout.size.Horizontal;
 import io.bssw.psip.ui.layout.size.Right;
 import io.bssw.psip.ui.layout.size.Uniform;
 import io.bssw.psip.ui.util.UIUtils;
-import io.bssw.psip.ui.util.css.FlexDirection;
-import io.bssw.psip.ui.util.css.FlexWrap;
 
 @PageTitle("Welcome")
 @Route(value = "", layout = MainLayout.class)

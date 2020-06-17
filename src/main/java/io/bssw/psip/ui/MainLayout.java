@@ -33,7 +33,6 @@ import io.bssw.psip.backend.data.Activity;
 import io.bssw.psip.backend.data.Category;
 import io.bssw.psip.backend.data.Item;
 import io.bssw.psip.backend.service.ActivityService;
-import io.bssw.psip.backend.service.CategoryService;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.components.navigation.bar.AppBar;
 import io.bssw.psip.ui.components.navigation.bar.TabBar;
@@ -42,7 +41,6 @@ import io.bssw.psip.ui.components.navigation.drawer.NaviItem;
 import io.bssw.psip.ui.components.navigation.drawer.NaviMenu;
 import io.bssw.psip.ui.util.UIUtils;
 import io.bssw.psip.ui.util.css.Display;
-import io.bssw.psip.ui.util.css.FlexDirection;
 import io.bssw.psip.ui.util.css.Overflow;
 import io.bssw.psip.ui.views.Home;
 
@@ -89,13 +87,10 @@ public class MainLayout extends FlexBoxLayout
 	private static Map<String, NaviItem> naviItems = new HashMap<String, NaviItem>();
 
 	// Can't autowire these beans because MainLayout is not managed by Spring
-	private ActivityService activityService;
-	private CategoryService categoryService;
+	private static ActivityService activityService;
 
-	public MainLayout(@Autowired ActivityService activityService, 
-			@Autowired CategoryService categoryService) {
-		this.activityService = activityService;
-		this.categoryService = categoryService;
+	public MainLayout(@Autowired ActivityService activityService) {
+		setActivityService(activityService);
 
 		VaadinSession.getCurrent()
 				.setErrorHandler((ErrorHandler) errorEvent -> {
@@ -296,7 +291,7 @@ public class MainLayout extends FlexBoxLayout
 	public static MainLayout get() {
 		return (MainLayout) UI.getCurrent().getChildren()
 				.filter(component -> component.getClass() == MainLayout.class)
-				.findFirst().get();
+				.findFirst().orElse(null);
 	}
 
 	public static Item getItem(String path) {
@@ -317,6 +312,14 @@ public class MainLayout extends FlexBoxLayout
 	
 	public static Activity getActivity(String name) {
 		return activities.get(name);
+	}
+	
+	public static ActivityService getActivityService() {
+		return activityService;
+	}
+	
+	public void setActivityService(ActivityService a) {
+		activityService = a;
 	}
 	
 	public static <T, C extends Component & HasUrlParameter<T>> void navigate(

@@ -25,7 +25,7 @@ public class GenData {
 		Content content = yaml.load(inputStream);
 		
 		try {
-			BufferedWriter bw = Files.newBufferedWriter(Paths.get("src/main/resources/import.sql.new"));
+			BufferedWriter bw = Files.newBufferedWriter(Paths.get("src/main/resources/import.sql"));
 			PrintWriter writer = new PrintWriter(bw);
 			int activity_id = 1;
 			for (Activity activity : content.getActivities()) {
@@ -40,9 +40,10 @@ public class GenData {
 			int score_id = 1;
 			for (Activity activity : content.getActivities()) {
 				for (Score score : activity.getScores()) {
-					writer.println("insert into score (id, name, color, activity_id) values (" + 
+					writer.println("insert into score (id, name, value, color, activity_id) values (" + 
 							score_id++ + ", '" +
-							score.getName() + "', '" +
+							score.getName() + "', " +
+							score.getValue() + ", '" +
 							score.getColor() + "', " +
 							activity_id + ");");
 				}

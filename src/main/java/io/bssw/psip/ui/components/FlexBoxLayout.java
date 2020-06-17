@@ -1,12 +1,18 @@
 package io.bssw.psip.ui.components;
 
+import java.util.ArrayList;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.theme.lumo.Lumo;
-import io.bssw.psip.ui.layout.size.Size;
-import io.bssw.psip.ui.util.css.*;
 
-import java.util.ArrayList;
+import io.bssw.psip.ui.layout.size.Size;
+import io.bssw.psip.ui.util.css.BorderRadius;
+import io.bssw.psip.ui.util.css.BoxSizing;
+import io.bssw.psip.ui.util.css.Display;
+import io.bssw.psip.ui.util.css.Overflow;
+import io.bssw.psip.ui.util.css.Position;
+import io.bssw.psip.ui.util.css.Shadow;
 
 public class FlexBoxLayout extends FlexLayout {
 
@@ -77,8 +83,9 @@ public class FlexBoxLayout extends FlexLayout {
 		}
 	}
 
+	@Override
 	public void setFlexDirection(FlexDirection direction) {
-		getStyle().set(FLEX_DIRECTION, direction.getValue());
+		getStyle().set(FLEX_DIRECTION, direction.name());
 	}
 
 	public void removeFlexDirection() {
@@ -91,8 +98,9 @@ public class FlexBoxLayout extends FlexLayout {
 		}
 	}
 
+	@Override
 	public void setFlexWrap(FlexWrap wrap) {
-		getStyle().set(FLEX_WRAP, wrap.getValue());
+		getStyle().set(FLEX_WRAP, wrap.name());
 	}
 
 	public void removeFlexWrap() {
@@ -115,6 +123,7 @@ public class FlexBoxLayout extends FlexLayout {
 		getStyle().remove("margin-top");
 	}
 
+	@Override
 	public void setMaxWidth(String value) {
 		getStyle().set(MAX_WIDTH, value);
 	}

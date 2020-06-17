@@ -16,6 +16,9 @@ public class Score extends AbstractEntity {
 	@Size(max = 255)
 	private String color;
 	
+	@NotBlank
+	private Integer value;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Activity activity;
 
@@ -33,6 +36,14 @@ public class Score extends AbstractEntity {
 
 	public void setColor(String color) {
 		this.color = color;
+	}
+
+	public Integer getValue() {
+		return value;
+	}
+
+	public void setValue(Integer value) {
+		this.value = value;
 	}
 
 	public Activity getActivity() {
