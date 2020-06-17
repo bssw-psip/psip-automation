@@ -22,7 +22,7 @@ activities:
    path: assessment
    icon: CLIPBOARD_CHECK 
    description: The assessment section is used to estimate the degree to which software engineering practices are currently being 
-     used by your project. The table below shows your progress in each practice area. Click on the "Start Here" button to begin.
+     used by your project. This page shows your progress in each practice area.
    scores:
     - name: Basic
       value: 25
@@ -39,8 +39,7 @@ activities:
       path: development
       description: Improving scientific software development—a process of writing, maintaining, and extending code—in order to 
         increase software productivity, quality, and sustainability, as key aspects of advancing overall scientific productivity. 
-        The table below shows how well your team is doing for each practice. Click on the "Begin Assessment" button to start 
-        assessing your skills.
+        The rows below show how well your team is doing for each practice. 
       items:
        - name: Revision Control
          path: revision_control
@@ -84,8 +83,7 @@ activities:
     - name: Better Planning
       path: planning
       description: Improving strategies for planning in order to increase software productivity, quality, and sustainability, while underscoring the 
-        unique characteristics of scientific software, including that requirements often change during discovery. The table below shows how well your team
-        is doing for each practice. Click on the "Begin Assessment" button to start assessing your skills.
+        unique characteristics of scientific software, including that requirements often change during discovery. The rows below show how well your team is doing for each practice. 
       items:
        - name: Development Process
          path: development_process
@@ -132,15 +130,13 @@ activities:
     - name: Better Performance
       path: performance
       description: Improving strategies for writing scientific software that is efficient, scalable, and portable—from laptops to emerging extreme-scale 
-        architectures—while preserving other code quality metrics such as correctness and usability. The table below shows how well your team
-        is doing for each practice. Click on the "Begin Assessment" button to start assessing your skills
+        architectures—while preserving other code quality metrics such as correctness and usability. The rows below show how well your team is doing for each practice. 
       items: []
 
     - name: Better Reliability
       path: reliability
       description: Improving methods of testing and verification to ensure that software is robust and produces reliable results, thereby 
-        helping to ensure the integrity of research and enable collaboration across teams. The table below shows how well your team
-        is doing for each practice. Click on the "Begin Assessment" button to start assessing your skills.
+        helping to ensure the integrity of research and enable collaboration across teams. The rows below show how well your team is doing for each practice. 
       items:
        - name: Testing
          path: testing
@@ -162,8 +158,7 @@ activities:
     - name: Better Collaboration
       path: collaboration
       description: Improving ways to facilitate work across teams and to promote partnerships and community contributions via software. 
-        We consider projects of all sizes, from small teams through multi-institutional aggregate teams. The table below shows how well your team
-        is doing for each practice. Click on the "Begin Assessment" button to start assessing your skills.
+        We consider projects of all sizes, from small teams through multi-institutional aggregate teams. The rows below show how well your team is doing for each practice. 
       items: []
 
 #
