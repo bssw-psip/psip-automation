@@ -4,7 +4,7 @@
     <artifactId>psip</artifactId>
     <name>PSIP</name>
     <version>1.0-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     
     <parent>
         <groupId>org.springframework.boot</groupId>

@@ -1,7 +1,6 @@
 package io.bssw.psip.ui.components;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import com.github.appreciated.apexcharts.ApexChartsBuilder;
 import com.github.appreciated.apexcharts.config.builder.ChartBuilder;
@@ -9,13 +8,17 @@ import com.github.appreciated.apexcharts.config.builder.FillBuilder;
 import com.github.appreciated.apexcharts.config.builder.PlotOptionsBuilder;
 import com.github.appreciated.apexcharts.config.builder.StrokeBuilder;
 import com.github.appreciated.apexcharts.config.chart.Type;
-import com.github.appreciated.apexcharts.config.fill.builder.GradientBuilder;
+import com.github.appreciated.apexcharts.config.chart.builder.DropShadowBuilder;
 import com.github.appreciated.apexcharts.config.plotoptions.builder.RadialBarBuilder;
 import com.github.appreciated.apexcharts.config.plotoptions.hollow.HollowPosition;
 import com.github.appreciated.apexcharts.config.plotoptions.radialbar.builder.HollowBuilder;
 import com.github.appreciated.apexcharts.config.plotoptions.radialbar.builder.NameBuilder;
 import com.github.appreciated.apexcharts.config.plotoptions.radialbar.builder.RadialBarDataLabelsBuilder;
+import com.github.appreciated.apexcharts.config.plotoptions.radialbar.builder.TrackBuilder;
+import com.github.appreciated.apexcharts.config.plotoptions.radialbar.builder.TrackBuilder;
 import com.github.appreciated.apexcharts.config.plotoptions.radialbar.builder.ValueBuilder;
+import com.github.appreciated.apexcharts.config.stroke.LineCap;
+import com.github.appreciated.apexcharts.config.stroke.LineCap;
 
 public class RadialChart extends ApexChartsBuilder {
 
@@ -26,11 +29,11 @@ public class RadialChart extends ApexChartsBuilder {
                 .build())
                 .withPlotOptions(PlotOptionsBuilder.get()
                 	.withRadialBar(RadialBarBuilder.get()
-                        .withStartAngle(-135.0)
-                        .withEndAngle(135.0)
+                        .withStartAngle(-90.0)
+                        .withEndAngle(90.0)
                         .withHollow(HollowBuilder.get()
                                 .withMargin(0.0)
-                                .withSize("10%")
+                                .withSize("30%")
                                 .withBackground("#f3f5f7")
                                 .withPosition(HollowPosition.front)
                                 .build())
@@ -46,16 +49,16 @@ public class RadialChart extends ApexChartsBuilder {
 //                                        .withOpacity(0.24)
 //                                        .build())
 //                                .build())
-//                        .withTrack(TrackBuilder.get()
-//                                .withBackground("#f3f5f7")
-//                                .withStrokeWidth("80%")
-//                                .withDropShadow(DropShadowBuilder.get()
-//                                        .withTop(-3.0)
-//                                        .withLeft(0.0)
-//                                        .withBlur(4.0)
-//                                        .withOpacity(0.35)
-//                                        .build())
-//                                .build())
+                        .withTrack(TrackBuilder.get()
+                                .withBackground("#fff")
+                                .withStrokeWidth("80%")
+                                .withDropShadow(DropShadowBuilder.get()
+                                        .withTop(-3.0)
+                                        .withLeft(0.0)
+                                        .withBlur(4.0)
+                                        .withOpacity(0.35)
+                                        .build())
+                                .build())
 //
 //                        .withHollow(HollowBuilder.get()
 //                                .withMargin(0.0)
@@ -83,7 +86,7 @@ public class RadialChart extends ApexChartsBuilder {
                         .build())
                 	.build())
                 .withFill(FillBuilder.get()
-//                        .withType("solid")
+                        .withType("solid")
                         .withColors(Arrays.asList(color))
                 		
 //                        .withType("gradient")
@@ -99,24 +102,24 @@ public class RadialChart extends ApexChartsBuilder {
 //                                .withStops(0.0, 25.0, 50.0, 75.0)
 //                                .build())
                 		
-                      .withType("gradient")
-                      .withGradient(GradientBuilder.get()
-                              .withShade("dark")
-//                              .withType("horizontal")
-                              .withShadeIntensity(0.15)
-//                              .withGradientToColors("#000000", "#ff9933", "#99cc66", "#66999")
-                              .withInverseColors(false)
-                              .withOpacityFrom(1.0)
-                              .withOpacityTo(1.0)
-                              .withStops(0.0, 25.0, 50.0, 75.0)
-                              .build())
+//                      .withType("gradient")
+//                      .withGradient(GradientBuilder.get()
+//                              .withShade("dark")
+////                              .withType("horizontal")
+//                              .withShadeIntensity(0.15)
+////                              .withGradientToColors("#000000", "#ff9933", "#99cc66", "#66999")
+//                              .withInverseColors(false)
+//                              .withOpacityFrom(1.0)
+//                              .withOpacityTo(1.0)
+//                              .withStops(0.0, 25.0, 50.0, 75.0)
+//                              .build())
                         .build())
                 .withSeries(0.0)
                 .withLabels(Arrays.asList(color).toArray(new String[0]))
                 .withStroke(StrokeBuilder.get()
-//                        .withLineCap(LineCap.round)
+                        .withLineCap(LineCap.butt)
                 		.withColors(Arrays.asList(color).toArray(new String[0]))
-                        .withDashArray(Collections.singletonList(4.0))
+//                        .withDashArray(Collections.singletonList(4.0))
                         .build());	
 	}
 

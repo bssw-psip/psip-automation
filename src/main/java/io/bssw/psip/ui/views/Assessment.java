@@ -2,6 +2,8 @@ package io.bssw.psip.ui.views;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.github.appreciated.apexcharts.ApexCharts;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -25,6 +27,7 @@ import io.bssw.psip.backend.data.Activity;
 import io.bssw.psip.backend.data.Category;
 import io.bssw.psip.backend.data.Item;
 import io.bssw.psip.backend.data.Score;
+import io.bssw.psip.backend.service.ActivityService;
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.components.RadarChart;
@@ -39,13 +42,14 @@ import io.bssw.psip.ui.util.UIUtils;
 public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	private Label description;
 	private VerticalLayout mainLayout;
+	private ActivityService activityService;
 	
-	public Assessment() {
+	public Assessment(@Autowired ActivityService activityService) {
+		this.activityService = activityService;
 		setViewContent(createContent());
 	}
 
 	private Component createContent() {
-		System.out.println("activityService="+MainLayout.getActivityService());
 		description = new Label();
 		description.setHeight("100px");
 		mainLayout = new VerticalLayout();
@@ -64,7 +68,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		List<Score> scores = item.getCategory().getActivity().getScores();
 		ScoreItem scoreItem = new ScoreItem(item, scores);
 		String path = item.getCategory().getActivity().getPath() + "/" + item.getCategory().getPath() + "/" + item.getPath();
-		Item prevItem =  MainLayout.getPrevItem(path);
+		Item prevItem =  activityService.getPrevItem(path);
 		Button button1 = UIUtils.createLargeButton(VaadinIcon.CHEVRON_CIRCLE_LEFT);
 		button1.getElement().addEventListener("click", e -> {
 			MainLayout.navigate(Assessment.class, prevItem.getCategory().getPath() + "/" + prevItem.getPath());
@@ -72,7 +76,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		if (prevItem == null) {
 			button1.getElement().setEnabled(false);
 		}
-		Item nextItem = MainLayout.getNextItem(path);
+		Item nextItem = activityService.getNextItem(path);
 		Button button2 =  UIUtils.createLargeButton(VaadinIcon.CHEVRON_CIRCLE_RIGHT);
 		button2.getElement().addEventListener("click", e -> {
 			MainLayout.navigate(Assessment.class, nextItem.getCategory().getPath() + "/" + nextItem.getPath());
@@ -88,7 +92,6 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	
 	private void createCategoryLayout(Category category) {
 		mainLayout.removeAll();
-		System.out.println("createCategoryLayout");
 		FormLayout form = new FormLayout();
 		for (Item item : category.getItems()) {
 			Component component;
@@ -98,8 +101,8 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 			} else {
 				RadialChart chartBuilder = new RadialChart(itemScoreToColor(item));
 				ApexCharts chart = chartBuilder.build();
-				chart.setHeight("100px");
-				chart.setWidth("100px");
+				chart.setHeight("120px");
+				chart.setWidth("120px");
 				chart.getStyle().set("vertical-align", "middle");
 				chart.getStyle().set("display", "inline-flex");
 				chart.updateSeries(itemScoreToPercent(item));
@@ -184,12 +187,12 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	public void setParameter(BeforeEvent event, @WildcardParameter String parameter) {
 		String desc = "";
 		if (parameter.isEmpty()) {
-			Activity activity = MainLayout.getActivity("Assessment");
+			Activity activity = activityService.getActivity("Assessment");
 			desc = activity.getDescription();
 			createActivityLayout(activity);
 		} else if (parameter.contains("/")) {
 			// Item
-			Item item = MainLayout.getItem("assessment/" + parameter);
+			Item item = activityService.getItem("assessment/" + parameter);
 			if (item != null) {
 				desc = item.getDescription();
 				createItemLayout(item);
@@ -198,7 +201,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 			}
 		} else {
 			// Category
-			Category category = MainLayout.getCategory("assessment/" + parameter);
+			Category category = activityService.getCategory("assessment/" + parameter);
 			desc = category.getDescription();
 			createCategoryLayout(category);
 		}

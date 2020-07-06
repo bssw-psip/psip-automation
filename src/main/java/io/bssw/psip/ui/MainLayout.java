@@ -79,18 +79,13 @@ public class MainLayout extends FlexBoxLayout
 	private boolean navigationTabs = false;
 	private AppBar appBar;
 	
-	private static Map<String, Item> items = new HashMap<String, Item>();
-	private static Map<String, Item> prevItems = new HashMap<String, Item>();
-	private static Map<String, Item> nextItems = new HashMap<String, Item>();
-	private static Map<String, Category> categories = new HashMap<String, Category>();
-	private static Map<String, Activity> activities = new HashMap<String, Activity>();
 	private static Map<String, NaviItem> naviItems = new HashMap<String, NaviItem>();
 
 	// Can't autowire these beans because MainLayout is not managed by Spring
-	private static ActivityService activityService;
+	private ActivityService activityService;
 
 	public MainLayout(@Autowired ActivityService activityService) {
-		setActivityService(activityService);
+		this.activityService = activityService;
 
 		VaadinSession.getCurrent()
 				.setErrorHandler((ErrorHandler) errorEvent -> {
@@ -141,7 +136,7 @@ public class MainLayout extends FlexBoxLayout
 	}
 
 	/**
-	 * Initialise the navigation items.
+	 * Initialize the navigation items.
 	 */
 	private <C extends Component & HasUrlParameter<String>> void initNaviItems() {
 		NaviMenu menu = naviDrawer.getMenu();
@@ -149,7 +144,7 @@ public class MainLayout extends FlexBoxLayout
 		for (Activity activity : activityService.getActivities()) {
 			Optional<Class<? extends Component>> optRoute = RouteConfiguration.forSessionScope().getRoute(activity.getPath(), Collections.singletonList(""));
 			if (optRoute.isPresent()) {
-				activities.put(activity.getName(), activity);
+				activityService.setActivity(activity.getName(), activity);
 				Class<? extends Component> route = optRoute.get();
 				NaviItem actNav = menu.addNaviItem(VaadinIcon.valueOf(activity.getIcon()), activity.getName(), optRoute.get());
 				naviItems.put(activity.getPath(),  actNav);
@@ -162,7 +157,7 @@ public class MainLayout extends FlexBoxLayout
 						@SuppressWarnings("unchecked")
 						NaviItem catNav = menu.addNaviItem(actNav, category.getName(), (Class<? extends C>)route, category.getPath());
 						String catPath = activity.getPath() + "/" + category.getPath();
-						categories.put(catPath, category);
+						activityService.setCategory(catPath, category);
 						naviItems.put(catPath,  actNav);
 						ListIterator<Item> itemIter = category.getItems().listIterator();
 						while(itemIter.hasNext()) {
@@ -171,13 +166,12 @@ public class MainLayout extends FlexBoxLayout
 							String itemNavPath = category.getPath() + "/" + item.getPath();
 							NaviItem naviItem = menu.addNaviItem(catNav, item.getName(), (Class<? extends C>)route, itemNavPath);
 							String itemPath = activity.getPath() + "/" + itemNavPath;
-							items.put(itemPath, item);
-							prevItems.put(itemPath, prev);
-							nextItems.put(itemPath, next);
+							activityService.setItem(itemPath, item);
+							activityService.setPrevItem(itemPath, prev);
+							activityService.setNextItem(itemPath, next);
 							naviItems.put(itemPath,  naviItem);
 							String p = prev != null ? prev.getName() : "";
 							String n = next != null ? next.getName() : "";
-							System.out.println("prev="+p+",item="+item.getName()+",next="+n);
 							prev = item;
 						}
 						catNav.setExpanded(false);
@@ -294,34 +288,6 @@ public class MainLayout extends FlexBoxLayout
 				.findFirst().orElse(null);
 	}
 
-	public static Item getItem(String path) {
-		return items.get(path);
-	}
-	
-	public static Item getNextItem(String path) {
-		return nextItems.get(path);
-	}
-	
-	public static Item getPrevItem(String path) {
-		return prevItems.get(path);
-	}
-	
-	public static Category getCategory(String path) {
-		return categories.get(path);
-	}
-	
-	public static Activity getActivity(String name) {
-		return activities.get(name);
-	}
-	
-	public static ActivityService getActivityService() {
-		return activityService;
-	}
-	
-	public void setActivityService(ActivityService a) {
-		activityService = a;
-	}
-	
 	public static <T, C extends Component & HasUrlParameter<T>> void navigate(
             Class<? extends C> navigationTarget, T parameter) {
 		UI.getCurrent().navigate(navigationTarget, parameter);
