@@ -42,18 +42,18 @@ insert into item (id, name, category_id, icon, path, description) values (11, 'T
 insert into item (id, name, category_id, icon, path, description) values (12, 'Reproducibility', 4, '', 'reproducibility', 
   'Any effort whose goal is to increase trustworthiness and reuse of computational capabilities and results and to ensure correctness.');
 commit;
-insert into item_questions (item_id, questions) values (1, 'Uses revision control system such as Git');
-insert into item_questions (item_id, questions) values (1, 'Uses a basic development workflow (e.g. basic Git workflow)');
-insert into item_questions (item_id, questions) values (1, 'Uses an advanced development workflow (e.g. Gitflow)');
+insert into item_questions (item_id, questions) values (1, 'Code is checked in to a revision control system, such as Git');
+insert into item_questions (item_id, questions) values (1, 'Developers make use of pull requests and multiple branches, etc.');
+insert into item_questions (item_id, questions) values (1, 'Has a documented workflow for merging code for quality assurance and releases');
 insert into item_questions (item_id, questions) values (2, 'Ad-hoc code reviews');
-insert into item_questions (item_id, questions) values (2, 'Regular code reviews (e.g. weekly meetings)');
-insert into item_questions (item_id, questions) values (2, 'Code reviews automated in workflow (e.g. via pull requests)');
-insert into item_questions (item_id, questions) values (3, 'Manual issue tracking via email or other medium');
-insert into item_questions (item_id, questions) values (3, 'Dedicated issue tracking system being used');
-insert into item_questions (item_id, questions) values (3, 'Integrated issue tracking  (e.g. pull requests)');
-insert into item_questions (item_id, questions) values (4, 'Manual deployment using a script');
+insert into item_questions (item_id, questions) values (2, 'Regular code reviews (e.g., weekly meetings)');
+insert into item_questions (item_id, questions) values (2, 'Documented process for code reviews to be automated in workflow (e.g., via pull requests)');
+insert into item_questions (item_id, questions) values (3, 'Ad-hoc issue tracking');
+insert into item_questions (item_id, questions) values (3, 'Dedicated issue tracking system consistently being used');
+insert into item_questions (item_id, questions) values (3, 'Documented process for how issue tracking is done (e.g. Kanban board, assigned responsibilities)');
+insert into item_questions (item_id, questions) values (4, 'Manual deployment (e.g., using a script or checklist)');
 insert into item_questions (item_id, questions) values (4, 'Deployment as part of development workflow with manual intervention');
-insert into item_questions (item_id, questions) values (4, 'Continuous deployment');
+insert into item_questions (item_id, questions) values (4, 'Continuous deployment (or deployment combined with continuous integration)');
 insert into item_questions (item_id, questions) values (5, 'Ad-hoc text files');
 insert into item_questions (item_id, questions) values (5, 'Code and documentation are cross referenced and updated when committed to repository');
 insert into item_questions (item_id, questions) values (5, 'Integrated with the package release workflow');

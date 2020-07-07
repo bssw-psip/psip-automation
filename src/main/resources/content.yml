@@ -46,32 +46,32 @@ activities:
          description: Approaches for managing changes to files (source code, documentation, data) as well as maintaining their history and attribution, 
            especially across multiple contributors and branches of development (also known as version control).
          questions:
-          - Uses revision control system such as Git
-          - Uses a basic development workflow (e.g. basic Git workflow)
-          - Uses an advanced development workflow (e.g. Gitflow)
+          - Code is checked in to a revision control system, such as Git
+          - Developers make use of pull requests and multiple branches, etc.
+          - Has a documented workflow for merging code for quality assurance and releases
        - name: Code Reviews
          path: code_reviews
          description: The act of consciously and systematically convening with one''s fellow programmers to check each other''s code for mistakes, and has 
            been repeatedly shown to accelerate and streamline the process of software development like few other practices can.
          questions: 
           - Ad-hoc code reviews
-          - Regular code reviews (e.g. weekly meetings)
-          - Code reviews automated in workflow (e.g. via pull requests)
+          - Regular code reviews (e.g., weekly meetings)
+          - Documented process for code reviews to be automated in workflow (e.g., via pull requests)
        - name: Issue Tracking
          path: issue_tracking
          description: The process of capturing, reporting, tracking, and managing information about issues related to software. Issues include bugs, 
            feature requests, missing documentation, and other problems and/or requirements.
          questions:
-          - Manual issue tracking via email or other medium
-          - Dedicated issue tracking system being used
-          - Integrated issue tracking  (e.g. pull requests)
+          - Ad-hoc issue tracking
+          - Dedicated issue tracking system consistently being used
+          - Documented process for how issue tracking is done (e.g. Kanban board, assigned responsibilities)
        - name: Deployment
          path: deployment
          description: Approaches for versioning, packaging, releasing, and deploying software, documentation, or data for users to then obtain, install, and use.
          questions:
-          - Manual deployment using a script
+          - Manual deployment (e.g., using a script or checklist)
           - Deployment as part of development workflow with manual intervention
-          - Continuous deployment
+          - Continuous deployment (or deployment combined with continuous integration)
        - name: Documentation
          path: documentation
          description: Creating, maintaining, and hosting quality documentation (written text or illustration) about the use, operation, or design of software.
