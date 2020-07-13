@@ -159,7 +159,15 @@ activities:
       path: collaboration
       description: Improving ways to facilitate work across teams and to promote partnerships and community contributions via software. 
         We consider projects of all sizes, from small teams through multi-institutional aggregate teams. The rows below show how well your team is doing for each practice. 
-      items: []
+      items:
+      - name: Meeting Notes
+         path: meeting_notes
+         description: The process of documenenting and sharing team products and artifacts that communicate goals, objectives. 
+           
+         questions:
+          - Team meeting notes include actionable agendas 
+          - Team meeting notes are generated collaboratively during meetings
+          - Team meeting notes are shared in a public repo. The team recieves notifications of updates.
 
 #
 # These activities have not been defined yet
