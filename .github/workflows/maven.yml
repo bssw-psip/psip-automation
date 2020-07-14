@@ -22,6 +22,8 @@ jobs:
         java-version: 11
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - name: check
+      run: ls target
     - name: Upload jar
       uses: actions/upload-artifact@v1
       with:
