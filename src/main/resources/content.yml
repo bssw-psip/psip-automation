@@ -177,7 +177,7 @@ activities:
    path: tracking
    icon: TASKS
    description: "** COMING SOON ** The tracking section is used to translate your assessment into progress tracking cards (PTCs) so that you can keep track of improvements
-     to you project's practices."
+     to you project''''s practices."
    scores: []
    categories: []
    
