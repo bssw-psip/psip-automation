@@ -202,13 +202,13 @@
 			        </execution>
 			    </executions>
 			</plugin>
-			<!-- Run GenData to generate import.sql -->
+			<!-- Run GenData to generate import.sql. Must be done after compile phase but before package -->
             <plugin>
 			    <groupId>org.codehaus.mojo</groupId>
 			    <artifactId>exec-maven-plugin</artifactId>
 			    <executions>
 			        <execution>
-			            <phase>generate-resources</phase>
+			            <phase>prepare-package</phase>
 			            <goals>
 			                <goal>java</goal>
 			            </goals>
@@ -218,7 +218,7 @@
 			        <mainClass>io.bssw.psip.GenData</mainClass>
 			        <arguments>
 			        	<argument>--input=src/main/resources/content.yml</argument>
-			        	<argument>--output=src/main/generated-resources/import.sql</argument>
+			        	<argument>--output=${project.build.outputDirectory}/import.sql</argument>
 			        </arguments>
 			    </configuration>
 			</plugin>
