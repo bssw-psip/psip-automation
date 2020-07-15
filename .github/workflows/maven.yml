@@ -25,20 +25,3 @@ jobs:
       with:
         name: psip-jar
         path: target/psip-*.jar
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-    - name: Copy artifact
-      run: cp target/psip-*.jar target/psip-${{ github.run_number }}.jar
-    - name: Deploy to EB
-      uses: einaregilsson/beanstalk-deploy@v10
-      with:
-        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        application_name: psip
-        environment_name: Psip-env-java
-        version_label: ${{ github.run_number }}
-        region: us-east-2
-        deployment_package: target/psip-${{ github.run_number }}.jar
