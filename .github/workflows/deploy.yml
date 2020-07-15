@@ -1,0 +1,28 @@
+name: Deploy
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifact
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        name: psip-jar
+        workflow: maven.yml
+        github_token: ${{secrets.GITHUB_TOKEN}}
+    - name: Rename artifact
+      run: mv psip-*.jar psip-${{ github.event.release.tag_name }}.jar
+    - name: Deploy to EB
+      uses: einaregilsson/beanstalk-deploy@v10
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: psip
+        environment_name: Psip-env-java
+        version_label: ${{ github.event.release.tag_name }}
+        region: us-east-2
+        deployment_package: psip-${{ github.event.release.tag_name }}.jar

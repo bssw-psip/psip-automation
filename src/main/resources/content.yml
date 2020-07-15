@@ -76,9 +76,9 @@ activities:
          path: documentation
          description: Creating, maintaining, and hosting quality documentation (written text or illustration) about the use, operation, or design of software.
          questions:
-          - Ad-hoc text files
-          - Code and documentation are cross referenced and updated when committed to repository
-          - Integrated with the package release workflow
+          - Informally maintained or ad-hoc text files
+          - Code and documentation are cross-referenced and updated when committed to repository
+          - Integrated with the software release workflow
 
     - name: Better Planning
       path: planning
@@ -90,21 +90,30 @@ activities:
          description: The software development life cycle is the process of dividing software development work into distinct phases to improve design, product management, and project management.
          questions:
           - Has development process but it is based on ad-hoc rules
-          - Employs an iterative development process
-          - Uses an agile development methodology
+          - Employs a basic iterative development process
+          - Follows a responsive, flexible development methodology (e.g. Agile)
 
-       - name: Due Diligence
-         path: due_diligence
+       - name: Contribution Management
+         path: contribution_management
          description: Tracking and managing contributions to software.
          questions:
-          - Formal guidelines for accepting contributions
-          - Clearly defined standards for coding and documentation
+          - Guidelines for accepting contributions
+          - Clearly defined standards for coding and documentation, including community standards
           - Provenance and license checking for contributions
+
+       - name: Requirements Analysis
+         path: requirements_analysis
+         description: Statements about what functions a software product should perform, including any constraints under which it should operate but 
+           avoiding as much as possible implementation details.
+         questions:
+          - Development guidelines include requirements gathering
+          - Formal requirements gathering is undertaken as part of the project
+          - Formally tracked and documented through a requirements management system
 
        - name: Software Design
          path: software_design
-         description: Major considerations in designing software to meet its scientific objectives and sustainability goals. Because requirements for 
-           scientific software often change during scientific discovery, design tends to evolve over time.
+         description: Major considerations in designing software to meet its scientific objectives and sustainability goals. 
+          Software design usually follows from requirements specification, and involves problem solving and planning a software solution.
          questions:
           - Development guidelines include design in the process
           - A modeling language is employed for key aspects of the project
@@ -112,27 +121,53 @@ activities:
 
        - name: Onboarding
          path: onboarding
-         description: The process of integrating a new employee into an organization or familiarizing a new customer or client with one''s products or services.
+         description: The process of integrating a new employee into an organization or a new team member into a team.
          questions:
-          - Initial onboarding process is documented
-          - Used for supervisors for new hires
-          - Used for all personnel changes
+          - Consistent onboarding process is followed
+          - Minimally documented onboarding process
+          - Fully documented onboarding process is used for all personnel changes
 
-       - name: Requirements Analysis
-         path: requirements_analysis
-         description: Statements about what functions a software product shall perform, including any constraints under which it shall operate but 
-           avoiding as much as possible entanglements in how it shall be implemented.
+       - name: Offboarding
+         path: offboarding
+         description: The process of transferring employee knowledge to the broader team or organization.
          questions:
-          - Development guidelines include requirements gathering
-          - Formal requirements gathering is undertaken as part of the project
-          - Requirements management process is employed
+          - Consistent offboarding process is followed
+          - Minimally documented offboarding process
+          - Fully documented offboarding process is used for all personnel changes
 
     - name: Better Performance
       path: performance
       description: Improving strategies for writing scientific software that is efficient, scalable, and portable—from laptops to emerging extreme-scale 
         architectures—while preserving other code quality metrics such as correctness and usability. The rows below show how well your team is doing for each practice. 
-      items: []
-
+      items:
+      
+       - name: Performance Testing
+         path: performance_testing
+         description:
+         questions:
+          - Conducts performance tests
+          - Automated performance tests are run regularly
+          - Uses performance profiling tools to guide performance-related improvements
+       
+       - name: Performance Regression Testing
+         path: performance_regression_testing
+         description: Undertaking testing that exercise performance capabilities and plans for how to make practical use of 
+          that performance data
+         questions:
+          - A testable primary use case and set of measurements are established
+          - The performance history of the tests are tracked over time
+          - Performance tracking is run and reviewed at regular intervals on relevant platforms 
+       
+       - name: Performance Portability
+         path: performance_portability
+         description: Software exhibiting similar performance across multiple platforms, with the time to solution 
+          reflecting efficient utilization of computational resources on each platform. Resources address porting 
+          code to new architectures. 
+         questions:
+          - Utilize a standard parallel programming model (e.g. MPI)
+          - Utilize a programming model designed for portability (e.g. OpenACC, OpenMP)
+          - Re-writing the application to utilize an advanced portability library (e.g. Kokkos)
+          
     - name: Better Reliability
       path: reliability
       description: Improving methods of testing and verification to ensure that software is robust and produces reliable results, thereby 
@@ -153,21 +188,29 @@ activities:
          questions:
           - Publication of code
           - Inclusion of data when code is published
-          - Automatic provenance capture system is employed
+          - The entire provenance of the application and its execution environment is published
 
     - name: Better Collaboration
       path: collaboration
       description: Improving ways to facilitate work across teams and to promote partnerships and community contributions via software. 
         We consider projects of all sizes, from small teams through multi-institutional aggregate teams. The rows below show how well your team is doing for each practice. 
       items:
-       - name: Meeting Notes
-         path: meeting_notes
-         description: The process of documenenting and sharing team products and artifacts that communicate goals, objectives. 
-           
+       - name: Virtual Tools
+         path: virtual_tools
+         description: The process of documenting and sharing team products and artifacts with virtual tools (e.g. Jira, Google Docs) to
+           communicate goals, objectives.
          questions:
-          - Team meeting notes include actionable agendas 
-          - Team meeting notes are generated collaboratively during meetings
-          - Team meeting notes are shared in a public repo. The team recieves notifications of updates.
+          - Used occasionally
+          - Used on a regualar basis in order to improve processes
+          - Used strategically to facilitate asynchronous and synchronous communication in order to build trust through transparency
+
+       - name: Telecommuting Communication Practices
+         path: telecommuting_communication_practices
+         description: The use of video and audio conferencing technology for co-located, hybrid (co-located + remote), or distributed teams.
+         questions:
+          - Audio conferencing and/or video conferencing tools for audio only or occasional video use
+          - Use of video conferencing with defined inclusivity guidelines
+          - Team awareness of inclusive practices in the use of video conferencing combined with utlizing advanced communication features (e.g. voting, sketch pads)
 
 #
 # These activities have not been defined yet
