@@ -31,10 +31,11 @@ public class ScoreItem extends AbstractCompositeField<VerticalLayout, ScoreItem,
 		for (int i = 0; i < scores.size(); i++) {
 			Score score = scores.get(i);
 			Button button = UIUtils.createPrimaryButton(score.getName());
-			button.setWidth("140px");
+			button.setWidth("150px");
 			button.getElement().getStyle().set("background-color", score.getColor());
 			button.addClickListener(e -> setScore(Optional.of(score.getValue())));
 			Label label = UIUtils.createLabel(FontSize.M, TextColor.BODY, item.getQuestions().get(i));
+			label.setWidth("100%");
 			HorizontalLayout scoreLayout = new HorizontalLayout(button, label);
 			scoreLayout.setAlignItems(Alignment.CENTER);
 			scoreLayout.setWidthFull();
@@ -63,10 +64,12 @@ public class ScoreItem extends AbstractCompositeField<VerticalLayout, ScoreItem,
 	 */
 	private void setScore(Optional<Integer> score) {
 		resetScores();
+		Integer value = scoreLayouts.keySet().iterator().next(); // First item
 		if (score.isPresent()) { 
-			scoreLayouts.get(score.get()).getElement().getStyle().set("border", "1px solid black");
-			item.setScore(score.get());
+			value = score.get();
 		}
+		scoreLayouts.get(value).getElement().getStyle().set("border", "1px solid black");
+		item.setScore(value);
 	}
 
 
