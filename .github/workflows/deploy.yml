@@ -22,7 +22,7 @@ jobs:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         application_name: psip
-        environment_name: Psip-env-java
+        environment_name: Psip-env
         version_label: ${{ github.event.release.tag_name }}
         region: us-east-2
         deployment_package: psip-${{ github.event.release.tag_name }}.jar
