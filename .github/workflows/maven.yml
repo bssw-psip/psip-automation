@@ -6,6 +6,8 @@ name: Build & Test
 on:
   push:
     branches: [ master ]
+    paths-ignore: 
+    - '.github/workflows/*'
   pull_request:
     branches: [ master ]
 
