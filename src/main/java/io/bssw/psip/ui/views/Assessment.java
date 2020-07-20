@@ -127,6 +127,11 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	
 	private void createActivityLayout(Activity activity) {
 		mainLayout.removeAll();
+		Label label = new Label("The diagram below shows how your project is progressing in all practice areas. "
+				+ "You can come back to this page any time to see your progress. "
+				+ "Click on the button below to begin the assessment.");
+		
+		label.getElement().getStyle().set("font-style", "italic");
 		Component summary = createActivitySummary(activity);
 		Button button = new Button("Begin Assessment");
 		button.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, activity.getCategories().get(0).getPath()));
@@ -136,7 +141,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		HorizontalLayout hz = new HorizontalLayout(button);
 		hz.setJustifyContentMode(JustifyContentMode.CENTER);
 		hz.setWidthFull();
-		mainLayout.addAndExpand(hz, summary);
+		mainLayout.add(label, summary, hz);
 	}
 	
 	private Component createActivitySummary(Activity activity) {

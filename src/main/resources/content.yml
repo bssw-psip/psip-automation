@@ -22,7 +22,7 @@ activities:
    path: assessment
    icon: CLIPBOARD_CHECK 
    description: The assessment section is used to estimate the degree to which software engineering practices are currently being 
-     used by your project. This page shows your progress in each practice area.
+     used by your project.
    scores:
     - name: None
       boost: Can you do better?
