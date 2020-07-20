@@ -8,6 +8,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
@@ -67,6 +68,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		String path = item.getCategory().getActivity().getPath() + "/" + item.getCategory().getPath() + "/" + item.getPath();
 		Item prevItem =  activityService.getPrevItem(path);
 		Button button1 = UIUtils.createLargeButton(VaadinIcon.CHEVRON_CIRCLE_LEFT);
+		button1.getElement().getStyle().set("background", "#F3F5F7").set("font-size", "30px"); // FIXME: Don't hard code background
 		button1.getElement().addEventListener("click", e -> {
 			MainLayout.navigate(Assessment.class, prevItem.getCategory().getPath() + "/" + prevItem.getPath());
 		});
@@ -75,6 +77,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		}
 		Item nextItem = activityService.getNextItem(path);
 		Button button2 =  UIUtils.createLargeButton(VaadinIcon.CHEVRON_CIRCLE_RIGHT);
+		button2.getElement().getStyle().set("background", "#F3F5F7").set("font-size", "30px"); // FIXME: Don't hard code background
 		button2.getElement().addEventListener("click", e -> {
 			MainLayout.navigate(Assessment.class, nextItem.getCategory().getPath() + "/" + nextItem.getPath());
 		});
@@ -84,7 +87,15 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		HorizontalLayout hz = new HorizontalLayout(button1, button2);
 		hz.setJustifyContentMode(JustifyContentMode.CENTER);
 		hz.setWidthFull();
-		mainLayout.addAndExpand(scoreItem, hz);
+		Anchor anchor = new Anchor();
+		anchor.setText("Show me my assessment");
+		anchor.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, null) );
+		HorizontalLayout hz2 = new HorizontalLayout(anchor);
+		hz2.setJustifyContentMode(JustifyContentMode.CENTER);
+		hz2.setWidthFull();
+		VerticalLayout footer = new VerticalLayout(hz, hz2);
+		footer.setMargin(false);
+		mainLayout.addAndExpand(scoreItem, footer);
 	}
 	
 	private void createCategoryLayout(Category category) {
