@@ -25,15 +25,19 @@ activities:
      used by your project. This page shows your progress in each practice area.
    scores:
     - name: None
+      boost: Can you do better?
       value: 0
       color: "#000000"
     - name: Basic
+      boost: Good start!
       value: 33
       color: "#DC267F"
     - name: Intermediate
+      boost: Keep up the good work!
       value: 66
       color: "#FFB000"
     - name: Advanced
+      boost: Awesome!
       value: 100
       color: "#066999"
      
@@ -41,8 +45,7 @@ activities:
     - name: Better Development
       path: development
       description: Improving scientific software development—a process of writing, maintaining, and extending code—in order to 
-        increase software productivity, quality, and sustainability, as key aspects of advancing overall scientific productivity. 
-        The rows below show how well your team is doing for each practice. 
+        increase software productivity, quality, and sustainability, as key aspects of advancing overall scientific productivity.  
       items:
        - name: Revision Control
          path: revision_control
@@ -91,7 +94,7 @@ activities:
     - name: Better Planning
       path: planning
       description: Improving strategies for planning in order to increase software productivity, quality, and sustainability, while underscoring the 
-        unique characteristics of scientific software, including that requirements often change during discovery. The rows below show how well your team is doing for each practice. 
+        unique characteristics of scientific software, including that requirements often change during discovery.
       items:
        - name: Development Process
          path: development_process
@@ -152,7 +155,7 @@ activities:
     - name: Better Performance
       path: performance
       description: Improving strategies for writing scientific software that is efficient, scalable, and portable—from laptops to emerging extreme-scale 
-        architectures—while preserving other code quality metrics such as correctness and usability. The rows below show how well your team is doing for each practice. 
+        architectures—while preserving other code quality metrics such as correctness and usability.
       items:
       
        - name: Performance Testing
@@ -187,7 +190,7 @@ activities:
     - name: Better Reliability
       path: reliability
       description: Improving methods of testing and verification to ensure that software is robust and produces reliable results, thereby 
-        helping to ensure the integrity of research and enable collaboration across teams. The rows below show how well your team is doing for each practice. 
+        helping to ensure the integrity of research and enable collaboration across teams.
       items:
        - name: Testing
          path: testing
@@ -211,7 +214,7 @@ activities:
     - name: Better Collaboration
       path: collaboration
       description: Improving ways to facilitate work across teams and to promote partnerships and community contributions via software. 
-        We consider projects of all sizes, from small teams through multi-institutional aggregate teams. The rows below show how well your team is doing for each practice. 
+        We consider projects of all sizes, from small teams through multi-institutional aggregate teams.
       items:
        - name: Virtual Tools
          path: virtual_tools

@@ -19,15 +19,17 @@ import io.bssw.psip.ui.util.FontSize;
 import io.bssw.psip.ui.util.TextColor;
 import io.bssw.psip.ui.util.UIUtils;
 
+@SuppressWarnings("serial")
 @Tag("score-group")
 public class ScoreItem extends AbstractCompositeField<VerticalLayout, ScoreItem, Item> {
 	private Map<Integer, HorizontalLayout> scoreLayouts = new LinkedHashMap<>();	// Keep ordered by keys
 	private Item item;
 
-	public ScoreItem(Item item, List<Score> scores) {
+	public ScoreItem(Item item) {
 		super(null);
 		this.item = item;
 
+		List<Score> scores = item.getCategory().getActivity().getScores();
 		for (int i = 0; i < scores.size(); i++) {
 			Score score = scores.get(i);
 			Button button = UIUtils.createPrimaryButton(score.getName());

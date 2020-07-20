@@ -14,6 +14,10 @@ public class Score extends AbstractEntity {
 	
 	@NotBlank
 	@Size(max = 255)
+	private String boost;
+
+	@NotBlank
+	@Size(max = 255)
 	private String color;
 	
 	@NotBlank
@@ -28,6 +32,14 @@ public class Score extends AbstractEntity {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getBoost() {
+		return boost;
+	}
+
+	public void setBoost(String boost) {
+		this.boost = boost;
 	}
 
 	public String getColor() {

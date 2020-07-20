@@ -1,6 +1,5 @@
 package io.bssw.psip.backend.data;
 
-import java.io.Serializable;
 import java.util.Objects;
 
 import javax.persistence.GeneratedValue;
@@ -8,7 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
-public abstract class AbstractEntity implements Serializable {
+public abstract class AbstractEntity {
 
 	@Id
 	@GeneratedValue

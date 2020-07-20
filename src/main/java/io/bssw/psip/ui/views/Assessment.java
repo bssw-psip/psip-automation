@@ -1,7 +1,5 @@
 package io.bssw.psip.ui.views;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.appreciated.apexcharts.ApexCharts;
@@ -26,17 +24,17 @@ import com.vaadin.flow.router.WildcardParameter;
 import io.bssw.psip.backend.data.Activity;
 import io.bssw.psip.backend.data.Category;
 import io.bssw.psip.backend.data.Item;
-import io.bssw.psip.backend.data.Score;
 import io.bssw.psip.backend.service.ActivityService;
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.components.RadarChart;
-import io.bssw.psip.ui.components.RadialChart;
 import io.bssw.psip.ui.components.ScoreItem;
+import io.bssw.psip.ui.components.ScoreSlider;
 import io.bssw.psip.ui.layout.size.Horizontal;
 import io.bssw.psip.ui.layout.size.Uniform;
 import io.bssw.psip.ui.util.UIUtils;
 
+@SuppressWarnings("serial")
 @PageTitle("Assessment")
 @Route(value = "assessment", layout = MainLayout.class)
 public class Assessment extends ViewFrame implements HasUrlParameter<String> {
@@ -51,10 +49,10 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 
 	private Component createContent() {
 		description = new Label();
-		description.setHeight("100px");
 		mainLayout = new VerticalLayout();
+		mainLayout.setMargin(false);
 		mainLayout.setHeightFull();
-		FlexBoxLayout content = new FlexBoxLayout(description, mainLayout);
+		FlexBoxLayout content = new FlexBoxLayout(new VerticalLayout(description), mainLayout);
 		content.setFlexDirection(FlexDirection.COLUMN);
 		content.setMargin(Horizontal.AUTO);
 		content.setMaxWidth("840px");
@@ -65,8 +63,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	
 	private void createItemLayout(Item item) {
 		mainLayout.removeAll();
-		List<Score> scores = item.getCategory().getActivity().getScores();
-		ScoreItem scoreItem = new ScoreItem(item, scores);
+		ScoreItem scoreItem = new ScoreItem(item);
 		String path = item.getCategory().getActivity().getPath() + "/" + item.getCategory().getPath() + "/" + item.getPath();
 		Item prevItem =  activityService.getPrevItem(path);
 		Button button1 = UIUtils.createLargeButton(VaadinIcon.CHEVRON_CIRCLE_LEFT);
@@ -94,25 +91,17 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		mainLayout.removeAll();
 		FormLayout form = new FormLayout();
 		for (Item item : category.getItems()) {
-			Component component;
-			if (!item.getScore().isPresent()) {
-				Label label = new Label("Not Started");
-				component = label;
-			} else {
-				RadialChart chartBuilder = new RadialChart(itemScoreToColor(item));
-				ApexCharts chart = chartBuilder.build();
-				chart.setHeight("120px");
-				chart.setWidth("120px");
-				chart.getStyle().set("vertical-align", "middle");
-				chart.getStyle().set("display", "inline-flex");
-				chart.updateSeries(itemScoreToPercent(item));
-				component = chart;
-			}
-			FormItem formItem = form.addFormItem(component, item.getName());
+			ScoreSlider slider = new ScoreSlider(item);
+			FormItem formItem = form.addFormItem(slider, item.getName());
 			formItem.getElement().getStyle().set("--vaadin-form-item-label-width", "15em"); // Set width of label otherwise it will wrap
 			formItem.getElement().getStyle().set("align-self", "flex-start");
 			form.setColspan(formItem, 2); // FormLayout defaults to 2 columns so span both
 		}
+		
+		Label label = new Label("The rows below show how well your team is doing for each practice. Click on the button below to assess "
+				+ "individual practices, or you can update them directly on this page.");
+		label.getElement().getStyle().set("font-style", "italic");
+		
 		Button button = new Button("Assess Practices");
 		button.getElement().addEventListener("click", e -> {
 			MainLayout.navigate(Assessment.class, category.getPath() + "/" + category.getItems().get(0).getPath());
@@ -122,22 +111,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		HorizontalLayout hz = new HorizontalLayout(button);
 		hz.setJustifyContentMode(JustifyContentMode.CENTER);
 		hz.setWidthFull();
-		mainLayout.addAndExpand(hz, form);
-	}
-	
-	private Double itemScoreToPercent(Item item) {
-		return item.getScore().isPresent() ? item.getScore().get() : 0.0;
-	}
-	
-	private String itemScoreToColor(Item item) {
-		if (item.getScore().isPresent()) {
-			for (Score score : item.getCategory().getActivity().getScores()) {
-				if (score.getValue() == item.getScore().get()) {
-					return score.getColor();
-				}
-			}
-		}
-		return "";
+		mainLayout.add(label, form, hz);
 	}
 	
 	private void createActivityLayout(Activity activity) {
