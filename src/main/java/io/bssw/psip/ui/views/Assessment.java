@@ -1,11 +1,21 @@
 package io.bssw.psip.ui.views;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.olli.ClipboardHelper;
 
 import com.github.appreciated.apexcharts.ApexCharts;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.html.Anchor;
@@ -14,16 +24,23 @@ import com.vaadin.flow.component.html.Emphasis;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.WildcardParameter;
+import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServletRequest;
 
 import io.bssw.psip.backend.data.Activity;
 import io.bssw.psip.backend.data.Category;
@@ -130,17 +147,121 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 
 		Div div = new Div();
 		div.add(new Paragraph(new Emphasis("The diagram below shows how your project is progressing in all practice areas. "
-				+ "You can come back to this page any time to see your progress. "
-				+ "When you have completed your assessment be sure to print this page out for your records! "), 
+				+ "You can come back to this page any time during the assessment to see your progress. "),
 				new Html("<em><strong>We do not save your data in any way</strong>.</em>")));
 		
 		Anchor anchor = new Anchor();
 		anchor.setText("Click here to start assessing your practices.");
 		anchor.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, activity.getCategories().get(0).getPath()));
 
+		Anchor saveAnchor = new Anchor();
+		saveAnchor.setText("Click here to save your assessment.");
+		saveAnchor.getElement().addEventListener("click", e -> {
+		    String url = generateSaveUrl(activity);
+		    displaySaveDialog(url);
+		});
+
 		Component summary = createActivitySummary(activity);
 		
-		mainLayout.add(div, anchor, summary);
+		mainLayout.add(div, anchor, saveAnchor, summary);
+	}
+	
+	/**
+	 * Generate a url that can be used to resume assessment
+	 * @param activity
+	 * @return url
+	 */
+	private String generateSaveUrl(Activity activity) {
+		StringBuilder query = new StringBuilder();
+		Iterator<Category> categoryIter = activity.getCategories().iterator();
+		while (categoryIter.hasNext()) {
+			Category category = categoryIter.next();
+			query.append(category.getPath() + "=");
+			StringBuilder nested = new StringBuilder();
+			Iterator<Item> itemIter = category.getItems().iterator();
+			while (itemIter.hasNext()) {
+				Item item = itemIter.next();
+				nested.append(item.getPath() + "=" + item.getScore().orElse(0));
+				if (itemIter.hasNext()) {
+					nested.append("&");
+				}
+			}
+			try {
+				query.append(URLEncoder.encode(nested.toString(), StandardCharsets.UTF_8.toString()));
+			} catch (UnsupportedEncodingException e1) {
+			}
+			if (categoryIter.hasNext()) {
+				query.append("&");
+			}
+		}
+		return getLocation() + RouteConfiguration.forSessionScope().getUrl(Assessment.class, "?" + query.toString());
+	}
+	
+	/**
+	 * Restore the state from the given query string
+	 * 
+	 * @param activity
+	 * @param query query from URL
+	 */
+	private void restoreSaveUrl(Activity activity, Map<String, List<String>> parameters) {
+		for (String categoryPath : parameters.keySet()) {
+			List<String> values = parameters.get(categoryPath);
+			if (!values.isEmpty()) {
+				// Only use the first value
+				try {
+					String subQuery = URLDecoder.decode(values.get(0), StandardCharsets.UTF_8.toString());
+					for (String itemScore : subQuery.split("&")) {
+						String[] kv = itemScore.split("=");
+						if (kv.length == 2) {
+							Item item = activityService.getItem("assessment/" + categoryPath + "/" + kv[0]);
+							if (item != null) {
+								try {
+									item.setScore(Integer.parseInt(kv[1]));
+								} catch (NumberFormatException e) {
+									// Skip it
+								}
+							}
+						}
+					}
+				} catch (UnsupportedEncodingException e) {
+					// Skip it
+				}
+			}
+		}
+	}
+	
+	private void displaySaveDialog(String url) {
+	    Dialog dialog = new Dialog();
+	    dialog.setCloseOnOutsideClick(false);
+	    dialog.setWidth("500px");
+	    Label header = new Label("Copy this URL and paste into your browser to resume your assessment.");
+	    TextField field = new TextField();
+	    field.setValue(url);
+	    Button copyButton = new Button(VaadinIcon.COPY.create());
+	    ClipboardHelper helper = new ClipboardHelper(url, copyButton);
+	    HorizontalLayout fieldLayout = new HorizontalLayout(field, helper);
+	    fieldLayout.setMargin(false);
+	    fieldLayout.setWidthFull();
+	    fieldLayout.setFlexGrow(1, field);
+	    Anchor closeButton = new Anchor();
+	    closeButton.setText("Close");
+	    closeButton.getElement().addEventListener("click", event -> {
+	        dialog.close();
+	    });
+	    VerticalLayout dialogLayout = new VerticalLayout(header, fieldLayout, closeButton);
+	    dialogLayout.setHorizontalComponentAlignment(Alignment.START, header, field);
+	    dialogLayout.setHorizontalComponentAlignment(Alignment.CENTER, closeButton);
+	    dialog.add(dialogLayout);
+	    dialog.open();
+	}
+	
+	/**
+	 * Get the location in the browser. NOTE this only works from the UI thread!
+	 * @return location
+	 */
+	private static String getLocation(){
+	    VaadinServletRequest request = (VaadinServletRequest) VaadinService.getCurrentRequest();
+	    return request.getRequestURL().toString();
 	}
 	
 	private Component createActivitySummary(Activity activity) {
@@ -178,6 +299,15 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		if (parameter.isEmpty()) {
 			Activity activity = activityService.getActivity("Assessment");
 			desc = activity.getDescription();
+			
+			// Get query parameters and restore state if there are any
+			Location location = event.getLocation();
+		    QueryParameters queryParameters = location.getQueryParameters();
+		    Map<String, List<String>> parametersMap = queryParameters.getParameters();
+			if (!parametersMap.isEmpty()) {
+				restoreSaveUrl(activity, parametersMap);
+			}
+
 			createActivityLayout(activity);
 		} else if (parameter.contains("/")) {
 			// Item
