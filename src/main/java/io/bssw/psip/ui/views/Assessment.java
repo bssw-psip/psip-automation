@@ -4,12 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.appreciated.apexcharts.ApexCharts;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Emphasis;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -113,40 +114,33 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 			form.setColspan(formItem, 2); // FormLayout defaults to 2 columns so span both
 		}
 		
-		Label label = new Label("The rows below show how well your team is doing for each practice. Click on the 'Assess Practices' button below to start "
-				+ "assing your project practices. As your practices improve, you can always return to this page to update them directly.");
-		label.getElement().getStyle().set("font-style", "italic");
-		
-		Button button = new Button("Assess Practices");
-		button.getElement().addEventListener("click", e -> {
-			MainLayout.navigate(Assessment.class, category.getPath() + "/" + category.getItems().get(0).getPath());
-		});
-		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		button.setWidth("200px");
-		button.setHeight("50px");
-		HorizontalLayout hz = new HorizontalLayout(button);
-		hz.setJustifyContentMode(JustifyContentMode.CENTER);
-		hz.setWidthFull();
-		mainLayout.add(label, form, hz);
+		Div div = new Div();
+		div.add(new Paragraph(new Emphasis("The rows below show how well your team is doing for each practice. "
+				+ "As your practices improve, you can always return to this page to update them directly.")));
+
+		Anchor anchor = new Anchor();
+		anchor.setText("Click here to assess your individual practices.");
+		anchor.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, category.getPath() + "/" + category.getItems().get(0).getPath()));
+
+		mainLayout.add(div, anchor, form);
 	}
 	
 	private void createActivityLayout(Activity activity) {
 		mainLayout.removeAll();
-		Label label = new Label("The diagram below shows how your project is progressing in all practice areas. "
+
+		Div div = new Div();
+		div.add(new Paragraph(new Emphasis("The diagram below shows how your project is progressing in all practice areas. "
 				+ "You can come back to this page any time to see your progress. "
-				+ "Click on the 'Begin Assessment' button below to start assessing your practices.");
+				+ "When you have completed your assessment be sure to print this page out for your records! "), 
+				new Html("<em><strong>We do not save your data in any way</strong>.</em>")));
 		
-		label.getElement().getStyle().set("font-style", "italic");
+		Anchor anchor = new Anchor();
+		anchor.setText("Click here to start assessing your practices.");
+		anchor.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, activity.getCategories().get(0).getPath()));
+
 		Component summary = createActivitySummary(activity);
-		Button button = new Button("Begin Assessment");
-		button.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, activity.getCategories().get(0).getPath()));
-		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		button.setWidth("200px");
-		button.setHeight("50px");
-		HorizontalLayout hz = new HorizontalLayout(button);
-		hz.setJustifyContentMode(JustifyContentMode.CENTER);
-		hz.setWidthFull();
-		mainLayout.add(label, summary, hz);
+		
+		mainLayout.add(div, anchor, summary);
 	}
 	
 	private Component createActivitySummary(Activity activity) {
