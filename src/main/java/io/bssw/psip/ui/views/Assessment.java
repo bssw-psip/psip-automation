@@ -9,7 +9,9 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
@@ -101,22 +103,25 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	private void createCategoryLayout(Category category) {
 		mainLayout.removeAll();
 		FormLayout form = new FormLayout();
+		form.getElement().getStyle().set("padding", "30px");
 		for (Item item : category.getItems()) {
 			ScoreSlider slider = new ScoreSlider(item);
 			FormItem formItem = form.addFormItem(slider, item.getName());
 			formItem.getElement().getStyle().set("--vaadin-form-item-label-width", "15em"); // Set width of label otherwise it will wrap
 			formItem.getElement().getStyle().set("align-self", "flex-start");
+			formItem.getElement().getStyle().set("padding", "5px");
 			form.setColspan(formItem, 2); // FormLayout defaults to 2 columns so span both
 		}
 		
-		Label label = new Label("The rows below show how well your team is doing for each practice. Click on the button below to assess "
-				+ "individual practices, or you can update them directly on this page.");
+		Label label = new Label("The rows below show how well your team is doing for each practice. Click on the 'Assess Practices' button below to start "
+				+ "assing your project practices. As your practices improve, you can always return to this page to update them directly.");
 		label.getElement().getStyle().set("font-style", "italic");
 		
 		Button button = new Button("Assess Practices");
 		button.getElement().addEventListener("click", e -> {
 			MainLayout.navigate(Assessment.class, category.getPath() + "/" + category.getItems().get(0).getPath());
 		});
+		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		button.setWidth("200px");
 		button.setHeight("50px");
 		HorizontalLayout hz = new HorizontalLayout(button);
@@ -129,7 +134,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		mainLayout.removeAll();
 		Label label = new Label("The diagram below shows how your project is progressing in all practice areas. "
 				+ "You can come back to this page any time to see your progress. "
-				+ "Click on the button below to begin the assessment.");
+				+ "Click on the 'Begin Assessment' button below to start assessing your practices.");
 		
 		label.getElement().getStyle().set("font-style", "italic");
 		Component summary = createActivitySummary(activity);

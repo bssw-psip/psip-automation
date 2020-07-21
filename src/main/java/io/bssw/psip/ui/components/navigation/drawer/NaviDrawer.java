@@ -54,7 +54,7 @@ public class NaviDrawer extends Div
 		initMainContent();
 
 		initHeader();
-		initSearch();
+//		initSearch();
 
 		initMenu();
 
@@ -76,7 +76,7 @@ public class NaviDrawer extends Div
 	}
 
 	private void initHeader() {
-		mainContent.add(new BrandExpression("PSIP"));
+		mainContent.add(new BrandExpression("psip"));
 	}
 
 	private void initSearch() {
