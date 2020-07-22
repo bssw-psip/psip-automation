@@ -1,3 +1,33 @@
+/******************************************************************************
+*
+* Copyright 2020-, UT-Battelle, LLC. All rights reserved.
+* 
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*
+*  o Redistributions of source code must retain the above copyright notice, this
+*    list of conditions and the following disclaimer.
+*    
+*  o Redistributions in binary form must reproduce the above copyright notice,
+*    this list of conditions and the following disclaimer in the documentation
+*    and/or other materials provided with the distribution.
+*    
+*  o Neither the name of the copyright holder nor the names of its
+*    contributors may be used to endorse or promote products derived from
+*    this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+*******************************************************************************/
 package io.bssw.psip.backend.data;
 
 import java.util.List;
@@ -31,15 +61,6 @@ public class Item extends AbstractEntity {
 	@ElementCollection(fetch = FetchType.EAGER)
 	private List<String> questions;
 
-	@Column(columnDefinition = "TEXT") // Variable length string
-	private String basicDescription;
-
-	@Column(columnDefinition = "TEXT") // Variable length string
-	private String intermediateDescription;
-
-	@Column(columnDefinition = "TEXT") // Variable length string
-	private String advancedDescription;
-	
 	private Integer score; // score value
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -83,30 +104,6 @@ public class Item extends AbstractEntity {
 
 	public void setQuestions(List<String> questions) {
 		this.questions = questions;
-	}
-
-	public String getBasicDescription() {
-		return basicDescription;
-	}
-
-	public void setBasicDescription(String basicDescription) {
-		this.basicDescription = basicDescription;
-	}
-
-	public String getIntermediateDescription() {
-		return intermediateDescription;
-	}
-
-	public void setIntermediateDescription(String intermediateDescription) {
-		this.intermediateDescription = intermediateDescription;
-	}
-
-	public String getAdvancedDescription() {
-		return advancedDescription;
-	}
-
-	public void setAdvancedDescription(String advancedDescription) {
-		this.advancedDescription = advancedDescription;
 	}
 
 	public Optional<Integer> getScore() {
