@@ -43,7 +43,6 @@ import org.vaadin.olli.ClipboardHelper;
 
 import com.github.appreciated.apexcharts.ApexCharts;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -83,6 +82,7 @@ import io.bssw.psip.ui.components.ScoreItem;
 import io.bssw.psip.ui.components.ScoreSlider;
 import io.bssw.psip.ui.layout.size.Horizontal;
 import io.bssw.psip.ui.layout.size.Uniform;
+import io.bssw.psip.ui.util.Strong;
 import io.bssw.psip.ui.util.UIUtils;
 
 @SuppressWarnings("serial")
@@ -175,25 +175,29 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	private void createActivityLayout(Activity activity) {
 		mainLayout.removeAll();
 
-		Div div = new Div();
-		div.add(new Paragraph(new Emphasis("The diagram below shows how your project is progressing in all practice areas. "
-				+ "You can come back to this page any time during the assessment to see your progress. "),
-				new Html("<em><strong>We do not save your data in any way</strong>.</em>")));
-		
-		Anchor anchor = new Anchor();
-		anchor.setText("Click here to start assessing your practices.");
-		anchor.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, activity.getCategories().get(0).getPath()));
-
 		Anchor saveAnchor = new Anchor();
-		saveAnchor.setText("Click here to save your assessment.");
+		saveAnchor.setText("save your current assessment.");
 		saveAnchor.getElement().addEventListener("click", e -> {
 		    String url = generateSaveUrl(activity);
 		    displaySaveDialog(url);
 		});
 
+		Div div = new Div();
+		div.add(new Paragraph(new Emphasis("The diagram below shows how your project is progressing in all practice areas. "
+				+ "You can come back to this page any time during the assessment to see your progress. ")));
+		
+		div.add(new Paragraph(new Emphasis(new Strong("We do not save your data in any way. If you refresh or close your browser, "
+				+ "your assessment will be lost. We suggest you regularly use this link to "),
+				saveAnchor)));
+		
+		Anchor startAnchor = new Anchor();
+		startAnchor.setText("Click here to start assessing your practices.");
+		startAnchor.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, activity.getCategories().get(0).getPath()));
+
 		Component summary = createActivitySummary(activity);
 		
-		mainLayout.add(div, anchor, saveAnchor, summary);
+		mainLayout.add(div, startAnchor, summary);
+		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startAnchor);
 	}
 	
 	/**
