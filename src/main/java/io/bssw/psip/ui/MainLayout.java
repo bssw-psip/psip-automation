@@ -325,7 +325,7 @@ public class MainLayout extends FlexBoxLayout
 		String url = RouteConfiguration.forSessionScope().getUrl(navigationTarget, parameter);
 		if (naviItems.containsKey(url)) {
 			NaviItem item = naviItems.get(url);
-			item.setVisible(true);
+			UI.getCurrent().access(() -> item.setVisible(true));
 		}
 	}
 
