@@ -189,7 +189,7 @@ public class MainLayout extends FlexBoxLayout
 						NaviItem catNav = menu.addNaviItem(actNav, category.getName(), (Class<? extends C>)route, category.getPath());
 						String catPath = activity.getPath() + "/" + category.getPath();
 						activityService.setCategory(catPath, category);
-						naviItems.put(catPath,  actNav);
+						naviItems.put(catPath,  catNav);
 						ListIterator<Item> itemIter = category.getItems().listIterator();
 						while(itemIter.hasNext()) {
 							Item item = itemIter.next();
