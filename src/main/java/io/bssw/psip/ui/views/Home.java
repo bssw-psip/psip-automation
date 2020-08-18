@@ -34,6 +34,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Emphasis;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.UnorderedList;
@@ -62,6 +64,8 @@ public class Home extends ViewFrame {
 
 	private Component createContent() {
 		Div intro = new Div();
+		intro.add(new Image(UIUtils.IMG_PATH + "logos/ryp_logo.png", "Rate Your Project"));
+		intro.add(new H2("A self assessment tool for improving software practices"));
 		intro.add(new Paragraph("Software engineering is a systematic approach to the design, development, and maintenance of a software system. "
 				+ "Teams seldom have the time to stop development and focus solely on improving productivity or sustainability. However, "
 				+ "teams can incorporate improvements on the way to developing new science capabilities."));
