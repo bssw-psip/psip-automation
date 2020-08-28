@@ -26,3 +26,4 @@ jobs:
         version_label: ${{ github.event.release.tag_name }}
         region: us-east-2
         deployment_package: psip-${{ github.event.release.tag_name }}.jar
+        wait_for_environment_recovery: 60
