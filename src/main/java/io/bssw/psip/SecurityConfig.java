@@ -83,6 +83,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 								+ "font-src 'self' data: https://fonts.gstatic.com/;"
 				)
 				.and()
+				.httpStrictTransportSecurity()
+				.and()
 				.referrerPolicy((Arrays.asList(env.getActiveProfiles()).contains("prod")) ? ReferrerPolicy.STRICT_ORIGIN
 						: ReferrerPolicy.NO_REFERRER)
 				.and()
