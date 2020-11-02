@@ -28,14 +28,10 @@ Implemented By Task(s):
 - Task: *\<task url or ID\>*
 
 
-Other:
------------
-Legacy ID: 
-
 <!--
-	- ID: Issues ID assigned by GitLab
-	- Owner (Author): Use the GitLab Assignee
+	- ID: Issues ID assigned by Github
+	- Owner (Author): Use the Assignee
 		- Note: There should be only 1 owner of a story
-	- Complexity: Use the GitLab Issue Weight
+	- Complexity: Use the Github Issue Weight
 		- Filled in by development team
 -->
