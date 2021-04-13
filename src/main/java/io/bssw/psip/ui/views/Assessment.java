@@ -30,10 +30,6 @@
 *******************************************************************************/
 package io.bssw.psip.ui.views;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -215,15 +211,12 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 			Iterator<Item> itemIter = category.getItems().iterator();
 			while (itemIter.hasNext()) {
 				Item item = itemIter.next();
-				nested.append(item.getPath() + "=" + item.getScore().orElse(0));
+				nested.append(item.getPath() + ":" + item.getScore().orElse(0));
 				if (itemIter.hasNext()) {
-					nested.append("&");
+					nested.append("+");
 				}
 			}
-			try {
-				query.append(URLEncoder.encode(nested.toString(), StandardCharsets.UTF_8.toString()));
-			} catch (UnsupportedEncodingException e1) {
-			}
+			query.append(nested.toString());
 			if (categoryIter.hasNext()) {
 				query.append("&");
 			}
@@ -242,23 +235,18 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 			List<String> values = parameters.get(categoryPath);
 			if (!values.isEmpty()) {
 				// Only use the first value
-				try {
-					String subQuery = URLDecoder.decode(values.get(0), StandardCharsets.UTF_8.toString());
-					for (String itemScore : subQuery.split("&")) {
-						String[] kv = itemScore.split("=");
-						if (kv.length == 2) {
-							Item item = activityService.getItem("assessment/" + categoryPath + "/" + kv[0]);
-							if (item != null) {
-								try {
-									item.setScore(Integer.parseInt(kv[1]));
-								} catch (NumberFormatException e) {
-									// Skip it
-								}
+				for (String itemScore : values.get(0).split("\\+")) {
+					String[] kv = itemScore.split(":");
+					if (kv.length == 2) {
+						Item item = activityService.getItem("assessment/" + categoryPath + "/" + kv[0]);
+						if (item != null) {
+							try {
+								item.setScore(Integer.parseInt(kv[1]));
+							} catch (NumberFormatException e) {
+								// Skip it
 							}
 						}
 					}
-				} catch (UnsupportedEncodingException e) {
-					// Skip it
 				}
 			}
 		}
