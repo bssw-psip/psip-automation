@@ -1,0 +1,97 @@
+version: '3'
+
+x-aws-loadbalancer: arn:aws:elasticloadbalancing:us-east-2:513084038389:loadbalancer/app/ryp-lb/38d45b8499474267
+
+services:
+    ryp-legacy:
+      image: jarrah/ryp:legacy
+      build: 
+        context: ./legacy/
+      networks:
+        - ryp-net
+    ryp-api:
+      image: jarrah/ryp:api
+      build: 
+        context: ./api/
+      volumes:
+        - ryp-data:/opt/data
+      networks:
+        - ryp-net
+      depends_on: 
+        - ryp-neo4j
+    ryp-create:
+      image: jarrah/ryp:create
+      build: 
+        context: ./create/
+        args:
+          - BASE_HREF=${BASE_HREF:-/ryp}/create/
+      networks:
+        - ryp-net
+      depends_on: 
+        - ryp-api
+    ryp-chat:
+      image: jarrah/ryp:chat
+      build: 
+        context: ./chat/
+        args:
+          - BASE_HREF=${BASE_HREF:-/ryp}/chat/
+      networks:
+        - ryp-net
+      depends_on: 
+        - ryp-api
+    ryp-inspect:
+      image: jarrah/ryp:inspect
+      build: 
+        context: ./inspect/
+        args:
+          - BASE_HREF=${BASE_HREF:-/ryp}/inspect/
+      networks:
+        - ryp-net
+      depends_on: 
+        - ryp-api
+    ryp-neo4j: 
+      image: neo4j:3.5
+      # Remove comments to reach Neo4j GUI from localhost
+      ports:
+      # HOST_PORT:CONTAINER_PORT
+        - "127.0.0.1:7474:7474"
+        - "127.0.0.1:7687:7687"
+      volumes:
+        - ryp-db:/data
+      networks:
+        - ryp-net      
+      environment:
+        NEO4J_AUTH: "neo4j/coney"
+#    coney-demo:
+#     image: alpine:3
+#     # Executes a query to initialize the survey coney-demo when Neo4j is running, then stop.
+#     command: sh -c "chmod +x /home/query.sh && /home/query.sh"
+##    restart: on-failure
+#     volumes: 
+#       - coney-home:/home
+#     networks:
+#      - coney-net
+#     depends_on: 
+#       - coney-neo4j
+    ryp-reverse:
+      image: jarrah/ryp:reverse
+      build:
+        context: ./reverse/
+      # Unique access point to all components
+      ports:
+        - 80:80
+      networks:
+        - ryp-net
+      depends_on: 
+        - ryp-api
+        - ryp-inspect
+        - ryp-create
+        - ryp-chat
+        - ryp-legacy
+networks:
+  ryp-net:
+    driver: bridge
+
+volumes:
+  ryp-data:
+  ryp-db:
