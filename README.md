@@ -67,7 +67,7 @@ need to be dockerized for this to work in the future.
 ### LoadBalancer
 
 An Application LoadBalancer is required to redirect HTTP traffic to HTTPS, however `compose` requires a Network LoadBalancer if you try to expose any ports
-other than 80 or 443, for example the neo4j ports. However I haven't been able to work out how to use a Network LoadBalancer to do the HTTP redirection, so if
+other than 80 or 443, for example the neo4j ports. I haven't been able to work out how to use a Network LoadBalancer to do the HTTP redirection, so if
 anyone knows please let me know!
 
 ### Reverse Proxy
