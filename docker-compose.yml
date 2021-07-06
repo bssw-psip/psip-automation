@@ -1,7 +1,9 @@
 version: '3'
 
-# requires a network loadbancer to expose neo4j ports
-x-aws-loadbalancer: "arn:aws:elasticloadbalancing:us-east-2:513084038389:loadbalancer/net/ryp-lb2/6f8257976df59550"
+# requires a network load balancer to expose neo4j ports
+# use application load balancer for now to support HTTP->HTTPS redirection
+# we'll need to figure out how to expose neo4j ports later
+x-aws-loadbalancer: "arn:aws:elasticloadbalancing:us-east-2:513084038389:loadbalancer/app/ryp-lb/38d45b8499474267"
 
 services:
     ryp-legacy:
@@ -53,10 +55,11 @@ services:
     ryp-neo4j: 
       image: neo4j:3.5
       # Remove comments to reach Neo4j GUI from localhost
-      ports:
+      # Requires network load balancer!
+      #ports:
       # HOST_PORT:CONTAINER_PORT
-        - "127.0.0.1:7474:7474"
-        - "127.0.0.1:7687:7687"
+        #- "127.0.0.1:7474:7474"
+        #- "127.0.0.1:7687:7687"
       volumes:
         - ryp-db:/data
       networks:
@@ -101,7 +104,7 @@ x-aws-cloudformation:
             StatusCode: HTTP_301
     RypreverseTCP443Listener:
       Properties:
-        Protocol: "HTTPS"
+        Protocol: HTTPS
         Certificates:
           - arn:aws:acm:us-east-2:513084038389:certificate/eac2dd0d-8356-425b-9769-674f8d6d4e95
         DefaultActions:
@@ -151,7 +154,7 @@ x-aws-cloudformation:
                     Ref: RypreverseTCP80TargetGroup
     RypreverseService:
       Properties:
-        # Eliminate the reference to RypreverseTCP80TargetGroup
+        # Eliminate the reference to RypreverseTCP443TargetGroup
         LoadBalancers:
         - ContainerName: ryp-reverse
           ContainerPort: 80
