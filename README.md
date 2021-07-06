@@ -19,11 +19,11 @@ RYP is currently structured into seven services as follows:
 - ryp-reverse: a reverse proxy to route URL paths to the different applications
 - ryp-neo4j: A [neo4j](https://neo4j.com) graph database used to store surveys and responses
 
-## Deployment
+## Deploying RYP
 
 RYP is deployed on AWS ECS using Docker compose. A good reference for this can be found [here](https://docs.docker.com/cloud/ecs-integration/). 
 The main deployment script is `docker-compose.yml` which contains the definitions of the services. Currently, 
-images are pulled from docker.io using the tag `jarrah/ryp:<service>`. There are two EFS volumes that have been created, `ryp-data` which is used to persist 
+images are pulled from Docker Hub using the tag `jarrah/ryp:<service>`. There are two EFS volumes that have been created, `ryp-data` which is used to persist 
 the Rete definitions of surveys, and  `ryp-db` which is used to persist the neo4j database.
 
 Deployment requires a recent enough version of Docker that supports the `docker compose` command (not `docker-compose`.)
@@ -51,20 +51,26 @@ to handle HTTP->HTTPS redirection which has been added to the end of the `docker
 [here](https://techsparx.com/software-development/docker/docker-ecs/load-balancer/https.html). Not that this also requires an application loadbalancer to 
 be created manually also and a reference added to `docker-compose.yml`.
 
-## EFS Volumes
+### EFS Volumes
 
 Docker compose with AWS does not allow the use of bind mounts, so everything needs to be set up using EFS volumes. I was unable to get existing, manually
 created, volumes to mount however (see https://github.com/docker/compose-cli/issues/1739), so had to allow `compose` to create the initial volumes. 
 There are a variety of ways to mount the
 volumes to initialize them, but I found the easiest was to spin up an EC2 instance with the volumes mounted, then scp the files over.
 
-## LoadBalancer
+### Initialization
+
+A new deployment will have an empty database and no surveys. The `query.sh` script is used initialize the database with surveys using Rete definitions that have
+been saved manually. This will currently only work if the neo4j port (7474) is exposed which is currently not the case for deployment to ECS. This script will 
+need to be dockerized for this to work in the future.
+
+### LoadBalancer
 
 An Application LoadBalancer is required to redirect HTTP traffic to HTTPS, however `compose` requires a Network LoadBalancer if you try to expose any ports
 other than 80 or 443, for example the neo4j ports. However I haven't been able to work out how to use a Network LoadBalancer to do the HTTP redirection, so if
 anyone knows please let me know!
 
-## Reverse Proxy
+### Reverse Proxy
 
 We provide a reverse proxy to perform path routing using [NGINX](https://www.nginx.com). It's probably possible to do this with a LoadBalancer, but I think it's 
 better to have a more generic solution. Currently the routing is as follows:
@@ -75,7 +81,15 @@ better to have a more generic solution. Currently the routing is as follows:
 - rateyourproject.org/ryp/inspect -> ryp-inspect
 - rateyourproject.org/ryp/create -> ryp-create
 
-## Domain Name
+### Domain Name
 
 The rateyourproject.org domain name is registered with [domain.com](https://domain.com) and is reserved for this project. For more information please contact the
 author. Nameservers for the domain name are provided using AWS Route 53.
+
+## Building RYP
+
+The `control.sh` script is used to build the services (and to a lesser extent deploy them, but this hasn't been thoroughly tested yet).  It is possible to build
+the entire project using `sh control.sh build` or individual services using `sh control.sh build <service>` where `<service>` is one of `inspect`, `chat`, `create`, `api`, `legacy`, or `reverse`.
+
+Once the build is complete, it will be pushed to `hub.docker.com` where it can be fetched for deployment as described above.
+
