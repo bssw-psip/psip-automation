@@ -61,7 +61,7 @@ volumes to initialize them, but I found the easiest was to spin up an EC2 instan
 ### Initialization
 
 A new deployment will have an empty database and no surveys. The `query.sh` script is used initialize the database with surveys using Rete definitions that have
-been saved manually. This will currently only work if the neo4j port (7474) is exposed which is currently not the case for deployment to ECS. This script will 
+been saved manually. This will only work if the neo4j port (7474) is exposed which is currently not the case for deployment to ECS. This script will 
 need to be dockerized for this to work in the future.
 
 ### LoadBalancer
