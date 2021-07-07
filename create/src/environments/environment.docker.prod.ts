@@ -1,6 +1,6 @@
 export const environment = {
     production: true,
-    baseUrl: '', // let Host header supply it
+    baseUrl: 'https://rateyourproject.org/ryp',
     privacyUrl: 'https://www.cefriel.com/en/privacy',
     enterprise: false
 };

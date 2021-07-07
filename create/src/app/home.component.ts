@@ -880,8 +880,7 @@ export class HomeComponent implements OnInit {
 
   generateGenericLink(prev){
    
-    var chatUrl = window.location.protocol + '//' + window.location.host + "/chat/?data=";
-    //var chatUrl = environment.baseUrl + "/chat/?data=";
+    var chatUrl = environment.baseUrl + "/chat/?data=";
   
     var str = "";
      if(prev != undefined && prev != null && prev == "preview" ){
@@ -908,7 +907,7 @@ export class HomeComponent implements OnInit {
       this.operationFeedbackMessage("warning", "Publish the conversation first");
       return;
     }
-    var url = environment.baseUrl + "/coney/inspect?data="+this.currentConversationId;
+    var url = environment.baseUrl + "/inspect?data="+this.currentConversationId;
     sessionStorage.setItem('conv', this.currentConversationId);
     window.location.href = url;
   }
@@ -1009,7 +1008,7 @@ export class HomeComponent implements OnInit {
       this.searchButtonPressed();
       return;
     }
-    var url = environment.baseUrl + "/coney/home";
+    var url = environment.baseUrl;
     window.location.href = url;
   }
 
