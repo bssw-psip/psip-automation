@@ -6,9 +6,15 @@ The PSIP Automation Site provides a way for teams to self assess their projects,
 
 ## Running the Project in Development Mode
 
-`mvn spring-boot:run`
+```
+mvn clean install
+mvn spring-boot:run
+```
+
+Note that the "install" target is required when building for the first
+time in order to generate the required import file.
 
 Wait for the application to start
 
-Open http://localhost:8080/ to view the application.
+Open http://localhost:5000/ to view the application.
 
