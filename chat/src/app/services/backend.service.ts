@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment'
 @Injectable()
 export class ChatBackendService {
 
-  url = environment.baseUrl + "/ryp-api";
+  url = environment.baseUrl + "/api";
 
   constructor(private http: HttpClient) { }
 

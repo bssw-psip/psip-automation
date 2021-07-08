@@ -15,7 +15,7 @@ export class User {
 })
 export class AuthenticationService {
 
-    url = environment.baseUrl + "/coney-api";
+    url = environment.baseUrl + "/ryp/api";
 
     constructor(private http: HttpClient) {}
 

@@ -551,7 +551,7 @@ export class HomeComponent implements OnInit {
       this.clean();
       return;
     }
-    var url = environment.baseUrl + "/coney/home";
+    var url = environment.baseUrl;
     window.location.href = url;
   }
 }
