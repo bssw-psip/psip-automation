@@ -93,3 +93,10 @@ the entire project using `sh control.sh build` or individual services using `sh 
 
 Once the build is complete, it will be pushed to `hub.docker.com` where it can be fetched for deployment as described above.
 
+## Contributors
+
+<a href="https://ornl.gov"><img src="https://www.ornl.gov/themes/custom/ornl/logo.svg" width="150px" alt="Oak Ridge National Laboratory"/></a>
+<br>
+<a href="https://sandia.gov"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Sandia_National_Laboratories_logo.svg/220px-Sandia_National_Laboratories_logo.svg.png" width="150px" alt="Sandia National Laboratories"/></a>
+<br>
+<a href="https://uoregon.edu"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/University_of_Oregon_logo.svg/800px-University_of_Oregon_logo.svg.png" width="150px" alt="Sandia National Laboratories"/></a>
