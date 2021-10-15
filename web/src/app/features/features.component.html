@@ -1,0 +1,16 @@
+<mat-toolbar color="primary">
+    <button mat-icon-button (click)="sidenav.toggle()" class="menu-button" fxHide fxShow.lt-md>
+        <mat-icon>menu</mat-icon>
+    </button>
+    <span>RYP</span>
+</mat-toolbar>
+<mat-sidenav-container>
+    <mat-sidenav #sidenav mode="side" [opened]="opened">
+      <mat-nav-list>
+        <app-menu-list-item *ngFor="let item of menu" [item]="item"></app-menu-list-item>
+      </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
