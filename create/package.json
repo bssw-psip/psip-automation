@@ -38,7 +38,7 @@
     "ngx-papaparse": "^4.0.4",
     "ngx-print": "^1.2.0-beta.3",
     "ngx-toastr": "^10.2.0",
-    "node-sass": "^4.13.0",
+    "node-sass": "^7.0.0",
     "node-sass-tilde-importer": "^1.0.2",
     "print-js": "^1.0.63",
     "rete": "^1.4.5-rc.1",
