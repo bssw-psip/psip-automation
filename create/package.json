@@ -50,7 +50,7 @@
     "rete-readonly-plugin": "^0.4.1",
     "rete-vue-render-plugin": "^0.5.0",
     "rxjs": "6.5.2",
-    "validator": "^10.9.0",
+    "validator": "^13.7.0",
     "zone.js": "0.9.1"
   },
   "devDependencies": {
