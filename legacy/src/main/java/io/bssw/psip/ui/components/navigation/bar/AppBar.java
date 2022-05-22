@@ -32,6 +32,8 @@ package io.bssw.psip.ui.components.navigation.bar;
 
 import static io.bssw.psip.ui.util.UIUtils.IMG_PATH;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -53,6 +55,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
 
 import io.bssw.psip.ui.MainLayout;
@@ -143,10 +146,10 @@ public class AppBar extends Header {
 	}
 
 	private void initAvatar() {
-		avatar = new Image();
+		StreamResource imageResource = new StreamResource("avatar.png",
+				() -> getClass().getResourceAsStream("/images/avatar.png"));
+		avatar = new Image(imageResource, "User menu");
 		avatar.setClassName(CLASS_NAME + "__avatar");
-		avatar.setSrc(IMG_PATH + "avatar.png");
-		avatar.setAlt("User menu");
 
 		ContextMenu contextMenu = new ContextMenu(avatar);
 		contextMenu.setOpenOnClick(true);

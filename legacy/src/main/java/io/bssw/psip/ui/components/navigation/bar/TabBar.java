@@ -42,6 +42,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.server.StreamResource;
 
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
@@ -68,9 +69,10 @@ public class TabBar extends FlexBoxLayout {
 		menuIcon.addClassName(CLASS_NAME + "__navi-icon");
 		menuIcon.addClickListener(e -> MainLayout.get().getNaviDrawer().toggle());
 
-		avatar = new Image();
+		StreamResource imageResource = new StreamResource("avatar.png",
+			() -> getClass().getResourceAsStream("/images/avatar.png"));
+		avatar = new Image(imageResource, "User menu");
 		avatar.setClassName(CLASS_NAME + "__avatar");
-		avatar.setSrc(IMG_PATH + "avatar.png");
 
 		ContextMenu contextMenu = new ContextMenu(avatar);
 		contextMenu.setOpenOnClick(true);

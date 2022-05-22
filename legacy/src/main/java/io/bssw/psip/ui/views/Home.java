@@ -44,6 +44,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexWrap;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
@@ -64,7 +65,9 @@ public class Home extends ViewFrame {
 
 	private Component createContent() {
 		Div intro = new Div();
-		intro.add(new Image(UIUtils.IMG_PATH + "logos/ryp_logo.png", "Rate Your Project"));
+		StreamResource imageResource = new StreamResource("ryp_logo.png",
+			() -> getClass().getResourceAsStream("/images/logos/ryp_logo.png"));
+		intro.add(new Image(imageResource, "Rate Your Project"));
 		intro.add(new H2("A self assessment tool for improving software practices"));
 		intro.add(new Paragraph("Software engineering is a systematic approach to the design, development, and maintenance of a software system. "
 				+ "Teams seldom have the time to stop development and focus solely on improving productivity or sustainability. However, "

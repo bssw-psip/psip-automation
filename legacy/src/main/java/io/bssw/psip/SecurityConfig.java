@@ -71,7 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		 */
 		http.headers()
 				.contentSecurityPolicy(
-						"default-src 'none'; "
+						"default-src 'self'; "
 								+ "frame-ancestors 'none'; "
 								+ "form-action 'none'; "
 								+ "base-uri 'self'; "
@@ -79,6 +79,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 								+ "script-src 'self' 'unsafe-inline' 'unsafe-eval' data:; "
 								+ "connect-src 'self'; "
 								+ "img-src 'self'; "
+								+ "media-src 'self'; "
+								+ "object-src 'self'; "
 								+ "frame-src https://www.youtube.com/embed/; "
 								+ "font-src 'self' data: https://fonts.gstatic.com/;"
 				)
