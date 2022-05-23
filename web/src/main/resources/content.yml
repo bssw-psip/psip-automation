@@ -1,0 +1,255 @@
+# Definitions of activities, categories and items for the PSIP automation site.
+# 
+# Activity: An activity is a top level menu on the site nav bar that is displayed using the 'name' and 'icon' elements.
+#           The page will display the 'description' along with a summary of each of the categories (see below) using
+#           a progress bar element that indicates how close to completion the activity is. The pages can be directly
+#           accessed using the 'path' element. Scores define the scores being used for assessment.
+#
+# Category: A category allows lower level pages to be grouped. The are normally the "Better ..." categories taken from
+#           the BSSW web site, but could be other things. Category pages display the 'description' text along with a
+#           score for of each of the items (see below) using a radial chart. The pages can be directly accessed using
+#           the parent activity path concatenated with the 'path' element.
+#
+# Item:    An item is the lowest level page that is used for scoring or other information. Assessment items are displayed
+#          using the scores from the parent activity, along with the corresponding items from the 'questions' element. The
+#          pages can be directly access using the category path (see above) concatenated with the 'path' element.
+#
+#
+# NOTE: Please preserve indenting! YAML only recognizes spaces for indents.
+#
+activities:
+ - name: Assessment
+   path: assessment
+   icon: CLIPBOARD_CHECK 
+   description: The assessment section is used to estimate the degree to which software engineering practices are currently being 
+     used by your project.
+   scores:
+    - name: None
+      boost: Can you do better?
+      value: 0
+      color: "#000000"
+    - name: Basic
+      boost: Good start!
+      value: 33
+      color: "#DC267F"
+    - name: Intermediate
+      boost: Keep up the good work!
+      value: 66
+      color: "#FFB000"
+    - name: Advanced
+      boost: Awesome!
+      value: 100
+      color: "#066999"
+     
+   categories:
+    - name: Better Development
+      path: development
+      description: Improving scientific software development—a process of writing, maintaining, and extending code—in order to 
+        increase software productivity, quality, and sustainability, as key aspects of advancing overall scientific productivity.  
+      items:
+       - name: Revision Control
+         path: revision_control
+         description: Approaches for managing changes to files (source code, documentation, data) as well as maintaining their history and attribution, 
+           especially across multiple contributors and branches of development (also known as version control).
+         questions:
+          - Not currently being used
+          - Code is checked in to a revision control system, such as Git
+          - Developers make use of pull requests and multiple branches, etc.
+          - Has a documented workflow for merging code for quality assurance and releases
+       - name: Code Reviews
+         path: code_reviews
+         description: The act of consciously and systematically convening with one''s fellow programmers to check each other''s code for mistakes, and has 
+           been repeatedly shown to accelerate and streamline the process of software development like few other practices can.
+         questions: 
+          - Not currently being used
+          - Ad-hoc code reviews
+          - Regular code reviews (e.g., weekly meetings)
+          - Documented process for code reviews to be automated in workflow (e.g., via pull requests)
+       - name: Issue Tracking
+         path: issue_tracking
+         description: The process of capturing, reporting, tracking, and managing information about issues related to software. Issues include bugs, 
+           feature requests, missing documentation, and other problems and/or requirements.
+         questions:
+          - Not currently being used
+          - Ad-hoc issue tracking
+          - Dedicated issue tracking system consistently being used
+          - Documented process for how issue tracking is done (e.g. Kanban board, assigned responsibilities)
+       - name: Deployment
+         path: deployment
+         description: Approaches for versioning, packaging, releasing, and deploying software, documentation, or data for users to then obtain, install, and use.
+         questions:
+          - Not currently being used
+          - Manual deployment (e.g., using a script or checklist)
+          - Deployment as part of development workflow with manual intervention
+          - Continuous deployment (or deployment combined with continuous integration)
+       - name: Documentation
+         path: documentation
+         description: Creating, maintaining, and hosting quality documentation (written text or illustration) about the use, operation, or design of software.
+         questions:
+          - Not currently being used
+          - Informally maintained or ad-hoc text files
+          - Code and documentation are cross-referenced and updated when committed to repository
+          - Integrated with the software release workflow
+
+    - name: Better Planning
+      path: planning
+      description: Improving strategies for planning in order to increase software productivity, quality, and sustainability, while underscoring the 
+        unique characteristics of scientific software, including that requirements often change during discovery.
+      items:
+       - name: Development Process
+         path: development_process
+         description: The software development life cycle is the process of dividing software development work into distinct phases to improve design, product management, and project management.
+         questions:
+          - Not currently being used
+          - Has development process but it is based on ad-hoc rules
+          - Employs a basic iterative development process
+          - Follows a responsive, flexible development methodology (e.g. Agile)
+
+       - name: Contribution Management
+         path: contribution_management
+         description: Tracking and managing contributions to software.
+         questions:
+          - Not currently being used
+          - Guidelines for accepting contributions
+          - Clearly defined standards for coding and documentation, including community standards
+          - Provenance and license checking for contributions
+
+       - name: Requirements Analysis
+         path: requirements_analysis
+         description: Statements about what functions a software product should perform, including any constraints under which it should operate but 
+           avoiding as much as possible implementation details.
+         questions:
+          - Not currently being used
+          - Development guidelines include requirements gathering
+          - Formal requirements gathering is undertaken as part of the project
+          - Formally tracked and documented through a requirements management system
+
+       - name: Software Design
+         path: software_design
+         description: Major considerations in designing software to meet its scientific objectives and sustainability goals. 
+          Software design usually follows from requirements specification, and involves problem solving and planning a software solution.
+         questions:
+          - Not currently being used
+          - Development guidelines include design in the process
+          - A modeling language is employed for key aspects of the project
+          - Visual modeling using a graphical representation to capture design
+
+       - name: Onboarding
+         path: onboarding
+         description: The process of integrating a new employee into an organization or a new team member into a team.
+         questions:
+          - Not currently being used
+          - Consistent onboarding process is followed
+          - Minimally documented onboarding process
+          - Fully documented onboarding process is used for all personnel changes
+
+       - name: Offboarding
+         path: offboarding
+         description: The process of transferring employee knowledge to the broader team or organization.
+         questions:
+          - Not currently being used
+          - Consistent offboarding process is followed
+          - Minimally documented offboarding process
+          - Fully documented offboarding process is used for all personnel changes
+
+    - name: Better Performance
+      path: performance
+      description: Improving strategies for writing scientific software that is efficient, scalable, and portable—from laptops to emerging extreme-scale 
+        architectures—while preserving other code quality metrics such as correctness and usability.
+      items:
+      
+       - name: Performance Testing
+         path: performance_testing
+         description: Determining the speed, scalability, reliability, and stability of an application under a variety of workloads.
+         questions:
+          - Not currently being used
+          - Conducts performance tests
+          - Automated performance tests are run regularly
+          - Uses performance profiling tools to guide performance-related improvements
+       
+       - name: Performance Regression Testing
+         path: performance_regression_testing
+         description: Undertaking testing that exercises performance capabilities combined with plans for how to make practical use of 
+          that performance data
+         questions:
+          - Not currently being used
+          - A testable primary use case and set of measurements are established
+          - The performance history of the tests are tracked over time
+          - Performance tracking is run and reviewed at regular intervals on relevant platforms 
+       
+       - name: Performance Portability
+         path: performance_portability
+         description: Software exhibiting similar performance across multiple platforms, with the time to solution 
+          reflecting efficient utilization of computational resources on each platform. 
+         questions:
+          - Not currently being used
+          - Utilize a standard parallel programming model (e.g. MPI)
+          - Utilize a programming model designed for portability (e.g. OpenACC, OpenMP)
+          - Re-writing the application to utilize an advanced portability library (e.g. Kokkos)
+          
+    - name: Better Reliability
+      path: reliability
+      description: Improving methods of testing and verification to ensure that software is robust and produces reliable results, thereby 
+        helping to ensure the integrity of research and enable collaboration across teams.
+      items:
+       - name: Testing
+         path: testing
+         description: The process of ensuring that a software product is meeting its requirements at each stage of development, delivery, and deployment. 
+           Testing helps to avoid defects and verify correctness.
+         questions:
+          - Not currently being used
+          - Comparison used to create system-level no-change tests
+          - Unit testing for refactored and new code
+          - Continuous integration
+
+       - name: Reproducibility
+         path: reproducibility
+         description: Any effort whose goal is to increase trustworthiness and reuse of computational capabilities and results and to ensure correctness.
+         questions:
+          - Not currently being used
+          - Publication of code
+          - Inclusion of data when code is published
+          - The entire provenance of the application and its execution environment is published
+
+    - name: Better Collaboration
+      path: collaboration
+      description: Improving ways to facilitate work across teams and to promote partnerships and community contributions via software. 
+        We consider projects of all sizes, from small teams through multi-institutional aggregate teams.
+      items:
+       - name: Virtual Tools
+         path: virtual_tools
+         description: The process of documenting and sharing team products and artifacts with virtual tools (e.g. Jira, Google Docs) to
+           communicate goals, objectives.
+         questions:
+          - Not currently being used
+          - Used occasionally
+          - Used on a regualar basis in order to improve processes
+          - Used strategically to facilitate asynchronous and synchronous communication in order to build trust through transparency
+
+       - name: Telecommuting Communication Practices
+         path: telecommuting_communication_practices
+         description: The use of video and audio conferencing technology for co-located, hybrid (co-located + remote), or distributed teams.
+         questions:
+          - Not currently being used
+          - Audio conferencing and/or video conferencing tools for audio only or occasional video use
+          - Use of video conferencing with defined inclusivity guidelines
+          - Team awareness of inclusive practices in the use of video conferencing combined with utlizing advanced communication features (e.g. voting, sketch pads)
+
+#
+# These activities have not been defined yet
+#
+
+ - name: Tracking
+   path: tracking
+   icon: TASKS
+   description: "** COMING SOON ** The tracking section is used to translate your assessment into progress tracking cards (PTCs) so that you can keep track of improvements
+     to you project''''s practices."
+   scores: []
+   categories: []
+   
+ - name: Integration
+   path: integration
+   icon: COGS
+   description: "** COMING SOON ** The integration section is used to aid the integration of progress tracking cards into your development workflow."
+   scores: []
+   categories: []
