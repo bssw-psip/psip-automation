@@ -20,6 +20,8 @@ services:
         - ryp-data:/opt/data
       networks:
         - ryp-net
+      environment:
+        SPRING_PROFILES_ACTIVE: "prod"
       depends_on: 
         - ryp-neo4j
     ryp-create:
@@ -52,8 +54,18 @@ services:
         - ryp-net
       depends_on: 
         - ryp-api
+    ryp-web:
+      image: jarrah/ryp:web
+      build:
+        context: ./web/
+        args:
+          - BASE_HREF=${BASE_HREF:-/ryp}/web/
+      networks:
+        - ryp-net
+      depends_on:
+        - ryp-api
     ryp-neo4j: 
-      image: neo4j:3.5
+      image: jarrah/ryp:neo4j
       # Remove comments to reach Neo4j GUI from localhost
       # Requires network load balancer!
       #ports:
@@ -66,6 +78,7 @@ services:
         - ryp-net      
       environment:
         NEO4J_AUTH: "neo4j/coney"
+        NEO4J_dbms_allow__upgrade: "true"
     ryp-reverse:
       image: jarrah/ryp:reverse
       build:
@@ -81,6 +94,8 @@ services:
         - ryp-inspect
         - ryp-create
         - ryp-chat
+        - ryp-web
+        - ryp-neo4j
         - ryp-legacy
 networks:
   ryp-net:

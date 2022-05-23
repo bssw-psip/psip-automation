@@ -53,8 +53,21 @@ case $1 in
 	docker push $REPO:api
         cd ..
         ;;
+        "web")
+        cd web
+        docker build --no-cache -t $REPO:web .
+	docker push $REPO:web
+        cd ..
+        ;;
+        "neo4j")
+        cd neo4j
+        docker build --no-cache -t $REPO:neo4j .
+	docker push $REPO:neo4j
+        cd ..
+        ;;
         "legacy")
         cd legacy
+	rm -rf node_modules # avoid issues with cross-platform builds
         docker build --no-cache -t $REPO:legacy .
 	docker push $REPO:legacy
         cd ..
