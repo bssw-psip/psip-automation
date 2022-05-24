@@ -1,17 +1,5 @@
 package com.cefriel.coneyapi.service;
 
-import com.cefriel.coneyapi.exception.MethodNotAllowedException;
-import com.cefriel.coneyapi.exception.ParsingException;
-import com.cefriel.coneyapi.exception.ResourceNotFoundException;
-import com.cefriel.coneyapi.model.db.entities.Block;
-import com.cefriel.coneyapi.model.db.entities.Conversation;
-import com.cefriel.coneyapi.repository.ChatRepository;
-import com.google.gson.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,11 +7,28 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cefriel.coneyapi.exception.ParsingException;
+import com.cefriel.coneyapi.exception.ResourceNotFoundException;
+import com.cefriel.coneyapi.model.db.entities.Block;
+import com.cefriel.coneyapi.model.db.entities.Conversation;
+import com.cefriel.coneyapi.repository.ChatRepository;
+import com.cefriel.coneyapi.repository.ConversationRepository;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 @Service
 public class ChatService {
 
     @Autowired
     private ChatRepository chatRepository;
+    
+    @Autowired
+    private ConversationRepository conversationRepository;
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
@@ -62,11 +67,11 @@ public class ChatService {
 
         //get conversation Node
         if(userId.contains("preview")){
-                conversation = chatRepository.getConversationPreviewById(conversationId);
+                conversation = conversationRepository.getConversationPreviewById(conversationId);
         } else if(conversationId == null){
-            conversation = chatRepository.getConversation();
+            conversation = conversationRepository.getConversation();
         } else {
-            conversation = chatRepository.getConversationById(conversationId);
+            conversation = conversationRepository.getConversationById(conversationId);
         }
 
         conversationId = conversation.getConversationId();

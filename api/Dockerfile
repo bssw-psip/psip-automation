@@ -1,7 +1,7 @@
 FROM maven:3.3-jdk-8 as builder
 COPY . /usr/src/ryp
 WORKDIR /usr/src/ryp
-RUN mvn clean install -f /usr/src/ryp && mkdir /usr/src/wars/
+RUN mvn -Pprod clean install -f /usr/src/ryp && mkdir /usr/src/wars/
 RUN find /usr/src/ryp/ -iname '*.war' -exec cp {} /usr/src/wars/ \;
 
 FROM tomcat:8.5.43

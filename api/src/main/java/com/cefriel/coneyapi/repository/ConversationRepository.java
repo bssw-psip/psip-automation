@@ -1,33 +1,43 @@
 package com.cefriel.coneyapi.repository;
 
 
+import java.util.List;
+
+import org.springframework.data.neo4j.repository.Neo4jRepository;
+import org.springframework.data.neo4j.repository.query.Query;
+import org.springframework.stereotype.Repository;
+
 import com.cefriel.coneyapi.model.db.custom.AnswerBlock;
-import com.cefriel.coneyapi.model.db.custom.ConversationResponse;
 import com.cefriel.coneyapi.model.db.custom.QuestionBlock;
-import com.cefriel.coneyapi.model.db.custom.UserProject;
 import com.cefriel.coneyapi.model.db.entities.Block;
 import com.cefriel.coneyapi.model.db.entities.Conversation;
 import com.cefriel.coneyapi.model.db.entities.Tag;
-import org.springframework.data.neo4j.annotation.Query;
-import org.springframework.data.neo4j.repository.Neo4jRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface ConversationRepository extends Neo4jRepository<Conversation, Long> {
+    @Query("MATCH (c:Conversation) " +
+            "WHERE c.status='published' " +
+            "RETURN c LIMIT 1")
+    Conversation getConversation();
 
+    @Query("MATCH (c:Conversation) " +
+            "WHERE c.conv_id = {0} AND c.status = 'published' " +
+            "RETURN c LIMIT 1")
+    Conversation getConversationById(String conversationId);
+
+    @Query("MATCH (c:Conversation) " +
+            "WHERE c.conv_id = {0}" +
+            "RETURN c LIMIT 1")
+    Conversation getConversationPreviewById(String conversationId);
+    
 	@Query("MATCH (cust:Customer {username: {0}})-[wo:WORKS_ON]->(pr:Project)<-[:BELONGS_TO]-(c:Conversation) " +
 			"WHERE wo.access_level >= c.access_level " +
-			"RETURN c.conv_title AS conversationTitle, c.conv_id AS conversationId, " +
-			"c.access_level AS accessLevel, c.status AS status, pr.name AS projectName")
-	List<ConversationResponse> searchConversation(String customer);
+			"RETURN c")
+	List<Conversation> searchConversation(String customer);
 
-	@Query("MATCH (c:Conversation) " +
-			"RETURN c.conv_title AS conversationTitle, c.conv_id AS conversationId, " +
-			"c.access_level AS accessLevel, c.status AS status")
-	List<ConversationResponse> searchAllConversation();
-
+	@Query("MATCH (c:Conversation) RETURN c")
+	List<Conversation> searchAllConversation();
+	
 	@Query("MATCH (cust:Customer {username: {0}})-[wo:WORKS_ON]->(pr:Project), " +
             "(pr)<-[bt:BELONGS_TO]-(c:Conversation {conv_id:{1}}) " +
             "RETURN EXISTS ( (cust)-[wo:WORKS_ON]-(pr)-[bt]-(c) ) AND wo.access_level >= c.access_level")
@@ -98,13 +108,25 @@ public interface ConversationRepository extends Neo4jRepository<Conversation, Lo
 	String createOrUpdateNewOpenConversation(String conversationId, String title,
 										 String jsonUrl, String lang);
 
-	@Query("MATCH (c:Customer {username: {0}})-[wo:WORKS_ON]->(pr:Project) " +
-			"RETURN pr.name AS projectName, wo.access_level AS accessLevel")
-	List<UserProject> getCustomerProjects(String username);
-
 	@Query("MATCH (c:Conversation {conv_id: {0}})-[:BELONGS_TO]->(pr:Project) " +
 			"RETURN pr.name LIMIT 1")
 	String getConversationProject(String conversationId);
+	
+	@Query("MATCH (c:Conversation) RETURN c")
+	List<Conversation> getConversations();
+
+	@Query("MATCH (c:Conversation)-[:BELONGS_TO]->(pr:Project {name: {0}}) RETURN c")
+	List<Conversation> getConversationsOfProject(String projectName);
+	
+	@Query("MATCH (cust:Customer {username: {0}})-[wo:WORKS_ON]->(pr:Project)<-[:BELONGS_TO]-(c:Conversation) " +
+	          "WHERE wo.access_level >= c.access_level " +
+	          "RETURN c")
+	List<Conversation> getConversationsOfCustomer(String username);
+	
+	@Query("MATCH (cust:Customer {username: {0}})-[wo:WORKS_ON]->(pr:Project {name: {1}})<-[:BELONGS_TO]-(c:Conversation) " +
+	          "WHERE wo.access_level >= c.access_level " +
+	          "RETURN c")
+	List<Conversation> getConversationsOfCustomerAndProject(String username, String projectName);
 
 	//CREATE CONVERSATION BLOCKS AND RELATIONSHIPS
 

@@ -1,11 +1,12 @@
 package com.cefriel.coneyapi.model.db.entities;
 
-import com.google.gson.JsonObject;
-import org.neo4j.ogm.annotation.GeneratedValue;
-import org.neo4j.ogm.annotation.Id;
-import org.neo4j.ogm.annotation.NodeEntity;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.Node;
 
-@NodeEntity
+import com.google.gson.JsonObject;
+
+@Node
 public class Block {
 
 	@Id @GeneratedValue

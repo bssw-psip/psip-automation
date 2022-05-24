@@ -1,8 +1,7 @@
 package com.cefriel.coneyapi.model.db.custom;
 
-import org.springframework.data.neo4j.annotation.QueryResult;
+import com.cefriel.coneyapi.model.db.entities.Conversation;
 
-@QueryResult
 public class ConversationResponse {
 
     String conversationId;
@@ -10,11 +9,16 @@ public class ConversationResponse {
     String status;
     String conversationTitle;
     int accessLevel;
-
-    public ConversationResponse(){
-        super();
+    
+    public static ConversationResponse of(Conversation c) {
+    	ConversationResponse resp = new ConversationResponse();
+    	resp.setAccessLevel(c.getAccessLevel());
+    	resp.setConversationId(c.getConversationId());
+    	resp.setConversationTitle(c.getTitle());
+    	resp.setStatus(c.getStatus());
+    	return resp;
     }
-
+    
     public String getConversationId() {
         return conversationId;
     }

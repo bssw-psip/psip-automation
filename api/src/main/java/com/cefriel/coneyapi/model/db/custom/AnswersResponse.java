@@ -1,8 +1,5 @@
 package com.cefriel.coneyapi.model.db.custom;
 
-import org.springframework.data.neo4j.annotation.QueryResult;
-
-@QueryResult
 public class AnswersResponse {
 	
 	String conversation_id;

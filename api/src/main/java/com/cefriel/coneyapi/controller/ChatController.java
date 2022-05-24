@@ -1,5 +1,15 @@
 package com.cefriel.coneyapi.controller;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.cefriel.coneyapi.exception.MethodNotAllowedException;
 import com.cefriel.coneyapi.exception.ParsingException;
 import com.cefriel.coneyapi.exception.ResourceNotFoundException;
@@ -7,12 +17,6 @@ import com.cefriel.coneyapi.service.ChatService;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/chat/")
@@ -25,7 +29,7 @@ public class ChatController {
     }
 
 
-    @ApiOperation(value = "Returns conversation data, user ID, session and all the blocks up until the first question")
+//    @ApiOperation(value = "Returns conversation data, user ID, session and all the blocks up until the first question")
     @RequestMapping(value = "/beginConversation", method = RequestMethod.GET)
     public String beginConversation(@RequestParam(value = "userId", required = false) String userId,
                                     @RequestParam(value = "projectName", required = false) String projectName,
@@ -105,7 +109,7 @@ public class ChatController {
         return outcome;
     }
 
-    @ApiOperation(value = "Given an answer, returns the next conversation nodes up until a question or the last node")
+//    @ApiOperation(value = "Given an answer, returns the next conversation nodes up until a question or the last node")
     @RequestMapping(value = "/continueConversation", method = RequestMethod.POST)
     public String continueConversation(@RequestBody String json_answer)
             throws ResourceNotFoundException, ParsingException
@@ -174,7 +178,7 @@ public class ChatController {
         return res;
     }
 
-    @ApiOperation(value="Deletes all the nodes created for the preview")
+//    @ApiOperation(value="Deletes all the nodes created for the preview")
     @RequestMapping(value = "/deletePreview", method = RequestMethod.DELETE)
     public boolean deletePreview(@RequestParam(value = "conversationId") String conversationId,
                                  @RequestParam(value = "session") String session)
@@ -184,7 +188,7 @@ public class ChatController {
     }
 
 
-    @ApiOperation(value = "Returns available languages of a specific conversation")
+//    @ApiOperation(value = "Returns available languages of a specific conversation")
     @RequestMapping(value = "/getLanguagesOfConversation", method = RequestMethod.GET)
     public List<String>  getLanguagesOfConversation(@RequestParam(value = "conversationId") String conversationId)
             throws ResourceNotFoundException {

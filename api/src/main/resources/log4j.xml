@@ -15,7 +15,7 @@
 		<rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
 			<!-- DOROTHY v1 "/var/lib/tomcat/webapps/coney-retejs-files/logs/" + name -->
 			<!-- V2 "/opt/coney-data/logs/coney-api_%d{yyyy-MM-dd}.log"-->
-			<param name="FileNamePattern" value="/opt/coney-data/logs/coney-api_%d{yyyy-MM-dd}.log"/>
+			<param name="FileNamePattern" value="/opt/ryp-data/logs/ryp-api_%d{yyyy-MM-dd}.log"/>
 		</rollingPolicy>
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d [%t] [%-5p] %m\t\t(%C: %l)%n"/>		

@@ -1,13 +1,12 @@
 package com.cefriel.coneyapi.repository;
 
-import com.cefriel.coneyapi.model.db.entities.Block;
-import com.cefriel.coneyapi.model.db.entities.Conversation;
-import com.cefriel.coneyapi.model.db.custom.UserProject;
-import org.springframework.data.neo4j.annotation.Query;
+import java.util.List;
+
 import org.springframework.data.neo4j.repository.Neo4jRepository;
+import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.cefriel.coneyapi.model.db.entities.Block;
 
 @Repository
 public interface AdminRepository extends Neo4jRepository<Block, Long> {
@@ -26,42 +25,10 @@ public interface AdminRepository extends Neo4jRepository<Block, Long> {
             "RETURN cust.username")
     List<String> getCustomersOfConversation(String conversationId);
 
-    @Query("MATCH (cust:Customer)-[wo:WORKS_ON]->(pr:Project {name: {1}})<-[:BELONGS_TO]-(c:Conversation {conv_id: {0}}) \" +\n" +
+    @Query("MATCH (cust:Customer)-[wo:WORKS_ON]->(pr:Project {name: {1}})<-[:BELONGS_TO]-(c:Conversation {conv_id: {0}}) " +
             " WHERE wo.access_level >= c.access_level " +
             " RETURN cust.username")
     List<String> getCustomersOfConversationAndProject(String conversationId, String projectName);
-
-    @Query("MATCH (c:Conversation) RETURN c")
-    List<Conversation> getConversations();
-
-    @Query("MATCH (c:Conversation)-[:BELONGS_TO]->(pr:Project {name: {0}}) RETURN c")
-    List<Conversation> getConversationsOfProject(String projectName);
-
-    @Query("MATCH (cust:Customer {username: {0}})-[wo:WORKS_ON]->(pr:Project)<-[:BELONGS_TO]-(c:Conversation) " +
-            "WHERE wo.access_level >= c.access_level " +
-            "RETURN c")
-    List<Conversation> getConversationsOfCustomer(String username);
-
-    @Query("MATCH (cust:Customer {username: {0}})-[wo:WORKS_ON]->(pr:Project {name: {1}})<-[:BELONGS_TO]-(c:Conversation) " +
-            "WHERE wo.access_level >= c.access_level " +
-            "RETURN c")
-    List<Conversation> getConversationsOfCustomerAndProject(String username, String projectName);
-
-    @Query("MATCH (pr:Project) return pr.name AS projectName")
-    List<UserProject> getProjects();
-
-    @Query("MATCH (c:Customer {username: {0}})-[wo:WORKS_ON]->(pr:Project) " +
-            "RETURN pr.name AS projectName, wo.access_level AS accessLevel")
-    List<UserProject> getProjectsOfCustomer(String username);
-
-    @Query("MATCH (c:Conversation {conv_id: {0}})-[:BELONGS_TO]->(pr:Project) RETURN pr.name AS projectName")
-    List<UserProject> getProjectOfConversation(String conversationId);
-
-    @Query("MATCH (c:Customer {username: {0}})-[wo:WORKS_ON]->(pr:Project)" +
-            "<-[:BELONGS_TO]-(co:Conversation {conv_id: {1}}) " +
-            "RETURN pr.name AS projectName, wo.access_level AS accessLevel")
-    List<UserProject> getProjectsOfCustomerAndConversation(String username, String conversationId);
-
 
     //CREATE METHODS
 

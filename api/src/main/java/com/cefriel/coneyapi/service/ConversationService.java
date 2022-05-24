@@ -4,10 +4,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.neo4j.driver.Record;
+import org.neo4j.driver.types.TypeSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,9 +21,11 @@ import com.cefriel.coneyapi.model.db.custom.ConversationResponse;
 import com.cefriel.coneyapi.model.db.custom.QuestionBlock;
 import com.cefriel.coneyapi.model.db.custom.UserProject;
 import com.cefriel.coneyapi.model.db.entities.Block;
+import com.cefriel.coneyapi.model.db.entities.Conversation;
 import com.cefriel.coneyapi.model.db.entities.Edge;
 import com.cefriel.coneyapi.model.db.entities.Tag;
 import com.cefriel.coneyapi.repository.ConversationRepository;
+import com.cefriel.coneyapi.repository.ProjectRepository;
 import com.cefriel.coneyapi.utils.Utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -27,14 +33,18 @@ import com.google.gson.JsonObject;
 
 @Service
 public class ConversationService {
+    @Autowired
+    private Neo4jClient neo4jClient;
 
     @Autowired
     private ConversationRepository conversationRepository;
 
+    @Autowired
+    private ProjectRepository projectRepository;
 
 	@Autowired
 	private PasswordEncoder bcryptEncoder;
-
+	
 	private static final Logger logger = LoggerFactory.getLogger(ConversationService.class);
 
 	public ConversationService(ConversationRepository conversationRepository) {
@@ -53,14 +63,14 @@ public class ConversationService {
 		String usr = SecurityContextHolder.getContext().getAuthentication().getName();
 		logger.info("[CONV] Looking with user: "+ usr + "");
 
-		List<ConversationResponse> tmp;
+		List<Conversation> tmp;
 		if(usr.equals("anonymousUser")){
 			tmp = conversationRepository.searchAllConversation();
 		} else {
 			tmp = conversationRepository.searchConversation(usr);
 		}
 
-		return tmp;
+		return tmp.stream().map(c -> ConversationResponse.of(c)).collect(Collectors.toList());
  	}
 
  	public String getConversationProject(String conversationId){
@@ -297,14 +307,34 @@ public class ConversationService {
 	public String getOrderedConversation(String conv_id) {
 
 		if(!hasUserPermission(conv_id)){
+			logger.info("does not have permission");
 			return null;
 		}
+		
+		List<QuestionBlock> questions = neo4jClient.query(
+				"MATCH (c:Conversation {conv_id: $conv_id})-[a:STARTS|LEADS_TO*]->(b:Block) " +
+				"WHERE b.block_type='Question' WITH b, LENGTH(a) AS depth  return DISTINCT " +
+				"id(b) as neo4jId, b.block_id as reteId, " +
+				"b.block_type as type, b.block_subtype as subtype, b.of_conversation as ofConversation, " +
+				"b.visualization as questionType, b.text as text, depth"
+				)
+				.bind(conv_id).to("conv_id")
+				.fetchAs(QuestionBlock.class)
+				.mappedBy(this::toQuestionBlock)
+				.all()
+				.stream()
+				.collect(Collectors.toCollection(ArrayList::new));
+				
 
-		List<QuestionBlock> questions = conversationRepository.getOrderedQuestionsToPrint(conv_id);
+//		List<QuestionBlock> questions = conversationRepository.getOrderedQuestionsToPrint(conv_id);
 
+		if (questions == null) {
+			logger.info("questions was null!");
+		}
 		Collections.sort(questions);
 
 		if(questions.size()==0){
+			logger.info("no questions");
 			return "no_nodes";
 		}
 
@@ -368,11 +398,24 @@ public class ConversationService {
 		}
 		return questionsArray.toString();
 	}
+	
+	public QuestionBlock toQuestionBlock(TypeSystem ignored, Record record) {
+		return QuestionBlock.builder()
+				.reteId(record.get("reteId").asInt())
+				.neo4jId(record.get("neo4jId").asInt())
+				.type(record.get("type").asString())
+				.subtype(record.get("subtype").asString())
+				.ofConversation(record.get("ofConversation").asString())
+				.questionType(record.get("questionType").asString())
+				.text(record.get("text").asString())
+				.depth(record.get("depth").asInt())
+				.build();
+	}
 
 	//returns all the customers with access to a project
 	public List<UserProject> getCustomerProjects(){
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-		return conversationRepository.getCustomerProjects(username);
+		return projectRepository.getCustomerProjects(username).stream().map(c -> UserProject.of(c)).collect(Collectors.toList());
 	}
 
 	//uploads a given translation

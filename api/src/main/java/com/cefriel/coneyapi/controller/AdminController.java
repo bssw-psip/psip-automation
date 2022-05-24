@@ -1,18 +1,21 @@
 package com.cefriel.coneyapi.controller;
 
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.cefriel.coneyapi.exception.MethodNotAllowedException;
-import com.cefriel.coneyapi.model.db.entities.Conversation;
 import com.cefriel.coneyapi.model.db.custom.UserProject;
+import com.cefriel.coneyapi.model.db.entities.Conversation;
 import com.cefriel.coneyapi.service.AdminService;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.swagger.annotations.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/adm/")
@@ -25,7 +28,7 @@ public class AdminController {
         this.adminService = adminService;
     }
 
-    @ApiOperation(value = "Returns filterd customers")
+//    @ApiOperation(value = "Returns filterd customers")
     @RequestMapping(value = "/getCustomers", method = RequestMethod.POST)
     public List<String> getCustomers(@RequestBody String data) {
 
@@ -49,7 +52,7 @@ public class AdminController {
         return adminService.getCustomers(filterType, filter, filter2);
     }
 
-    @ApiOperation(value = "Returns filterd conversations")
+//    @ApiOperation(value = "Returns filterd conversations")
     @RequestMapping(value = "/getConversations", method = RequestMethod.POST)
     public List<Conversation> getConversations(@RequestBody String data) {
 
@@ -73,7 +76,7 @@ public class AdminController {
         return adminService.getConversations(filterType, filter, filter2);
     }
 
-    @ApiOperation(value = "Returns filterd projects")
+//    @ApiOperation(value = "Returns filterd projects")
     @RequestMapping(value = "/getProjects", method = RequestMethod.POST)
     public List<UserProject> getProjects(@RequestBody String data) {
 
@@ -97,7 +100,7 @@ public class AdminController {
     }
 
 
-    @ApiOperation(value = "Inserts data in DB")
+//    @ApiOperation(value = "Inserts data in DB")
     @RequestMapping(value = "/insertData", method = RequestMethod.POST)
     public boolean insertData(@RequestBody String data) throws MethodNotAllowedException {
 
@@ -154,7 +157,7 @@ public class AdminController {
         return res;
     }
 
-    @ApiOperation(value = "Edits data in DB")
+//    @ApiOperation(value = "Edits data in DB")
     @RequestMapping(value = "/editData", method = RequestMethod.POST)
     public boolean editData(@RequestBody String data) {
 
@@ -202,7 +205,7 @@ public class AdminController {
         return res;
     }
 
-    @ApiOperation(value = "Deletes data in DB")
+//    @ApiOperation(value = "Deletes data in DB")
     @RequestMapping(value = "/deleteData", method = RequestMethod.POST)
     public boolean deleteData(@RequestBody String data) {
 
@@ -247,7 +250,7 @@ public class AdminController {
         return res;
     }
 
-    @ApiOperation(value = "Checks if data exists in DB")
+//    @ApiOperation(value = "Checks if data exists in DB")
     @RequestMapping(value = "/checkExistence", method = RequestMethod.POST)
     public boolean checkExistence(@RequestBody String data){
         JsonParser parser = new JsonParser();

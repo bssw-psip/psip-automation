@@ -1,12 +1,17 @@
 package com.cefriel.coneyapi.model.db.custom;
 
-import org.springframework.data.neo4j.annotation.QueryResult;
+import com.cefriel.coneyapi.model.db.entities.Project;
 
-@QueryResult
 public class UserProject {
 
     String projectName;
     int accessLevel;
+    
+    public static UserProject of(Project p) {
+    	UserProject up = new UserProject();
+    	up.setProjectName(p.getName());
+    	return up;
+    }
 
     public UserProject(){}
 

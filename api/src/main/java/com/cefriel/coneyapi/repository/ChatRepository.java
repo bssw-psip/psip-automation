@@ -1,30 +1,15 @@
 package com.cefriel.coneyapi.repository;
 
-import com.cefriel.coneyapi.model.db.entities.Block;
-import com.cefriel.coneyapi.model.db.entities.Conversation;
-import org.springframework.data.neo4j.annotation.Query;
+import java.util.List;
+
 import org.springframework.data.neo4j.repository.Neo4jRepository;
+import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.cefriel.coneyapi.model.db.entities.Block;
 
 @Repository
 public interface ChatRepository extends Neo4jRepository<Block, Long> {
-
-    @Query("MATCH (c:Conversation) " +
-            "WHERE c.status='published' " +
-            "RETURN c LIMIT 1")
-    Conversation getConversation();
-
-    @Query("MATCH (c:Conversation) " +
-            "WHERE c.conv_id = {0} AND c.status = 'published' " +
-            "RETURN c LIMIT 1")
-    Conversation getConversationById(String conversationId);
-
-    @Query("MATCH (c:Conversation) " +
-            "WHERE c.conv_id = {0}" +
-            "RETURN c LIMIT 1")
-    Conversation getConversationPreviewById(String conversationId);
 
     @Query("MATCH (c:Conversation {conv_id:{0}})<-[r:STARTEND {project_id:{1}}]-(u:User {user_id:{2}})" +
             "RETURN count(r)")

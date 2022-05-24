@@ -1,8 +1,8 @@
 package com.cefriel.coneyapi.service;
 
-import com.cefriel.coneyapi.model.db.entities.Conversation;
-import com.cefriel.coneyapi.model.db.custom.UserProject;
-import com.cefriel.coneyapi.repository.AdminRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,14 +10,24 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.cefriel.coneyapi.model.db.custom.UserProject;
+import com.cefriel.coneyapi.model.db.entities.Conversation;
+import com.cefriel.coneyapi.model.db.entities.Project;
+import com.cefriel.coneyapi.repository.AdminRepository;
+import com.cefriel.coneyapi.repository.ConversationRepository;
+import com.cefriel.coneyapi.repository.ProjectRepository;
 
 @Service
 public class AdminService {
 
     @Autowired
     private AdminRepository adminRepository;
+    
+    @Autowired
+    private ConversationRepository conversationRepository;
 
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @Autowired
     private PasswordEncoder bcryptEncoder;
@@ -54,14 +64,14 @@ public class AdminService {
         logger.info("[CONTROL] IN service, filtering for "+filterType);
         switch (filterType) {
             case "customer":
-                return adminRepository.getConversationsOfCustomer(filter);
+                return conversationRepository.getConversationsOfCustomer(filter);
             case "project":
-                return adminRepository.getConversationsOfProject(filter);
+                return conversationRepository.getConversationsOfProject(filter);
             case "both":
-                return adminRepository.getConversationsOfCustomerAndProject(filter, filter2);
+                return conversationRepository.getConversationsOfCustomerAndProject(filter, filter2);
             default:
-                logger.info(adminRepository.getConversations().toString());
-                return adminRepository.getConversations();
+                logger.info(conversationRepository.getConversations().toString());
+                return conversationRepository.getConversations();
         }
     }
 
@@ -71,16 +81,21 @@ public class AdminService {
             return null;
         }
 
+        List<Project> projects;
         switch (filterType) {
             case "conversation":
-                return adminRepository.getProjectOfConversation(filter);
+                projects = projectRepository.getProjectOfConversation(filter);
+                break;
             case "customer":
-                return adminRepository.getProjectsOfCustomer(filter);
+            	projects = projectRepository.getProjectsOfCustomer(filter);
+                break;
             case "both":
-                return adminRepository.getProjectsOfCustomerAndConversation(filter, filter2);
+            	projects = projectRepository.getProjectsOfCustomerAndConversation(filter, filter2);
+                break;
             default:
-                return adminRepository.getProjects();
+            	projects = projectRepository.getProjects();
         }
+		return projects.stream().map(c -> UserProject.of(c)).collect(Collectors.toList());
     }
 
     //CREATE
@@ -186,7 +201,7 @@ public class AdminService {
     public boolean checkUserPermission() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        if(username.equals("anonymousUser")){
+        if(username == null || username.equals("anonymousUser")){
             return true;
         }
         String check = adminRepository.isUserAdmin(username);

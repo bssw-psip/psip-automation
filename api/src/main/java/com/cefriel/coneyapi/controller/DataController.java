@@ -1,18 +1,17 @@
 package com.cefriel.coneyapi.controller;
 
-import com.cefriel.coneyapi.exception.ParsingException;
-import com.cefriel.coneyapi.exception.ResourceNotFoundException;
-import com.cefriel.coneyapi.exception.UserNotAuthorizedException;
-import com.cefriel.coneyapi.service.DataService;
-import com.cefriel.coneyapi.utils.RDFUtils;
-import com.cefriel.coneyapi.utils.Utils;
-import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.cefriel.coneyapi.exception.ParsingException;
+import com.cefriel.coneyapi.exception.ResourceNotFoundException;
+import com.cefriel.coneyapi.exception.UserNotAuthorizedException;
+import com.cefriel.coneyapi.service.DataService;
+import com.cefriel.coneyapi.utils.RDFUtils;
 
 @RestController
 @RequestMapping("/data/")
@@ -25,7 +24,7 @@ public class DataController {
         this.dataService = dataService;
     }
 
-    @ApiOperation(value = "Gets answers to a specific conversation")
+//    @ApiOperation(value = "Gets answers to a specific conversation")
     @RequestMapping(value = "/getAnswersOfConversation", method = RequestMethod.GET)
     public String getAnswersOfConversation(@RequestParam(value="conversationId") String conversationId,
                                            @RequestParam(value = "anonymize", required = false) String anonymize)
@@ -57,7 +56,7 @@ public class DataController {
         return res;
     }
 
-    @ApiOperation(value = "Gets answers to a specific conversation in rdf format")
+//    @ApiOperation(value = "Gets answers to a specific conversation in rdf format")
     @RequestMapping(value = "/getRDFOfAnswers", method = RequestMethod.GET)
     public String getRDFOfAnswers(@RequestParam(value="conversationId") String conversationId,
                                   @RequestParam(value="base", required = false) String base,
@@ -98,7 +97,7 @@ public class DataController {
         return res;
     }
 
-    @ApiOperation(value = "Gets blocks of a specific conversation in rdf format")
+//    @ApiOperation(value = "Gets blocks of a specific conversation in rdf format")
     @RequestMapping(value = "/getRDFOfConversation", method = RequestMethod.GET)
     public String getRDFOfConversation(@RequestParam(value = "conversationId") String conversationId,
                                        @RequestParam(value = "base", required = false) String base,

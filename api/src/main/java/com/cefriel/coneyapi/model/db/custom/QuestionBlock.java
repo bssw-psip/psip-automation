@@ -1,7 +1,10 @@
 package com.cefriel.coneyapi.model.db.custom;
-import org.springframework.data.neo4j.annotation.QueryResult;
 
-@QueryResult
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+@Builder
+@AllArgsConstructor
 public class QuestionBlock implements Comparable<Object> {
 
     private int reteId;

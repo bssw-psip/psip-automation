@@ -1,13 +1,14 @@
 package com.cefriel.coneyapi.repository;
 
+import java.util.List;
+
+import org.springframework.data.neo4j.repository.Neo4jRepository;
+import org.springframework.data.neo4j.repository.query.Query;
+import org.springframework.stereotype.Repository;
+
 import com.cefriel.coneyapi.model.db.custom.AnswersResponse;
 import com.cefriel.coneyapi.model.db.entities.Block;
 import com.cefriel.coneyapi.model.db.entities.Conversation;
-import org.springframework.data.neo4j.annotation.Query;
-import org.springframework.data.neo4j.repository.Neo4jRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface DataRepository extends Neo4jRepository<Conversation, Long> {

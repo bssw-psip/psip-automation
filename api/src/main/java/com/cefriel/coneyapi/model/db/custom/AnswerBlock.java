@@ -1,7 +1,5 @@
 package com.cefriel.coneyapi.model.db.custom;
-import org.springframework.data.neo4j.annotation.QueryResult;
 
-@QueryResult
 public class AnswerBlock {
 
     int reteId;
@@ -13,8 +11,6 @@ public class AnswerBlock {
     String text;
     int value;
     int order;
-
-    public AnswerBlock(){}
 
     public int getReteId() {
         return reteId;

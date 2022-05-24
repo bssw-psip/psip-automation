@@ -1,11 +1,12 @@
 package com.cefriel.coneyapi.model.db.entities;
 
-import com.google.gson.JsonObject;
-import org.neo4j.ogm.annotation.GeneratedValue;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Id;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.Node;
 
-@NodeEntity
+import com.google.gson.JsonObject;
+
+@Node
 public class Conversation implements Comparable<Object> {
 
 
@@ -55,11 +56,11 @@ public class Conversation implements Comparable<Object> {
         this.status = status;
     }
 
-    public int getAccess_level() {
+    public int getAccessLevel() {
         return access_level;
     }
 
-    public void setAccess_level(int access_level) {
+    public void setAccessLevel(int access_level) {
         this.access_level = access_level;
     }
 
@@ -71,7 +72,8 @@ public class Conversation implements Comparable<Object> {
         this.lang = lang;
     }
 
-    public int compareTo(Object o)
+    @Override
+	public int compareTo(Object o)
     {
         Conversation other = (Conversation) o;
         return conv_title.compareTo(other.conv_title);

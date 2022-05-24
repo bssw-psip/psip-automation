@@ -1,22 +1,30 @@
 package com.cefriel.coneyapi.controller;
 
-import com.cefriel.coneyapi.exception.*;
-import com.cefriel.coneyapi.model.db.entities.Tag;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.cefriel.coneyapi.exception.ConflictException;
+import com.cefriel.coneyapi.exception.MethodNotAllowedException;
+import com.cefriel.coneyapi.exception.ParsingException;
+import com.cefriel.coneyapi.exception.ResourceNotFoundException;
+import com.cefriel.coneyapi.exception.UserNotAuthorizedException;
 import com.cefriel.coneyapi.model.db.custom.ConversationResponse;
 import com.cefriel.coneyapi.model.db.custom.UserProject;
+import com.cefriel.coneyapi.model.db.entities.Tag;
 import com.cefriel.coneyapi.service.ConversationService;
 import com.cefriel.coneyapi.utils.Utils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.swagger.annotations.*;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/create/")
@@ -33,7 +41,7 @@ public class ConversationController {
     }
 
 
-	@ApiOperation(value = "Returns a list of all the matching conversations")
+//	@ApiOperation(value = "Returns a list of all the matching conversations")
 	@RequestMapping(value = "/searchConversation", method = RequestMethod.GET)
 	public List<ConversationResponse> searchConversation() throws Exception {
 
@@ -50,13 +58,13 @@ public class ConversationController {
 		return convList;
 	}
 
-	@ApiOperation(value = "Returns a the project of a conversation")
+//	@ApiOperation(value = "Returns a the project of a conversation")
 	@RequestMapping(value = "/getConversationProject", method = RequestMethod.GET)
 	public String getConversationProject(@RequestParam(value = "conversationId") String conversationId) {
     	return conversationService.getConversationProject(conversationId);
 	}
 
-	@ApiOperation(value = "Returns the ReteJS-ready JSON")
+//	@ApiOperation(value = "Returns the ReteJS-ready JSON")
     @RequestMapping(value = "/getConversationJson", method = RequestMethod.GET)
 	public String findJsonUrlByConversationId(@RequestParam(value = "conversationId") String conversationId)
 		throws ResourceNotFoundException, UserNotAuthorizedException {
@@ -77,7 +85,7 @@ public class ConversationController {
 		return utils.openJsonFile(res);
 	}
 
-	@ApiOperation(value="Returns a CSV with all the blocks for translation purposes")
+//	@ApiOperation(value="Returns a CSV with all the blocks for translation purposes")
 	@RequestMapping(value = "/getTranslationCSV", method = RequestMethod.GET)
 	public String getTranslationCSV(@RequestParam(value = "conversationId") String conversationId)
 			throws ResourceNotFoundException, UserNotAuthorizedException, MethodNotAllowedException {
@@ -101,7 +109,7 @@ public class ConversationController {
 	}
 
 
-	@ApiOperation(value = "Uploads the translation in the database")
+//	@ApiOperation(value = "Uploads the translation in the database")
 	@RequestMapping(value = "/uploadTranslation", method = RequestMethod.POST)
 	public boolean uploadTranslation(@RequestBody String translation) throws Exception{
 
@@ -117,7 +125,7 @@ public class ConversationController {
 	}
 
 
-	@ApiOperation(value = "Returns all the available Tags")
+//	@ApiOperation(value = "Returns all the available Tags")
 	@RequestMapping(value = "/searchTags", method = RequestMethod.GET)
 	public List<Tag> searchTags(@RequestParam(value = "convId", required = false) String convId) throws Exception {
     	List<Tag> tagList;
@@ -137,7 +145,7 @@ public class ConversationController {
 	}
 
 
-	@ApiOperation(value = "Returns all the available Tags")
+//	@ApiOperation(value = "Returns all the available Tags")
 	@RequestMapping(value = "/uploadTags", method = RequestMethod.POST)
 	public boolean uploadTags(@RequestBody String tags) throws Exception {
 
@@ -150,7 +158,7 @@ public class ConversationController {
 	}
 
 	// DELETE - unpublish conversation
-	@ApiOperation(value = "Sets conversation status to 'Unpublished'")
+//	@ApiOperation(value = "Sets conversation status to 'Unpublished'")
 	@RequestMapping(value = "/unpublishConversation", method = RequestMethod.GET)
 	public boolean unpublishConversationById(
 			@RequestParam(value = "conversationId") String conversationId)
@@ -182,7 +190,7 @@ public class ConversationController {
 
 
 	// DELETE request
-	@ApiOperation(value = "Deletes a conversation")
+//	@ApiOperation(value = "Deletes a conversation")
 	@RequestMapping(value = "/deleteConversation", method = RequestMethod.DELETE)
 	public boolean deleteConversationById(@RequestParam(value = "conversationId") String conversationId,
 										   @RequestParam(value = "status") String status)
@@ -230,7 +238,7 @@ public class ConversationController {
 
 
 	//create chat blocks regardless of status (to be deleted)
-	@ApiOperation(value = "Creates chat block regardless of status, but with negative id")
+//	@ApiOperation(value = "Creates chat block regardless of status, but with negative id")
 	@RequestMapping(value = "/previewConversation", method = RequestMethod.POST)
 	public String previewConversation(@RequestBody String convRete) throws Exception {
 
@@ -266,7 +274,7 @@ public class ConversationController {
 		return res.toString();
 	}
 
-	@ApiOperation(value="Deletes all the nodes created for the preview")
+//	@ApiOperation(value="Deletes all the nodes created for the preview")
 	@RequestMapping(value = "/deletePreview", method = RequestMethod.DELETE)
 	public boolean deletePreview(@RequestParam(value = "conversationId") String conversationId,
 								 @RequestParam(value = "session") String session)
@@ -275,7 +283,7 @@ public class ConversationController {
     	return conversationService.deletePreview(conversationId, session);
 	}
 
-	@ApiOperation(value="Gets all the projects linked to the user")
+//	@ApiOperation(value="Gets all the projects linked to the user")
 	@RequestMapping(value = "/getCustomerProjects", method = RequestMethod.GET)
 	public List<UserProject> getCustomerProjects()
 			throws Exception {
@@ -284,7 +292,7 @@ public class ConversationController {
 	}
 
 	// POST
-	@ApiOperation(value = "Saves the conversation in a node and locally (Body: ReteJS JSON file)")
+//	@ApiOperation(value = "Saves the conversation in a node and locally (Body: ReteJS JSON file)")
 	@RequestMapping(value = "/saveConversation", method = RequestMethod.POST)
 	public String saveConversation(@RequestBody String convRete)
 			throws Exception {
@@ -402,7 +410,7 @@ public class ConversationController {
 	}
 
 	//updates the conversation node and creates chat blocks
-	@ApiOperation(value = "Publish the conversation and creates chat blocks (Body: ReteJS JSON file)")
+//	@ApiOperation(value = "Publish the conversation and creates chat blocks (Body: ReteJS JSON file)")
 	@RequestMapping(value = "/publishConversation", method = RequestMethod.POST)
 	public String publishConversation(@RequestBody String convRete) throws Exception {
 
@@ -480,7 +488,7 @@ public class ConversationController {
 		return res.toString();
 	}
 
-	@ApiOperation(value = "Gets questions, answers and tags")
+//	@ApiOperation(value = "Gets questions, answers and tags")
 	@RequestMapping(value = "/getOrderedConversation", method = RequestMethod.GET)
 	public String getOrderedConversation(@RequestParam(value="conversationId") String conversationId)
 		throws ParsingException, ResourceNotFoundException {
@@ -497,7 +505,7 @@ public class ConversationController {
     	return res;
 	}
 
-	@ApiOperation(value = "Gets questions, answers and tags")
+//	@ApiOperation(value = "Gets questions, answers and tags")
 	@RequestMapping(value = "/getOrderedQuestionsAndAnswers", method = RequestMethod.GET)
 	public String getOrderedQuestionsAndAnswers(@RequestParam(value="conversationId") String conversationId)
 			throws ParsingException, ResourceNotFoundException {
@@ -511,14 +519,14 @@ public class ConversationController {
 		return res;
 	}
 
-	@ApiOperation(value="Gets all the projects linked to the user")
+//	@ApiOperation(value="Gets all the projects linked to the user")
 	@RequestMapping(value = "/deleteAccount", method = RequestMethod.GET)
 	public String deleteAccount(@RequestParam(value = "username") String username) {
 		conversationService.setCustomerForDeletion(username);
 		return "true";
 	}
 
-	@ApiOperation(value="Changes users password")
+//	@ApiOperation(value="Changes users password")
 	@RequestMapping(value = "/changePassword", method = RequestMethod.POST)
 	public String changePassword(@RequestHeader("UserData") String auth_data)
 			throws Exception {
