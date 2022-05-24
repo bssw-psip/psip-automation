@@ -18,6 +18,7 @@ RYP is currently structured into seven services as follows:
 - ryp-inspect: an Angular application that visualizes the survey results
 - ryp-reverse: a reverse proxy to route URL paths to the different applications
 - ryp-neo4j: A [neo4j](https://neo4j.com) graph database used to store surveys and responses
+- ryp-web: A Vaadin Spring Boot application that will be used for the new version of the frontend (and eventually replace ryp-legacy)
 
 ## Deploying RYP
 
@@ -35,13 +36,15 @@ docker context create ecs <context_name>
 ```
 
 where `<context_name>` is any name you want to give the context. You will need to provide an [AWS access key ID and a secret access key](https://docs.aws.amazon.com/general/latest/gr/aws-sec-cred-types.html#access-keys-and-secret-access-keys)
-that you set up through the AWS console.
+that you set up through the AWS console. If this command fails with the message ```"docker context create" requires exactly 1 argument.``` then you need to install Docker Compose CLI using this [Install Script](https://github.com/docker/compose-cli/blob/main/INSTALL.md#install-script).
 
 The services are then deployed (or re-deployed) using the following command:
 
 ```
 docker --context=<context_name> compose up
 ```
+
+If this command fails with a message such as `ValidationError: 'arn:aws:elasticloadbalancing:...' is not a valid load balancer ARN` then you need to install the AWS CLI and run `aws configure`. Change the default region name to `None` and then run the command again and change it back to the same region used when you created the docker context.
 
 Note that for re-deployment this is *usually* smart enough to realize that only some of the services have changed and only update those ones. Sometimes you need
 to take all the services down and then back up again for everything to reset correctly.
@@ -80,6 +83,7 @@ better to have a more generic solution. Currently the routing is as follows:
 - rateyourproject.org/ryp/chat -> ryp-chat
 - rateyourproject.org/ryp/inspect -> ryp-inspect
 - rateyourproject.org/ryp/create -> ryp-create
+- rateyourproject.org/ryp/web -> ryp-web
 
 ### Domain Name
 
@@ -89,7 +93,7 @@ author. Nameservers for the domain name are provided using AWS Route 53.
 ## Building RYP
 
 The `control.sh` script is used to build the services (and to a lesser extent deploy them, but this hasn't been thoroughly tested yet).  It is possible to build
-the entire project using `sh control.sh build` or individual services using `sh control.sh build <service>` where `<service>` is one of `inspect`, `chat`, `create`, `api`, `legacy`, or `reverse`.
+the entire project using `sh control.sh build` or individual services using `sh control.sh build <service>` where `<service>` is one of `inspect`, `chat`, `create`, `api`, `legacy`, `web`, or `reverse`.
 
 Once the build is complete, it will be pushed to `hub.docker.com` where it can be fetched for deployment as described above.
 
