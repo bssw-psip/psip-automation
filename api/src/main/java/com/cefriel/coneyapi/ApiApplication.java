@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.servers.Server;
 
 @SpringBootApplication
-// @OpenAPIDefinition(servers = { @Server(url = "https://rateyourproject.org/ryp/api") })
+@OpenAPIDefinition(servers = { @Server(url = "https://rateyourproject.org/ryp/api") })
 public class ApiApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
