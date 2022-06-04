@@ -3,11 +3,13 @@ package com.cefriel.coneyapi.service;
 import com.cefriel.coneyapi.model.db.custom.AnswersResponse;
 import com.cefriel.coneyapi.model.db.entities.Block;
 import com.cefriel.coneyapi.repository.DataRepository;
+import com.cefriel.coneyapi.repository.BlockRepository;
 import com.cefriel.coneyapi.utils.RDFUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +20,24 @@ import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.model.vocabulary.RDFS;
 import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+
+import org.neo4j.driver.types.TypeSystem;
+import org.neo4j.driver.Record;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DataService {
-
+    @Autowired
+    private Neo4jClient neo4jClient;
+    
     @Autowired
     private DataRepository dataRepository;
+
+    @Autowired
+    private BlockRepository blockRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(DataService.class);
 
@@ -38,7 +51,7 @@ public class DataService {
             return null;
         }
 
-        List<AnswersResponse> list = dataRepository.getAnswersOfConversation(conversationId);
+        List<AnswersResponse> list = getAnswersOfConversation(conversationId);
 
         if(list.size()==0){
             return null;
@@ -61,7 +74,7 @@ public class DataService {
         // Add namespaces
         RDFUtils.addDefaultNamespaces(model);
 
-        List<Block> conversationBlocks = dataRepository.getBlocksOfConversation(conversationId);
+        List<Block> conversationBlocks = blockRepository.getBlocksOfConversation(conversationId);
         String defaultLanguageTag = dataRepository.getDefaultLanguageOfConversation(conversationId);
 
         model.add(
@@ -70,7 +83,7 @@ public class DataService {
                 factory.createIRI(RDFUtils.SUR, "SurveyProcedure")
         );
 
-        Block firstBlock = dataRepository.getFirstBlock(conversationId);
+        Block firstBlock = blockRepository.getFirstBlock(conversationId);
         String firstBlockId = RDFUtils.getBlockId(conversationId, firstBlock);
 
         model.add(
@@ -193,7 +206,7 @@ public class DataService {
             // Question
             else if(b.getBlockType().toLowerCase().equals("question")) {
             	
-                String tag = dataRepository.getTagOfBlock(b.getBlockId(), conversationId);
+                String tag = blockRepository.getTagOfBlock(b.getBlockId(), conversationId);
 
                 model.add(
                         factory.createIRI(base, blockId),
@@ -324,7 +337,7 @@ public class DataService {
                 }
             }
 
-            List<Block> nextBlocks = dataRepository.getNextBlock(b.getBlockId(), conversationId);
+            List<Block> nextBlocks = blockRepository.getNextBlock(b.getBlockId(), conversationId);
             for(Block nb: nextBlocks)
                 model.add(
                         factory.createIRI(base, blockId),
@@ -337,10 +350,55 @@ public class DataService {
 
     }
 
+    private List<AnswersResponse> getAnswersOfConversation(String conversationId){
+       return neo4jClient.query(
+                "MATCH (a:Block {block_type:'Answer'})<-[:LEADS_TO]-(q:Block {of_conversation: $conv_id})  " +
+                "OPTIONAL MATCH (u:User)-[ans:ANSWERED]->(a), (u)-[se:STARTEND]->(c:Conversation {conv_id: $conv_id}) " +
+                "WHERE se.session = ans.session " +
+                "OPTIONAL MATCH (q)-[:ABOUT]->(t:Tag) " +
+                "RETURN q.of_conversation AS conversation_id, u.user_id AS user, se.project_id as project_id, " +
+                "se.project_name as project_name, t.text as tag, q.text as question, q.visualization as question_type, q.block_id as question_id, " +
+                "a.block_id as answer_id, a.block_subtype as answer_type, a.text as option, a.value as value, ans.value as free_answer, a.points as points, " +
+                "ans.timestamp as timestamp, ans.session as session, se.start_timestamp as start_timestamp, " +
+                "se.end_timestamp as end_timestamp, se.lang as language;")
+                .bind(conversationId).to("conv_id")
+                .fetchAs(AnswersResponse.class)
+                .mappedBy(this::toAnswersResponse)
+                .all()
+                .stream()
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private AnswersResponse toAnswersResponse(TypeSystem ignored, Record record) {
+        return AnswersResponse.builder()
+                        .conversation_id(record.get("conversation_id").asString())
+                        .user(record.get("user").asString())
+                        .project_id(record.get("project_id").asString())
+                        .project_name(record.get("project_name").asString())
+                        .tag(record.get("tag").asString())
+                        .question(record.get("question").asString())
+                        .question_type(record.get("question_type").asString())
+                        .question_id(record.get("question_id").asInt())
+                        .option(record.get("option").asString())
+                        .value(record.get("value").asInt())
+                        .points(record.get("points").asInt())
+                        .answer_id(record.get("answer_id").asInt())
+                        .answer_type(record.get("answer_type").asString())
+                        .free_answer(record.get("free_answer").asString())
+                        .timestamp(record.get("timestamp").asString())
+                        .session(record.get("session").asString())
+                        .start_timestamp(record.get("start_timestamp").asString())
+                        .end_timestamp(record.get("end_timestamp").asString())
+                        .language(record.get("language").asString())
+                        .build();
+    }
+
     public String getRDFOfAnswers(String conversationId, String base, String format, boolean anonymize){
         logger.info("[DATA] RDF of answers requested");
         logger.info("[DATA] Fetching answers");
-        List<AnswersResponse> list = dataRepository.getAnswersOfConversation(conversationId);
+        // List<AnswersResponse> list = dataRepository.getAnswersOfConversation(conversationId);
+
+        List<AnswersResponse> list = getAnswersOfConversation(conversationId);
 
         if (list != null && list.size() == 0) {
             logger.info("[DATA] No data found, returning");
@@ -594,7 +652,9 @@ public class DataService {
             if(anonymize){
                 user = as.getAnonymizedUser();
             }
-
+            if (user == null) {
+                user = "";
+            }
             line =  as.getQuestionId() + "," +
                     "\"" + csvString(as.getQuestion()) + "\"," +
                     "\"" + csvString(type) + "\"," +
@@ -611,7 +671,7 @@ public class DataService {
                     as.getDuration() + "," +
                     "\"" + as.getProjectId() + "\"," +
                     "\"" + csvString(as.getProjectName()) + "\"";
-
+                    
             sb.append(line);
             sb.append(System.getProperty("line.separator"));
         }

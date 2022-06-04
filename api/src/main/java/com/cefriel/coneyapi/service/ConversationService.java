@@ -2,8 +2,13 @@ package com.cefriel.coneyapi.service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 import org.neo4j.driver.Record;
@@ -25,6 +30,8 @@ import com.cefriel.coneyapi.model.db.entities.Conversation;
 import com.cefriel.coneyapi.model.db.entities.Edge;
 import com.cefriel.coneyapi.model.db.entities.Tag;
 import com.cefriel.coneyapi.repository.ConversationRepository;
+import com.cefriel.coneyapi.repository.BlockRepository;
+import com.cefriel.coneyapi.repository.ChatRepository;
 import com.cefriel.coneyapi.repository.ProjectRepository;
 import com.cefriel.coneyapi.utils.Utils;
 import com.google.gson.JsonArray;
@@ -38,6 +45,10 @@ public class ConversationService {
 
     @Autowired
     private ConversationRepository conversationRepository;
+	@Autowired
+    private BlockRepository blockRepository;
+	@Autowired
+    private ChatRepository chatRepository;
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -269,14 +280,13 @@ public class ConversationService {
 			return null;
 		}
 
- 		List<Block> questions = conversationRepository.getOrderedQuestions(conv_id);
+ 		List<Block> questions = blockRepository.getOrderedQuestions(conv_id);
 
  		if(questions.size()==0){
  			return "no_nodes";
 		}
 
  		logger.info("Conversation found, total questions: "+questions.size());
-
 
  		List<Block> answers;
  		int sequence = 0;
@@ -286,7 +296,7 @@ public class ConversationService {
 		res.append(System.getProperty("line.separator"));
 
  		for(Block b : questions){
- 			answers = conversationRepository.getAnswersToQuestion(b.getBlockId(), conv_id);
+ 			answers = blockRepository.getAnswersToQuestion(b.getBlockId(), conv_id);
  			String tag = conversationRepository.getTagOfBlock(b.getBlockId(), conv_id);
  			for(Block ans : answers){
 				res.append(sequence).append(",")
@@ -303,6 +313,48 @@ public class ConversationService {
  		return res.toString();
 	}
 
+	// I don't know how to make this as work as a Cypher query. We can use subgraphNodes to get all the questions belonging to 
+    // a conversation, but there doesn't seem to be any way to get the depth. Fetching paths using expand is
+    // too expensive.
+    // "MATCH p=(c:Conversation {conv_id:$conv_id})-[:STARTS]->(n:Block) " +
+	// 		"CALL apoc.path.subgraphNodes(n, {relationshipFilter:'LEADS_TO>'}) YIELD node as b " +
+	// 		"WHERE b.block_type = 'Question' " +
+	// 		"WITH b, p " +
+	// 		"RETURN b.block_id as block_id, b.block_type as block_type, b.block_subtype as block_subtype, "+
+	// 		"b.text as text, b.visualization as visualization, b.of_conversation as of_conversation, " +
+	// 		"id(b) as neo4jId, LENGTH(p) as depth"
+    //
+    // This the pattern version but it takes too long/never finishes for a large graph:
+	//
+    // @Query("MATCH p=(c:Conversation {conv_id:$0})-[:STARTS|LEADS_TO*]->(b:Block {block_type: 'Question'}) " +
+    //     "WITH b, p " +
+    //     "RETURN DISTINCT b, id(b) as neo4jId, LENGTH(p) as depth")
+	//
+	// Instead, we recursively find all questions belonging to a conversation. This is an alternative to 
+	// using the above. We need to keep track of which nodes we have visited to avoid infinite recursion
+	//
+	private void getQuestions(List<QuestionBlock> questions, Map<Long, Block> visited, Block block, int depth, String conv_id) {
+		if (block.getBlockType().equals("Question")) {
+			questions.add(QuestionBlock.builder()
+				.reteId(block.getBlockId())
+				.neo4jId((int)block.getNeo4jId())
+				.type(block.getBlockType())
+				.subtype(block.getBlockSubtype())
+				.ofConversation(block.getOfConversation())
+				.questionType(block.getVisualization())
+				.text(block.getText())
+				.depth(depth)
+				.build());
+			depth++;
+		}
+		visited.put(block.getNeo4jId(), block);
+		for(Block b: chatRepository.getNextBlock(block.getBlockId(), conv_id)) {
+			if (!visited.containsKey(b.getNeo4jId())) {
+				getQuestions(questions, visited, b, depth, conv_id);
+			}
+		}
+	}
+
 	//getQuestionsAndAnswers
 	public String getOrderedConversation(String conv_id) {
 
@@ -310,27 +362,11 @@ public class ConversationService {
 			logger.info("does not have permission");
 			return null;
 		}
+
+		List<QuestionBlock> questions = new ArrayList<>();
+		Map<Long, Block> visited = new HashMap<>();
+		getQuestions(questions, visited, chatRepository.getFirstBlock(conv_id), 0, conv_id);
 		
-		List<QuestionBlock> questions = neo4jClient.query(
-				"MATCH (c:Conversation {conv_id: $conv_id})-[a:STARTS|LEADS_TO*]->(b:Block) " +
-				"WHERE b.block_type='Question' WITH b, LENGTH(a) AS depth  return DISTINCT " +
-				"id(b) as neo4jId, b.block_id as reteId, " +
-				"b.block_type as type, b.block_subtype as subtype, b.of_conversation as ofConversation, " +
-				"b.visualization as questionType, b.text as text, depth"
-				)
-				.bind(conv_id).to("conv_id")
-				.fetchAs(QuestionBlock.class)
-				.mappedBy(this::toQuestionBlock)
-				.all()
-				.stream()
-				.collect(Collectors.toCollection(ArrayList::new));
-				
-
-//		List<QuestionBlock> questions = conversationRepository.getOrderedQuestionsToPrint(conv_id);
-
-		if (questions == null) {
-			logger.info("questions was null!");
-		}
 		Collections.sort(questions);
 
 		if(questions.size()==0){
@@ -338,33 +374,40 @@ public class ConversationService {
 			return "no_nodes";
 		}
 
-		//structure
-			JsonArray questionsArray = new JsonArray();
-				//question json
-					//answers array
-						//answer Json
+		JsonArray questionsArray = new JsonArray();
 
 		logger.info("Conversation found, total questions: "+questions.size());
-
 
 		List<AnswerBlock> answers;
 		int orderInConversation = 1;
 
-
-
-		for(QuestionBlock question : questions){
+		for (QuestionBlock question : questions){
 
 			JsonObject questionJson = new JsonObject();
 			JsonArray answersArray = new JsonArray();
 
-			logger.info(question.getText());
+			logger.info("q id:"+question.getNeo4jId()+" conv:"+question.getOfConversation());
 			question.setAnswersAmount(conversationRepository.getAnswersOfBlockAmount(question.getNeo4jId(), question.getOfConversation()));
 			question.setTag(conversationRepository.getTagOfBlock(question.getReteId(), conv_id));
 			question.setOrderInConversation(orderInConversation);
 
-			answers = conversationRepository.getAnswersToQuestionToPrint(question.getReteId(), question.getOfConversation(), question.getAnswersAmount());
+			answers = neo4jClient.query(
+				"MATCH (b:Block {block_id: $block_id, of_conversation: $conv_id})-[:LEADS_TO]->(a:Block {block_type: 'Answer'})" +
+				" OPTIONAL MATCH n=(a)-[:LEADS_TO*..10]->(nq:Block {block_type:'Question'}) " +
+				" WITH a, nq ORDER BY length(n) ASC " +
+				"RETURN DISTINCT a.block_id as block_id, a.block_type as block_type, a.block_subtype as block_subtype, "+
+				"a.text as text, a.value as value, a.order as order, a.of_conversation as of_conversation, " +
+				"id(a) as neo4jId, nq.block_id as nextQuestionId LIMIT $limit")
+				.bind(question.getReteId()).to("block_id")
+				.bind(question.getOfConversation()).to("conv_id")
+				.bind(question.getAnswersAmount()).to("limit")
+				.fetchAs(AnswerBlock.class)
+				.mappedBy(this::toAnswerBlock)
+				.all()
+				.stream()
+				.collect(Collectors.toCollection(ArrayList::new));
 
-			for(AnswerBlock ans : answers){
+			for (AnswerBlock ans : answers){
 
 				logger.info("val: "+ans.getValue()+"");
 				logger.info("text: "+ans.getText()+"");
@@ -401,14 +444,28 @@ public class ConversationService {
 	
 	public QuestionBlock toQuestionBlock(TypeSystem ignored, Record record) {
 		return QuestionBlock.builder()
-				.reteId(record.get("reteId").asInt())
+				.reteId(record.get("block_id").asInt())
 				.neo4jId(record.get("neo4jId").asInt())
-				.type(record.get("type").asString())
-				.subtype(record.get("subtype").asString())
-				.ofConversation(record.get("ofConversation").asString())
-				.questionType(record.get("questionType").asString())
+				.type(record.get("block_type").asString())
+				.subtype(record.get("block_subtype").asString())
+				.ofConversation(record.get("of_conversation").asString())
+				.questionType(record.get("visualization").asString())
 				.text(record.get("text").asString())
 				.depth(record.get("depth").asInt())
+				.build();
+	}
+
+	public AnswerBlock toAnswerBlock(TypeSystem ignored, Record record) {
+		return AnswerBlock.builder()
+				.reteId(record.get("block_id").asInt())
+				.neo4jId(record.get("neo4jId").asInt())
+				.type(record.get("block_type").asString())
+				.subtype(record.get("block_subtype").asString())
+				.ofConversation(record.get("of_conversation").asString())
+				.text(record.get("text").asString())
+				.value(record.get("value").asInt())
+				.order(record.get("order").asInt())
+				.nextQuestionId(record.get("nextQuestionId").asInt())
 				.build();
 	}
 
@@ -454,7 +511,7 @@ public class ConversationService {
 		}
 
  		List<Block> talkBlocks = conversationRepository.getOrderedBlocksOfType(conversationId, "Talk");
- 		List<Block> questionBlocks = conversationRepository.getOrderedQuestions(conversationId);
+ 		List<Block> questionBlocks = blockRepository.getOrderedQuestions(conversationId);
 		logger.info("[CONVERSATION] Exporting Language Translation CSV for conv "+conversationId);
 		String line = "block_id,type,text,translation";
 		StringBuilder sb = new StringBuilder();
@@ -482,7 +539,7 @@ public class ConversationService {
 			sb.append(System.getProperty("line.separator"));
 
 			//add answers
-			List<Block> answerBlocks = conversationRepository
+			List<Block> answerBlocks = blockRepository
 					.getAnswersToQuestion(questionBlock.getBlockId(), conversationId);
 
 			for(Block answerBlock: answerBlocks){

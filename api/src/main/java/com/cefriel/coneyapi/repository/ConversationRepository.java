@@ -198,36 +198,17 @@ public interface ConversationRepository extends Neo4jRepository<Conversation, Lo
 			"RETURN DISTINCT t")
 	List<Tag> searchTags(String conversationId);
 
-	@Query("MATCH (c:Conversation {conv_id:{0}})-[:STARTS|LEADS_TO*]->(b:Block) " +
-			"WHERE b.block_type='Question' return DISTINCT b")
-	List<Block> getOrderedQuestions(String conversationId);
-
-	@Query("MATCH (b:Block {block_id: {0}, of_conversation: {1}})-[:LEADS_TO]->(a:Block {block_type: 'Answer'}) return a")
-	List<Block> getAnswersToQuestion(int blockId, String conversationId);
-
 	//TEST
-	@Query("MATCH (c:Conversation {conv_id:{0}})-[a:STARTS|LEADS_TO*]->(b:Block) " +
-			"WHERE b.block_type='Question' WITH b, LENGTH(a) AS depth  return DISTINCT " +
-			"id(b) as neo4jId, b.block_id as reteId, " +
-			"b.block_type as type, b.block_subtype as subtype, b.of_conversation as ofConversation, " +
-			"b.visualization as questionType, b.text as text, depth")
+	@Query("MATCH p=(c:Conversation {conv_id:$0})-[:STARTS|LEADS_TO*..10]->(b:Block {block_type: 'Question'}) " +
+			"WITH b, RELATIONSHIPS(p) as a, LENGTH(p) AS depth return DISTINCT b, " +
+			"id(b) as neo4jId, depth")
 	List<QuestionBlock> getOrderedQuestionsToPrint(String conversationId);
 
-	@Query("MATCH (b:Block {block_id: {0}, of_conversation: {1}})-[:LEADS_TO]->(a:Block {block_type: 'Answer'})" +
-			" OPTIONAL MATCH n=(a)-[:LEADS_TO*]->(nq:Block {block_type:\"Question\"}) " +
-			" WITH a,nq ORDER BY length(n) ASC " +
-			" RETURN DISTINCT id(a) as neo4jId, a.block_id as reteId, " +
-			"a.block_type as type, a.block_subtype as subtype, a.of_conversation as ofConversation, " +
-			"a.value as value, a.text as text, a.order as order, nq.block_id as nextQuestionId LIMIT {2}")
-	List<AnswerBlock> getAnswersToQuestionToPrint(int blockId, String conversationId, int answersAmount);
-
-	@Query("MATCH (b:Block {of_conversation: {1}})-[:LEADS_TO]->(a:Block {block_type: 'Answer'}) " +
-			"WHERE id(b)={0} return count(a)")
+	@Query("MATCH (b:Block {of_conversation: $1})-[:LEADS_TO]->(a:Block {block_type: 'Answer'}) " +
+			"WHERE id(b)=$0 return count(a)")
 	int getAnswersOfBlockAmount(int blockId, String conversationId);
-	// TEST
 
-
-	@Query("MATCH (t:Tag)<-[:ABOUT]-(b:Block {block_id:{0}, of_conversation: {1}}) return t.text LIMIT 1")
+	@Query("MATCH (t:Tag)<-[:ABOUT]-(b:Block {block_id: $0, of_conversation: $1}) return t.text LIMIT 1")
 	String getTagOfBlock(int blockId, String conversationId);
 
 	@Query("MATCH (c:Conversation {conv_id:{0}}) MERGE (c)-[:HAS_TRANSLATION]->(t:Translation {lang:{1}}) " +

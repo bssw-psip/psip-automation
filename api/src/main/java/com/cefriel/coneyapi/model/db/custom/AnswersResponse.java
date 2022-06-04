@@ -1,5 +1,13 @@
 package com.cefriel.coneyapi.model.db.custom;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+@Builder
+@AllArgsConstructor
 public class AnswersResponse {
 	
 	String conversation_id;
@@ -21,6 +29,8 @@ public class AnswersResponse {
 	String start_timestamp;
     String end_timestamp;
     String language;
+
+    private static final Logger logger = LoggerFactory.getLogger(AnswersResponse.class);
 
     public AnswersResponse(){}
 
@@ -66,6 +76,9 @@ public class AnswersResponse {
 
     public String getQuestion() {
     	// Aggiungere escape su \n + trim()? Per ora aggiunto nell'export del CSV
+        if (question == null) {
+            question = "";
+        }
         question = question.replaceAll("\\R", " ");
         return question;
     }
@@ -132,13 +145,9 @@ public class AnswersResponse {
 
     public String getFreeAnswer() {
         if(free_answer == null){
-            free_answer = "";
-        } else {
-        	// Aggiungere escape su \n + trim()? Per ora aggiunto nell'export del CSV
-            String tmp = free_answer.replaceAll("\\R", " ");
-            free_answer = tmp;
+            return "";
         }
-        return free_answer;
+        return free_answer.replaceAll("\\R", " ");
     }
 
     public void setFreeAnswer(String freeAnswer) {
@@ -162,16 +171,15 @@ public class AnswersResponse {
             return "";
         }
         String [] tmp = timestamp.split(" ");
-        String temp = tmp[1].replaceAll("\\.", ":");
-        return temp;
+        String temp = tmp.length > 1 ? tmp[1] : tmp[0];
+        return temp.replaceAll("\\.", ":");
     }
 
     public String getDate(){
         if(timestamp == null){
             return "";
         }
-        String [] tmp = timestamp.split(" ");
-        return tmp[0];
+        return timestamp.split(" ")[0];
     }
 
     public void setTimestamp(String timestamp) {
@@ -187,8 +195,8 @@ public class AnswersResponse {
             return "";
         }
         String [] tmp = start_timestamp.split(" ");
-        String temp = tmp[1].replaceAll("\\.", ":");
-        return temp;
+        String temp = tmp.length > 1 ? tmp[1] : tmp[0];
+        return temp.replaceAll("\\.", ":");
     }
 
     public void setStart_timestamp(String start_timestamp) {
@@ -204,8 +212,8 @@ public class AnswersResponse {
             return "";
         }
         String [] tmp = end_timestamp.split(" ");
-        String temp = tmp[1].replaceAll("\\.", ":");
-        return temp;
+        String temp = tmp.length > 1 ? tmp[1] : tmp[0];
+        return temp.replaceAll("\\.", ":");
     }
 
     public String getDuration() {
@@ -217,25 +225,50 @@ public class AnswersResponse {
             return "unfinished";
         }
 
-        int start_hour = Integer.parseInt(getStartTimestampDuration().split(":")[0]);
-        int end_hour = Integer.parseInt(getEndTimestampDuration().split(":")[0]);
-        int tot_hour = end_hour-start_hour;
+        int tot_sec = 0;
+        int tot_min = 0;
+        int tot_hour = 0;
+        
+        String [] start = getStartTimestampDuration().split(":");
+        String [] end = getEndTimestampDuration().split(":");
 
-        int start_min = Integer.parseInt(getStartTimestampDuration().split(":")[1]);
-        int end_min = Integer.parseInt(getEndTimestampDuration().split(":")[1]);
-        int tot_min = end_min-start_min;
-        if(end_min<start_min){
-            tot_min = 60 - start_min + end_min;
-            tot_hour--;
-        }
+        if (start.length > 0 && end.length > 0) {
+            try {
+                int start_hour = Integer.parseInt(start[0]);
+                int end_hour = Integer.parseInt(end[0]);
+                tot_hour = end_hour-start_hour;
+            } catch (NumberFormatException e) {
+                // Ignore
+            }
 
-        int start_sec = Integer.parseInt(getStartTimestampDuration().split(":")[2]);
-        int end_sec = Integer.parseInt(getEndTimestampDuration().split(":")[2]);
+            if (start.length > 1 && end.length > 1) {
+                try {
+                    int start_min = Integer.parseInt(start[1]);
+                    int end_min = Integer.parseInt(end[1]);
+                    tot_min = end_min-start_min;
+                    if(end_min<start_min){
+                        tot_min = 60 - start_min + end_min;
+                        tot_hour--;
+                    }
+                } catch (NumberFormatException e) {
+                    // Ignore
+                }
+    
+                if (start.length > 2 && end.length > 2) {
+                    try {
+                        int start_sec = Integer.parseInt(start[2]);
+                        int end_sec = Integer.parseInt(end[2]);
 
-        int tot_sec = end_sec-start_sec;
-        if(end_sec<start_sec){
-            tot_sec = 60 - start_sec + end_sec;
-            tot_min--;
+                        tot_sec = end_sec-start_sec;
+                        if(end_sec<start_sec){
+                            tot_sec = 60 - start_sec + end_sec;
+                            tot_min--;
+                        }
+                    } catch (NumberFormatException e) {
+                        // Ignore
+                    }
+                    }
+            }
         }
         return (tot_hour)+":"+(tot_min)+":"+(tot_sec);
     }
