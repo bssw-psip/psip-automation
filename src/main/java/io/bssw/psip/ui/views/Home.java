@@ -31,6 +31,8 @@
 package io.bssw.psip.ui.views;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Emphasis;
@@ -80,18 +82,35 @@ public class Home extends ViewFrame {
 		intro.add(new Paragraph("The self-assessment introduces software engineering practices that increase in maturity. "
 				+ "Check the practices that your project already uses to rate your project."));
 		
-		intro.add(new Paragraph(new Emphasis("Click on the assessment to the left "
-				+ "tab to get started. You can also click the arrow icon on the assessment tab to view the practice categories.")));
+		intro.add(new Paragraph(new Emphasis("Click the \"Git\" button below to sign into GitHub and manage"
+		+ " your tracking cards.")));
+
+		Button gitButton = new Button("Git");
+		gitButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
+		FlexBoxLayout authenticateGit = new FlexBoxLayout(gitButton);
+		authenticateGit.setFlexWrap(FlexWrap.WRAP);
+		authenticateGit.setSpacing(Right.S);
+
+		Anchor assessment = new Anchor("https://rateyourproject.org/assessment", UIUtils.createButton("Take Assessment", VaadinIcon.EXTERNAL_LINK));
+		FlexBoxLayout link2 = new FlexBoxLayout(assessment);
+		link2.setFlexWrap(FlexWrap.WRAP);
+		link2.setSpacing(Right.S);
+
 
 		intro.add(new Paragraph("Good luck!"));
 	
 		Anchor documentation = new Anchor("https://bssw-psip.github.io/ptc-catalog/", UIUtils.createButton("Read the documentation", VaadinIcon.EXTERNAL_LINK));
 
-		FlexBoxLayout links = new FlexBoxLayout(documentation);
-		links.setFlexWrap(FlexWrap.WRAP);
-		links.setSpacing(Right.S);
+		FlexBoxLayout link1 = new FlexBoxLayout(documentation);
 
-		FlexBoxLayout content = new FlexBoxLayout(intro, links);
+
+
+		link1.setFlexWrap(FlexWrap.WRAP);
+		link1.setSpacing(Right.S);
+
+
+
+		FlexBoxLayout content = new FlexBoxLayout(intro, gitButton, link1, link2);
 		content.setFlexDirection(FlexDirection.COLUMN);
 		content.setMargin(Horizontal.AUTO);
 		content.setMaxWidth("840px");
