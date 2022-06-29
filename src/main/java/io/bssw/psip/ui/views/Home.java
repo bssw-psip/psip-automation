@@ -52,6 +52,7 @@ import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.layout.size.Horizontal;
 import io.bssw.psip.ui.layout.size.Right;
 import io.bssw.psip.ui.layout.size.Uniform;
+import io.bssw.psip.ui.util.LumoStyles;
 import io.bssw.psip.ui.util.UIUtils;
 
 @SuppressWarnings("serial")
@@ -86,10 +87,10 @@ public class Home extends ViewFrame {
 		+ " your tracking cards.")));
 
 		Button gitButton = new Button("Git");
-		gitButton.addThemeVariants(ButtonVariant.LUMO_SMALL);
-		FlexBoxLayout authenticateGit = new FlexBoxLayout(gitButton);
-		authenticateGit.setFlexWrap(FlexWrap.WRAP);
-		authenticateGit.setSpacing(Right.S);
+		gitButton.setWidth(LumoStyles.Size.S);
+		gitButton.setWidth(LumoStyles.Size.M);
+
+
 
 		Anchor assessment = new Anchor("https://rateyourproject.org/assessment", UIUtils.createButton("Take Assessment", VaadinIcon.EXTERNAL_LINK));
 		FlexBoxLayout link2 = new FlexBoxLayout(assessment);
