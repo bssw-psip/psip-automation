@@ -45,6 +45,7 @@ import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWrite
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private Environment env;
+	private static final String LOGIN_URL = "/login";
 	
 	public SecurityConfig() {
 		/*
@@ -106,5 +107,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests().anyRequest().permitAll()
 				.and()
 				.anonymous();
+		http.oauth2Login().loginPage(LOGIN_URL).permitAll();
 	}
 }

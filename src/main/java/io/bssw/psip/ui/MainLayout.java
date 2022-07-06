@@ -252,7 +252,8 @@ public class MainLayout extends FlexBoxLayout
 					}
 				});
 			}
-			appBar.getAvatar().setVisible(false);
+			// Replaced with signInButton
+			//appBar.getAvatar().setVisible(false);
 			setAppHeaderInner(tabBar, appBar);
 
 			// Default navigation

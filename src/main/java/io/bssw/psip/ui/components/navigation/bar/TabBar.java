@@ -42,6 +42,9 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
@@ -61,6 +64,9 @@ public class TabBar extends FlexBoxLayout {
 	private Button addTab;
 	private Image avatar;
 
+	private Button signInButton;
+	private Dialog signInDialog;
+
 	public TabBar() {
 		setClassName(CLASS_NAME);
 
@@ -68,18 +74,25 @@ public class TabBar extends FlexBoxLayout {
 		menuIcon.addClassName(CLASS_NAME + "__navi-icon");
 		menuIcon.addClickListener(e -> MainLayout.get().getNaviDrawer().toggle());
 
-		avatar = new Image();
-		avatar.setClassName(CLASS_NAME + "__avatar");
-		avatar.setSrc(IMG_PATH + "avatar.png");
+//		avatar = new Image();
+//		avatar.setClassName(CLASS_NAME + "__avatar");
+//		avatar.setSrc(IMG_PATH + "avatar.png");
+//
+//		ContextMenu contextMenu = new ContextMenu(avatar);
+//		contextMenu.setOpenOnClick(true);
+//		contextMenu.addItem("Settings",
+//				e -> Notification.show("Not implemented yet.", 3000,
+//						Notification.Position.BOTTOM_CENTER));
+//		contextMenu.addItem("Log Out",
+//				e -> Notification.show("Not implemented yet.", 3000,
+//						Notification.Position.BOTTOM_CENTER));
 
-		ContextMenu contextMenu = new ContextMenu(avatar);
-		contextMenu.setOpenOnClick(true);
-		contextMenu.addItem("Settings",
-				e -> Notification.show("Not implemented yet.", 3000,
-						Notification.Position.BOTTOM_CENTER));
-		contextMenu.addItem("Log Out",
-				e -> Notification.show("Not implemented yet.", 3000,
-						Notification.Position.BOTTOM_CENTER));
+		signInDialog = new Dialog();
+		signInDialog.setThemeName("Sign In");
+		VerticalLayout dialogLayout = createDialogLayout();
+		signInDialog.add(dialogLayout);
+
+		signInButton = new Button("Sign in", e -> signInDialog.open());
 
 		addTab = UIUtils.createSmallButton(VaadinIcon.PLUS);
 		addTab.addClickListener(e -> tabs
@@ -89,7 +102,17 @@ public class TabBar extends FlexBoxLayout {
 		tabs = new NaviTabs();
 		tabs.setClassName(CLASS_NAME + "__tabs");
 
-		add(menuIcon, tabs, addTab, avatar);
+		add(menuIcon, tabs, addTab, signInDialog, signInButton);
+	}
+
+	private VerticalLayout createDialogLayout() {
+		VerticalLayout dialogLayout = new VerticalLayout();
+		dialogLayout.setPadding(false);
+		dialogLayout.setSpacing(false);
+		dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+		dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
+		return dialogLayout;
 	}
 
 	/* === MENU ICON === */

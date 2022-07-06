@@ -43,13 +43,18 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
@@ -67,6 +72,8 @@ import io.bssw.psip.ui.views.Home;
 @CssImport("./styles/components/app-bar.css")
 public class AppBar extends Header {
 
+	private static final String OAUTH_URL_GITHUB = "/oauth2/authorization/github";
+
 	private String CLASS_NAME = "app-bar";
 
 	private FlexBoxLayout container;
@@ -77,6 +84,9 @@ public class AppBar extends Header {
 	private H1 title;
 	private FlexBoxLayout actionItems;
 	private Image avatar;
+
+	private Button signInButton;
+	private Dialog signInDialog;
 
 	private FlexBoxLayout tabContainer;
 	private NaviTabs tabs;
@@ -97,7 +107,9 @@ public class AppBar extends Header {
 		initContextIcon();
 		initTitle(title);
 		initSearch();
-		initAvatar();
+		//initAvatar();
+		initSignInDialog();
+		initSignInButton();
 		initActionItems();
 		initContainer();
 		initTabs(tabs);
@@ -158,6 +170,37 @@ public class AppBar extends Header {
 						Notification.Position.BOTTOM_CENTER));
 	}
 
+	private VerticalLayout createDialogLayout() {
+		H2 headline = new H2("Sign In");
+		headline.getStyle().set("margin", "var(--lumo-space-m) 0 0 0")
+				.set("font-size", "1.5em").set("font-weight", "bold");
+		Paragraph signInText = new Paragraph("Sign in with GitHub " +
+				"to enable saving and retrieving results, and automatically " +
+				"creating issues in your repositories.");
+		Anchor signInGithub = new Anchor(OAUTH_URL_GITHUB, "Sign in with GitHub");
+		signInGithub.getElement().setAttribute("router-ignore", true);
+		VerticalLayout dialogLayout = new VerticalLayout(headline, signInText, signInGithub);
+		dialogLayout.setPadding(false);
+		dialogLayout.setSpacing(false);
+		dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+		dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
+		return dialogLayout;
+	}
+	private void initSignInDialog() {
+		signInDialog = new Dialog();
+		signInDialog.getElement().setAttribute("aria-label", "Sign In");
+		VerticalLayout dialogLayout = createDialogLayout();
+		signInDialog.add(dialogLayout);
+	}
+
+	private void initSignInButton() {
+		signInButton = new Button("Sign in", e -> signInDialog.open());
+		signInButton.setVisible(true);
+		signInButton.setClassName(CLASS_NAME + "__signInButton");
+	}
+
+
 	private void initActionItems() {
 		actionItems = new FlexBoxLayout();
 		actionItems.addClassName(CLASS_NAME + "__action-items");
@@ -166,7 +209,7 @@ public class AppBar extends Header {
 
 	private void initContainer() {
 		container = new FlexBoxLayout(menuIcon, contextIcon, this.title, search,
-				actionItems, avatar);
+				actionItems, signInDialog, signInButton);
 		container.addClassName(CLASS_NAME + "__container");
 		container.setAlignItems(FlexComponent.Alignment.CENTER);
 		container.setFlexGrow(1, search);
