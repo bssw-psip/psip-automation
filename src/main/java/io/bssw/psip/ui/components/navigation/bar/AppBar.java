@@ -35,6 +35,10 @@ import static io.bssw.psip.ui.util.UIUtils.IMG_PATH;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -44,12 +48,12 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -103,13 +107,18 @@ public class AppBar extends Header {
 	public AppBar(String title, NaviTab... tabs) {
 		setClassName(CLASS_NAME);
 
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		
 		initMenuIcon();
 		initContextIcon();
 		initTitle(title);
 		initSearch();
-		//initAvatar();
-		initSignInDialog();
-		initSignInButton();
+		if (!"anonymousUser".equals(authentication.getPrincipal())) {
+			initAvatar((OAuth2AuthenticatedPrincipal) authentication.getPrincipal());
+		} else {
+			initSignInDialog();
+			initSignInButton();
+		}
 		initActionItems();
 		initContainer();
 		initTabs(tabs);
@@ -154,10 +163,15 @@ public class AppBar extends Header {
 		search.setVisible(false);
 	}
 
-	private void initAvatar() {
+	private void initAvatar(OAuth2AuthenticatedPrincipal user) {
 		avatar = new Image();
 		avatar.setClassName(CLASS_NAME + "__avatar");
-		avatar.setSrc(IMG_PATH + "avatar.png");
+		String avatar_url = user.getAttribute("avatar_url");
+		if (avatar_url != null) {
+			avatar.setSrc(avatar_url);
+		} else {
+			avatar.setSrc(IMG_PATH + "avatar.png");
+		}
 		avatar.setAlt("User menu");
 
 		ContextMenu contextMenu = new ContextMenu(avatar);
@@ -209,7 +223,12 @@ public class AppBar extends Header {
 
 	private void initContainer() {
 		container = new FlexBoxLayout(menuIcon, contextIcon, this.title, search,
-				actionItems, signInDialog, signInButton);
+				actionItems);
+		if (avatar != null) {
+			container.add(avatar);
+		} else {
+			container.add(signInDialog, signInButton);
+		}
 		container.addClassName(CLASS_NAME + "__container");
 		container.setAlignItems(FlexComponent.Alignment.CENTER);
 		container.setFlexGrow(1, search);
