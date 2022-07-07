@@ -185,15 +185,12 @@ public class AppBar extends Header {
 	}
 
 	private VerticalLayout createDialogLayout() {
-		H2 headline = new H2("Sign In");
-		headline.getStyle().set("margin", "var(--lumo-space-m) 0 0 0")
-				.set("font-size", "1.5em").set("font-weight", "bold");
 		Paragraph signInText = new Paragraph("Sign in with GitHub " +
 				"to enable saving and retrieving results, and automatically " +
 				"creating issues in your repositories.");
 		Anchor signInGithub = new Anchor(OAUTH_URL_GITHUB, "Sign in with GitHub");
 		signInGithub.getElement().setAttribute("router-ignore", true);
-		VerticalLayout dialogLayout = new VerticalLayout(headline, signInText, signInGithub);
+		VerticalLayout dialogLayout = new VerticalLayout(signInText, signInGithub);
 		dialogLayout.setPadding(false);
 		dialogLayout.setSpacing(false);
 		dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
@@ -203,7 +200,7 @@ public class AppBar extends Header {
 	}
 	private void initSignInDialog() {
 		signInDialog = new Dialog();
-		signInDialog.getElement().setAttribute("aria-label", "Sign In");
+		signInDialog.setHeaderTitle("Sign In");
 		VerticalLayout dialogLayout = createDialogLayout();
 		signInDialog.add(dialogLayout);
 	}
