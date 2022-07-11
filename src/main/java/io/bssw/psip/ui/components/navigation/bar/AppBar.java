@@ -38,6 +38,7 @@ import java.util.Optional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.Component;
@@ -48,9 +49,9 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
@@ -63,6 +64,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
+import com.vaadin.flow.server.VaadinServletRequest;
 
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
@@ -77,6 +79,7 @@ import io.bssw.psip.ui.views.Home;
 public class AppBar extends Header {
 
 	private static final String OAUTH_URL_GITHUB = "/oauth2/authorization/github";
+	private static final String LOGOUT_SUCCESS_URL = "/";
 
 	private String CLASS_NAME = "app-bar";
 
@@ -180,8 +183,13 @@ public class AppBar extends Header {
 				e -> Notification.show("Not implemented yet.", 3000,
 						Notification.Position.BOTTOM_CENTER));
 		contextMenu.addItem("Log Out",
-				e -> Notification.show("Not implemented yet.", 3000,
-						Notification.Position.BOTTOM_CENTER));
+				e -> {
+					UI.getCurrent().getPage().setLocation(LOGOUT_SUCCESS_URL);
+					SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+					logoutHandler.logout(
+							VaadinServletRequest.getCurrent().getHttpServletRequest(), null,
+							null);
+				});
 	}
 
 	private VerticalLayout createDialogLayout() {
