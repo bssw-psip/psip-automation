@@ -63,6 +63,8 @@ import io.bssw.psip.backend.data.Activity;
 import io.bssw.psip.backend.data.Category;
 import io.bssw.psip.backend.data.Item;
 import io.bssw.psip.backend.service.ActivityService;
+import io.bssw.psip.backend.service.RepositoryProvider;
+import io.bssw.psip.backend.service.RepositoryProviderManager;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.components.navigation.bar.AppBar;
 import io.bssw.psip.ui.components.navigation.bar.TabBar;
@@ -114,9 +116,11 @@ public class MainLayout extends FlexBoxLayout
 
 	// Can't autowire these beans because MainLayout is not managed by Spring
 	private ActivityService activityService;
+	private RepositoryProviderManager repositoryManager;
 
-	public MainLayout(@Autowired ActivityService activityService) {
+	public MainLayout(@Autowired ActivityService activityService, @Autowired RepositoryProviderManager manager) {
 		this.activityService = activityService;
+		this.repositoryManager = manager;
 
 		VaadinSession.getCurrent()
 				.setErrorHandler((ErrorHandler) errorEvent -> {
@@ -237,7 +241,7 @@ public class MainLayout extends FlexBoxLayout
 		// - When using tabbed navigation the view title, user avatar and main menu button will appear in the TabBar.
 		// - When tabbed navigation is turned off they appear in the AppBar.
 
-		appBar = new AppBar("");
+		appBar = new AppBar(repositoryManager, "");
 
 		// Tabbed navigation
 		if (navigationTabs) {

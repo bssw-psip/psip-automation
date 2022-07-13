@@ -50,7 +50,6 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
@@ -64,6 +63,8 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
 
+import io.bssw.psip.backend.service.RepositoryProvider;
+import io.bssw.psip.backend.service.RepositoryProviderManager;
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.components.navigation.tab.NaviTab;
@@ -75,8 +76,6 @@ import io.bssw.psip.ui.views.Home;
 @SuppressWarnings("serial")
 @CssImport("./styles/components/app-bar.css")
 public class AppBar extends Header {
-
-	private static final String OAUTH_URL_GITHUB = "/oauth2/authorization/github";
 
 	private String CLASS_NAME = "app-bar";
 
@@ -100,21 +99,23 @@ public class AppBar extends Header {
 	private TextField search;
 	private Registration searchRegistration;
 
+	private final RepositoryProviderManager repositoryManager;
+
 	public enum NaviMode {
 		MENU, CONTEXTUAL
 	}
 
-	public AppBar(String title, NaviTab... tabs) {
+	public AppBar(RepositoryProviderManager manager, String title, NaviTab... tabs) {
+		this.repositoryManager = manager;
+
 		setClassName(CLASS_NAME);
 
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		
 		initMenuIcon();
 		initContextIcon();
 		initTitle(title);
 		initSearch();
-		if (!"anonymousUser".equals(authentication.getPrincipal())) {
-			initAvatar((OAuth2AuthenticatedPrincipal) authentication.getPrincipal());
+		if (repositoryManager.isLoggedIn()) {
+			initAvatar();
 		} else {
 			initSignInDialog();
 			initSignInButton();
@@ -163,10 +164,10 @@ public class AppBar extends Header {
 		search.setVisible(false);
 	}
 
-	private void initAvatar(OAuth2AuthenticatedPrincipal user) {
+	private void initAvatar() {
 		avatar = new Image();
 		avatar.setClassName(CLASS_NAME + "__avatar");
-		String avatar_url = user.getAttribute("avatar_url");
+		String avatar_url = repositoryManager.getAttribute("avatar_url");
 		if (avatar_url != null) {
 			avatar.setSrc(avatar_url);
 		} else {
@@ -185,12 +186,18 @@ public class AppBar extends Header {
 	}
 
 	private VerticalLayout createDialogLayout() {
-		Paragraph signInText = new Paragraph("Sign in with GitHub " +
+		Paragraph signInText = new Paragraph("Sign in  " +
 				"to enable saving and retrieving results, and automatically " +
 				"creating issues in your repositories.");
-		Anchor signInGithub = new Anchor(OAUTH_URL_GITHUB, "Sign in with GitHub");
-		signInGithub.getElement().setAttribute("router-ignore", true);
-		VerticalLayout dialogLayout = new VerticalLayout(signInText, signInGithub);
+		VerticalLayout dialogLayout = new VerticalLayout(signInText);
+		for (RepositoryProvider provider : repositoryManager.getProviders()) {
+			// Anchor signIn = new Anchor(provider.getOAuthUrl(), "Sign in with "+ provider.getName());
+			Button signIn = new Button("Sign in with " + provider.getName());
+			signIn.addClickListener(e -> {
+				provider.login();
+			});
+			dialogLayout.add(signIn);
+		}
 		dialogLayout.setPadding(false);
 		dialogLayout.setSpacing(false);
 		dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);

@@ -28,73 +28,48 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-package io.bssw.psip.backend.data;
+package io.bssw.psip.backend.service;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import java.util.Map;
 
-@Entity
-public class Score extends AbstractEntity {
-	@NotBlank
-	@Size(max = 255)
-	private String name;
-	
-	@NotBlank
-	@Size(max = 255)
-	private String boost;
+import com.vaadin.flow.component.html.Image;
 
-	@NotBlank
-	@Size(max = 255)
-	private String color;
-	
-	@NotBlank
-	@Column(name = "`VALUE`")
-	private Integer value;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	private Activity activity;
+public interface RepositoryProvider {
+    /*
+     * Get the name of the provider for display purposes
+     */
+    String getName();
 
-	public String getName() {
-		return name;
-	}
+    /*
+     * Get an image that can be used for display purposes
+     */
+    Image getImage();
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    /*
+     * Log in using the provider for authorization
+     */
+    boolean login();
 
-	public String getBoost() {
-		return boost;
-	}
+    /*
+     * Log out from the provider
+     */
+    boolean logout();
 
-	public void setBoost(String boost) {
-		this.boost = boost;
-	}
+    /*
+     * Get the user attribute map supplied by the provider
+     */
+    Map<String, String> getUserInfo();
 
-	public String getColor() {
-		return color;
-	}
+    /*
+     * Get the contents of a file from branch 'ref' in a repoistory 'repo' that is owned by 'owner'. 
+     * 
+     * @Return null if no file exists, otherwise the contents as a string
+     */
+    String getFile(String owner, String repo, String ref, String path);
 
-	public void setColor(String color) {
-		this.color = color;
-	}
-
-	public Integer getValue() {
-		return value;
-	}
-
-	public void setValue(Integer value) {
-		this.value = value;
-	}
-
-	public Activity getActivity() {
-		return activity;
-	}
-
-	public void setActivity(Activity activity) {
-		this.activity = activity;
-	}
+    /*
+     * Put the string 'content' into a file specified by 'path' on branch 'ref' in a repository 'repo' owned by 'owner'. 
+     * If the file does not exist, it will be created. If it does exist, the contents will be replaced with the new value.
+     */
+    boolean putFile(String owner, String repo, String ref, String path, String message, String content);
 }
