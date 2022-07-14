@@ -35,6 +35,10 @@ import static io.bssw.psip.ui.util.UIUtils.IMG_PATH;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -43,18 +47,24 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
 
+import io.bssw.psip.backend.service.RepositoryProvider;
+import io.bssw.psip.backend.service.RepositoryProviderManager;
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.components.navigation.tab.NaviTab;
@@ -78,6 +88,9 @@ public class AppBar extends Header {
 	private FlexBoxLayout actionItems;
 	private Image avatar;
 
+	private Button signInButton;
+	private Dialog signInDialog;
+
 	private FlexBoxLayout tabContainer;
 	private NaviTabs tabs;
 	private ArrayList<Registration> tabSelectionListeners;
@@ -86,18 +99,27 @@ public class AppBar extends Header {
 	private TextField search;
 	private Registration searchRegistration;
 
+	private final RepositoryProviderManager repositoryManager;
+
 	public enum NaviMode {
 		MENU, CONTEXTUAL
 	}
 
-	public AppBar(String title, NaviTab... tabs) {
+	public AppBar(RepositoryProviderManager manager, String title, NaviTab... tabs) {
+		this.repositoryManager = manager;
+
 		setClassName(CLASS_NAME);
 
 		initMenuIcon();
 		initContextIcon();
 		initTitle(title);
 		initSearch();
-		initAvatar();
+		if (repositoryManager.isLoggedIn()) {
+			initAvatar();
+		} else {
+			initSignInDialog();
+			initSignInButton();
+		}
 		initActionItems();
 		initContainer();
 		initTabs(tabs);
@@ -145,7 +167,12 @@ public class AppBar extends Header {
 	private void initAvatar() {
 		avatar = new Image();
 		avatar.setClassName(CLASS_NAME + "__avatar");
-		avatar.setSrc(IMG_PATH + "avatar.png");
+		String avatar_url = repositoryManager.getAttribute("avatar_url");
+		if (avatar_url != null) {
+			avatar.setSrc(avatar_url);
+		} else {
+			avatar.setSrc(IMG_PATH + "avatar.png");
+		}
 		avatar.setAlt("User menu");
 
 		ContextMenu contextMenu = new ContextMenu(avatar);
@@ -158,6 +185,40 @@ public class AppBar extends Header {
 						Notification.Position.BOTTOM_CENTER));
 	}
 
+	private VerticalLayout createDialogLayout() {
+		Paragraph signInText = new Paragraph("Sign in  " +
+				"to enable saving and retrieving results, and automatically " +
+				"creating issues in your repositories.");
+		VerticalLayout dialogLayout = new VerticalLayout(signInText);
+		for (RepositoryProvider provider : repositoryManager.getProviders()) {
+			// Anchor signIn = new Anchor(provider.getOAuthUrl(), "Sign in with "+ provider.getName());
+			Button signIn = new Button("Sign in with " + provider.getName());
+			signIn.addClickListener(e -> {
+				provider.login();
+			});
+			dialogLayout.add(signIn);
+		}
+		dialogLayout.setPadding(false);
+		dialogLayout.setSpacing(false);
+		dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+		dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
+		return dialogLayout;
+	}
+	private void initSignInDialog() {
+		signInDialog = new Dialog();
+		signInDialog.setHeaderTitle("Sign In");
+		VerticalLayout dialogLayout = createDialogLayout();
+		signInDialog.add(dialogLayout);
+	}
+
+	private void initSignInButton() {
+		signInButton = new Button("Sign in", e -> signInDialog.open());
+		signInButton.setVisible(true);
+		signInButton.setClassName(CLASS_NAME + "__signInButton");
+	}
+
+
 	private void initActionItems() {
 		actionItems = new FlexBoxLayout();
 		actionItems.addClassName(CLASS_NAME + "__action-items");
@@ -166,7 +227,12 @@ public class AppBar extends Header {
 
 	private void initContainer() {
 		container = new FlexBoxLayout(menuIcon, contextIcon, this.title, search,
-				actionItems, avatar);
+				actionItems);
+		if (avatar != null) {
+			container.add(avatar);
+		} else {
+			container.add(signInDialog, signInButton);
+		}
 		container.addClassName(CLASS_NAME + "__container");
 		container.setAlignItems(FlexComponent.Alignment.CENTER);
 		container.setFlexGrow(1, search);

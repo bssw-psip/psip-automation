@@ -44,6 +44,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexWrap;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
@@ -55,6 +56,7 @@ import io.bssw.psip.ui.util.UIUtils;
 @SuppressWarnings("serial")
 @PageTitle("PSIP")
 @Route(value = "", layout = MainLayout.class)
+@AnonymousAllowed
 public class Home extends ViewFrame {
 	
 	public Home() {
