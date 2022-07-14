@@ -77,7 +77,7 @@ public class GenData {
 			int score_id = 1;
 			for (Activity activity : content.getActivities()) {
 				for (Score score : activity.getScores()) {
-					writer.println("insert into score (id, name, boost, value, color, activity_id) values (" + 
+					writer.println("insert into score (id, name, boost, \"value\", color, activity_id) values (" + 
 							score_id++ + ", '" +
 							score.getName() + "', '" +
 							score.getBoost() + "', " +
