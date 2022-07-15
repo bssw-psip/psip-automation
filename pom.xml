@@ -153,6 +153,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+	    <version>2.1.214</version>
         </dependency>
     </dependencies>
 
@@ -193,6 +194,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+		<version>2.6.2</version>
             </plugin>
             <plugin>
                 <groupId>com.vaadin</groupId>
