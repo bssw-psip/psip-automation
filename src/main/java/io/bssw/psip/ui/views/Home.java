@@ -31,17 +31,18 @@
 package io.bssw.psip.ui.views;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Emphasis;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.UnorderedList;
-import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
-import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexWrap;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -49,9 +50,10 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.layout.size.Horizontal;
-import io.bssw.psip.ui.layout.size.Right;
 import io.bssw.psip.ui.layout.size.Uniform;
+import io.bssw.psip.ui.util.LumoStyles;
 import io.bssw.psip.ui.util.UIUtils;
+
 
 @SuppressWarnings("serial")
 @PageTitle("PSIP")
@@ -82,18 +84,28 @@ public class Home extends ViewFrame {
 		intro.add(new Paragraph("The self-assessment introduces software engineering practices that increase in maturity. "
 				+ "Check the practices that your project already uses to rate your project."));
 		
-		intro.add(new Paragraph(new Emphasis("Click on the assessment to the left "
-				+ "tab to get started. You can also click the arrow icon on the assessment tab to view the practice categories.")));
+		intro.add(new Paragraph("Take the survey by clicking the button below or sign in to customize your survey"
+				+ " and save the results directly to your project repository!"));
 
-		intro.add(new Paragraph("Good luck!"));
-	
-		Anchor documentation = new Anchor("https://bssw-psip.github.io/ptc-catalog/", UIUtils.createButton("Read the documentation", VaadinIcon.EXTERNAL_LINK));
 
-		FlexBoxLayout links = new FlexBoxLayout(documentation);
-		links.setFlexWrap(FlexWrap.WRAP);
-		links.setSpacing(Right.S);
 
-		FlexBoxLayout content = new FlexBoxLayout(intro, links);
+
+		VerticalLayout layout = new VerticalLayout();
+		Button surveyButton = new Button("Take the Survey"); //commit this
+		surveyButton.addClickListener(buttonClickEvent -> {
+			surveyButton.getUI().ifPresent(ui -> ui.navigate("assessment"));
+		});
+		layout.add(surveyButton);
+		layout.setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, surveyButton);
+		surveyButton.setMaxWidth(15, Unit.REM);
+		surveyButton.setWidthFull(); //keep this line, makes the button the full width of its max size
+		surveyButton.setHeight(LumoStyles.Size.M);
+		surveyButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY); //this worked, commit this
+
+
+
+
+		FlexBoxLayout content = new FlexBoxLayout(intro, surveyButton);
 		content.setFlexDirection(FlexDirection.COLUMN);
 		content.setMargin(Horizontal.AUTO);
 		content.setMaxWidth("840px");
