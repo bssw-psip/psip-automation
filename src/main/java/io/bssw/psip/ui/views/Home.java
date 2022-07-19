@@ -34,19 +34,14 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Emphasis;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.UnorderedList;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
-import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexWrap;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -54,11 +49,10 @@ import com.vaadin.flow.router.Route;
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.layout.size.Horizontal;
-import io.bssw.psip.ui.layout.size.Right;
 import io.bssw.psip.ui.layout.size.Uniform;
 import io.bssw.psip.ui.util.LumoStyles;
 import io.bssw.psip.ui.util.UIUtils;
-import org.apache.commons.compress.harmony.pack200.NewAttributeBands;
+
 
 @SuppressWarnings("serial")
 @PageTitle("PSIP")
@@ -91,12 +85,14 @@ public class Home extends ViewFrame {
 		intro.add(new Paragraph("Take the survey by clicking the button below or sign in to customize your survey"
 				+ " and save the results directly to your project repository!"));
 
+
+
+
 		VerticalLayout layout = new VerticalLayout();
 		Button surveyButton = new Button("Take the Survey"); //commit this
 		surveyButton.addClickListener(buttonClickEvent -> {
 			surveyButton.getUI().ifPresent(ui -> ui.navigate("assessment"));
 		});
-
 		layout.add(surveyButton);
 		layout.setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, surveyButton);
 		surveyButton.setMaxWidth(15, Unit.REM);
@@ -105,22 +101,6 @@ public class Home extends ViewFrame {
 		surveyButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY); //this worked, commit this
 
 
-
-
-
-		//redirect link to assessment tab: "https://rateyourproject.org/assessment"
-		//redirect link to documentation: "https://bssw-psip.github.io/ptc-catalog/"
-
-
-
-
-
-		/* Use this to create a link:
-		Anchor documentation = new Anchor("https://bssw-psip.github.io/ptc-catalog/", UIUtils.createButton("Read the documentation", VaadinIcon.EXTERNAL_LINK));
-		FlexBoxLayout link1 = new FlexBoxLayout(documentation);
-		link1.setFlexWrap(FlexWrap.WRAP);
-		link1.setSpacing(Right.S);
-		*/
 
 
 		FlexBoxLayout content = new FlexBoxLayout(intro, surveyButton);
