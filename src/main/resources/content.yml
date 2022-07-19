@@ -5,7 +5,7 @@
 #           a progress bar element that indicates how close to completion the activity is. The pages can be directly
 #           accessed using the 'path' element. Scores define the scores being used for assessment.
 #
-# Category: A category allows lower level pages to be grouped. The are normally the "Better ..." categories taken from
+# Category: A category allows lower level pages to be grouped. They are normally the "Better ..." categories taken from
 #           the BSSW web site, but could be other things. Category pages display the 'description' text along with a
 #           score for of each of the items (see below) using a radial chart. The pages can be directly accessed using
 #           the parent activity path concatenated with the 'path' element.
@@ -251,5 +251,12 @@ activities:
    path: integration
    icon: COGS
    description: "** COMING SOON ** The integration section is used to aid the integration of progress tracking cards into your development workflow."
+   scores: []
+   categories: []
+
+ - name: Help
+   path: help
+   icon: QUESTION_CIRCLE
+   description: "** COMING SOON ** The help section is used to explain the instructions for taking the assessment and to address many frequently asked questions."
    scores: []
    categories: []

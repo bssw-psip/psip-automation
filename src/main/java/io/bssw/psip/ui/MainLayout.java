@@ -37,6 +37,9 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -208,7 +211,7 @@ public class MainLayout extends FlexBoxLayout
 						catNav.setExpanded(false);
 					}
 				}
-				actNav.setExpanded(false);			
+				actNav.setExpanded(false);
 			}
 		}
 	}
@@ -372,7 +375,14 @@ public class MainLayout extends FlexBoxLayout
 	private void afterNavigationWithoutTabs(AfterNavigationEvent e) {
 		NaviItem active = getActiveItem(e);
 		if (active != null) {
-			getAppBar().setTitle(active.getText());
+			if(active.getText() == "Home"){
+				getNaviDrawer().setVisible(false);
+				getAppBar().setHeight(3.5f, Unit.REM);
+			}
+			else{
+				getNaviDrawer().setVisible(true);
+				getAppBar().setTitle(active.getText());
+			}
 		}
 	}
 }
