@@ -32,12 +32,15 @@ package io.bssw.psip;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurityConfigurerAdapter;
 
@@ -71,45 +74,45 @@ public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
 		 * TODO: try to make the CSP better, but unfortunately using Vaadin may make
 		 * this difficult
 		 */
-		// http.headers()
-		// 		.contentSecurityPolicy(
-		// 				"default-src 'none'; "
-		// 						+ "frame-ancestors 'none'; "
-		// 						+ "form-action 'none'; "
-		// 						+ "base-uri 'self'; "
-		// 						+ "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com/; "
-		// 						+ "script-src 'self' 'unsafe-inline' 'unsafe-eval' data:; "
-		// 						+ "connect-src 'self'; "
-		// 						+ "img-src 'self'; "
-		// 						+ "frame-src https://www.youtube.com/embed/; "
-		// 						+ "font-src 'self' data: https://fonts.gstatic.com/;"
-		// 		)
-		// 		.and()
-		// 		.httpStrictTransportSecurity()
-		// 		.and()
-		// 		.referrerPolicy((Arrays.asList(env.getActiveProfiles()).contains("prod")) ? ReferrerPolicy.STRICT_ORIGIN
-		// 				: ReferrerPolicy.NO_REFERRER)
-		// 		.and()
-		// 		.featurePolicy(
-		// 				"accelerometer 'none'; "
-		// 						+ "camera 'none'; "
-		// 						+ "fullscreen 'self'; "
-		// 						+ "geolocation 'none'; "
-		// 						+ "gyroscope 'none'; "
-		// 						+ "magnetometer 'none'; "
-		// 						+ "microphone 'none'; "
-		// 						+ "midi 'none'; "
-		// 						+ "payment 'none'; "
-		// 						+ "speaker 'none'; "
-		// 						+ "sync-xhr 'none'; "
-		// 						+ "usb 'none'");
+		http.headers()
+				.contentSecurityPolicy(
+						"default-src 'none'; "
+								+ "frame-ancestors 'none'; "
+								+ "form-action 'none'; "
+								+ "base-uri 'self'; "
+								+ "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com/; "
+								+ "script-src 'self' 'unsafe-inline' 'unsafe-eval' data:; "
+								+ "connect-src 'self'; "
+								+ "img-src 'self'; "
+								+ "frame-src https://www.youtube.com/embed/; "
+								+ "font-src 'self' data: https://fonts.gstatic.com/;"
+				)
+				.and()
+				.httpStrictTransportSecurity()
+				.and()
+				.referrerPolicy((Arrays.asList(env.getActiveProfiles()).contains("prod")) ? ReferrerPolicy.STRICT_ORIGIN
+						: ReferrerPolicy.NO_REFERRER)
+				.and()
+				.featurePolicy(
+						"accelerometer 'none'; "
+								+ "camera 'none'; "
+								+ "fullscreen 'self'; "
+								+ "geolocation 'none'; "
+								+ "gyroscope 'none'; "
+								+ "magnetometer 'none'; "
+								+ "microphone 'none'; "
+								+ "midi 'none'; "
+								+ "payment 'none'; "
+								+ "speaker 'none'; "
+								+ "sync-xhr 'none'; "
+								+ "usb 'none'");
 
 		// // permit all requests - Vaadin handles security
 		// http.authorizeRequests().anyRequest().permitAll()
 		// 		.and()
 		// 		.anonymous();
 		// http.oauth2Login().loginPage(LOGIN_URL).permitAll();
-		super.configure(http);
+		// super.configure(http);
 		http.oauth2Login(withDefaults()).oauth2Client(withDefaults());
 	}
 
