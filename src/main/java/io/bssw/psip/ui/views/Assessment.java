@@ -66,6 +66,7 @@ import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.router.WildcardParameter;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import io.bssw.psip.backend.data.Activity;
 import io.bssw.psip.backend.data.Category;
@@ -83,6 +84,7 @@ import io.bssw.psip.ui.util.UIUtils;
 
 @SuppressWarnings("serial")
 @PageTitle("Assessment")
+@AnonymousAllowed
 @Route(value = "assessment", layout = MainLayout.class)
 public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	private Label description;
