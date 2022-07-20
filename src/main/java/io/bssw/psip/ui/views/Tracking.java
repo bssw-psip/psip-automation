@@ -40,6 +40,7 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.WildcardParameter;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import io.bssw.psip.backend.service.ActivityService;
 import io.bssw.psip.ui.MainLayout;
@@ -49,6 +50,7 @@ import io.bssw.psip.ui.layout.size.Uniform;
 
 @SuppressWarnings("serial")
 @PageTitle("Tracking")
+@AnonymousAllowed
 @Route(value = "tracking", layout = MainLayout.class)
 public class Tracking extends ViewFrame  implements HasUrlParameter<String> {
 	private ActivityService activityService;
