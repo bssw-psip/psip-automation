@@ -63,7 +63,7 @@ import io.bssw.psip.ui.util.css.WhiteSpace;
 
 public class UIUtils {
 
-	public static final String IMG_PATH = "images/";
+	public static final String IMG_PATH = "/images/";
 
 	/**
 	 * Thread-unsafe formatters.

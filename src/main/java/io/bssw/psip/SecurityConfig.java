@@ -84,6 +84,7 @@ public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
 								+ "script-src 'self' 'unsafe-inline' 'unsafe-eval' data:; "
 								+ "connect-src 'self'; "
 								+ "img-src 'self'; "
+								+ "manifest-src 'self'; "
 								+ "frame-src https://www.youtube.com/embed/; "
 								+ "font-src 'self' data: https://fonts.gstatic.com/;"
 				)
@@ -107,27 +108,7 @@ public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
 								+ "sync-xhr 'none'; "
 								+ "usb 'none'");
 
-		// // permit all requests - Vaadin handles security
-		// http.authorizeRequests().anyRequest().permitAll()
-		// 		.and()
-		// 		.anonymous();
-		// http.oauth2Login().loginPage(LOGIN_URL).permitAll();
-		// super.configure(http);
 		http.oauth2Login(withDefaults()).oauth2Client(withDefaults());
+		super.configure(http);
 	}
-
-	    /**
-     * Allows access to static resources, bypassing Spring security.
-     */
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        // Configure your static resources with public access here:
-        web.ignoring().antMatchers(
-                "/images/**"
-        );
-
-        // Delegating the ignoring configuration for Vaadin's
-        // related static resources to the super class:
-        super.configure(web);
-    }
 }

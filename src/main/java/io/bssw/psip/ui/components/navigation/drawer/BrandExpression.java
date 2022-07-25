@@ -34,6 +34,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.server.StreamResource;
 
 import io.bssw.psip.ui.util.UIUtils;
 
@@ -49,7 +50,9 @@ public class BrandExpression extends Div {
 	public BrandExpression(String text) {
 		setClassName(CLASS_NAME);
 
-		logo = new Image(UIUtils.IMG_PATH + "logos/psip.png", "");
+		StreamResource logoResource = new StreamResource("psip.png",
+			() -> getClass().getResourceAsStream(UIUtils.IMG_PATH + "logos/psip.png"));
+		logo = new Image(logoResource, "");
 		logo.setAlt(text + " logo");
 		logo.setClassName(CLASS_NAME + "__logo");
 
