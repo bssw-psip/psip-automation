@@ -109,6 +109,5 @@ public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
 								+ "usb 'none'");
 
 		http.oauth2Login(withDefaults()).oauth2Client(withDefaults());
-		super.configure(http);
 	}
 }
