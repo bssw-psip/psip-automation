@@ -38,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 
@@ -49,7 +48,6 @@ import com.vaadin.flow.spring.security.VaadinWebSecurityConfigurerAdapter;
 public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
 	@Autowired
 	private Environment env;
-	private static final String LOGIN_URL = "/login";
 	
 	public SecurityConfig() {
 		/*

@@ -38,8 +38,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +64,6 @@ import io.bssw.psip.backend.data.Activity;
 import io.bssw.psip.backend.data.Category;
 import io.bssw.psip.backend.data.Item;
 import io.bssw.psip.backend.service.ActivityService;
-import io.bssw.psip.backend.service.RepositoryProvider;
 import io.bssw.psip.backend.service.RepositoryProviderManager;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.components.navigation.bar.AppBar;
