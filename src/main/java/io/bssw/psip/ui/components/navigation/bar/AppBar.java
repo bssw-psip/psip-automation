@@ -61,6 +61,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
 
 import io.bssw.psip.backend.service.RepositoryProvider;
@@ -171,7 +172,9 @@ public class AppBar extends Header {
 		if (avatar_url != null) {
 			avatar.setSrc(avatar_url);
 		} else {
-			avatar.setSrc(IMG_PATH + "avatar.png");
+			StreamResource imageResource = new StreamResource("avatar.png",
+				() -> getClass().getResourceAsStream(IMG_PATH + "avatar.png"));
+			avatar.setSrc(imageResource);
 		}
 		avatar.setAlt("User menu");
 
