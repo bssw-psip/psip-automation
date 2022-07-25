@@ -2,9 +2,6 @@ package io.bssw.psip.backend.service;
 
 import java.util.Map;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Image;
 
