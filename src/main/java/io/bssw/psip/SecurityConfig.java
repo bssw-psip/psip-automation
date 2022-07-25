@@ -61,6 +61,8 @@ public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		super.configure(http);
+		
 		/*
 		 * General headers used.
 		 * 
