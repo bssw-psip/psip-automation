@@ -30,6 +30,7 @@
 *******************************************************************************/
 package io.bssw.psip.backend.service;
 
+import java.io.IOException;
 import java.util.Map;
 
 import com.vaadin.flow.component.html.Image;
@@ -48,7 +49,7 @@ public interface RepositoryProvider {
     /*
      * Log in using the provider for authorization
      */
-    boolean login();
+    boolean login() throws IOException;
 
     /*
      * Log out from the provider

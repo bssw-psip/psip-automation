@@ -1,19 +1,20 @@
 package io.bssw.psip.backend.service;
 
+import java.io.IOException;
 import java.util.Map;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Image;
 
 public abstract class AbstractRepositoryProvider implements RepositoryProvider {
-    private RepositoryProviderManager repositoryManager;
+    protected RepositoryProviderManager repositoryManager;
 
     @Override
     public Image getImage() {
         return null;
     }
 
-    protected boolean login(String oauth2url) {
+    protected boolean login(String oauth2url) throws IOException {
         UI.getCurrent().getUI().ifPresent(ui -> ui.getPage().setLocation(oauth2url));
         repositoryManager.setProvider(this);
         return true;

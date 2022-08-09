@@ -32,6 +32,7 @@ package io.bssw.psip.ui.components.navigation.bar;
 
 import static io.bssw.psip.ui.util.UIUtils.IMG_PATH;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -192,7 +193,12 @@ public class AppBar extends Header {
 			// Anchor signIn = new Anchor(provider.getOAuthUrl(), "Sign in with "+ provider.getName());
 			Button signIn = new Button("Sign in with " + provider.getName());
 			signIn.addClickListener(e -> {
-				provider.login();
+				try {
+					provider.login();
+				} catch (IOException exception){
+					System.out.println("Login error!");
+					System.out.println(exception);
+				}
 			});
 			dialogLayout.add(signIn);
 		}

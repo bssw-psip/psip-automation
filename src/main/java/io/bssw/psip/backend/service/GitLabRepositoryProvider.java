@@ -2,6 +2,8 @@ package io.bssw.psip.backend.service;
 
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 @Service
 public class GitLabRepositoryProvider extends AbstractRepositoryProvider {
 
@@ -11,7 +13,7 @@ public class GitLabRepositoryProvider extends AbstractRepositoryProvider {
     }
 
     @Override
-    public boolean login() {
+    public boolean login() throws IOException {
         return login("/oauth2/authorization/gitlab");
     }
     
