@@ -81,7 +81,7 @@ public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
 								+ "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com/; "
 								+ "script-src 'self' 'unsafe-inline' 'unsafe-eval' data:; "
 								+ "connect-src 'self'; "
-								+ "img-src 'self'; "
+								+ "img-src 'self' https://avatars.githubusercontent.com/; "
 								+ "manifest-src 'self'; "
 								+ "frame-src https://www.youtube.com/embed/; "
 								+ "font-src 'self' data: https://fonts.gstatic.com/;"

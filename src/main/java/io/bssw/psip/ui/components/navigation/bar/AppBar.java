@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
+import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
@@ -46,7 +47,6 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -82,7 +82,7 @@ public class AppBar extends Header {
 
 	private H1 title;
 	private FlexBoxLayout actionItems;
-	private Image avatar;
+	private Avatar avatar;
 
 	private Button signInButton;
 	private Dialog signInDialog;
@@ -161,17 +161,20 @@ public class AppBar extends Header {
 	}
 
 	private void initAvatar() {
-		avatar = new Image();
-		avatar.setClassName(CLASS_NAME + "__avatar");
+		avatar = new Avatar();
 		String avatar_url = repositoryManager.getAttribute("avatar_url");
 		if (avatar_url != null) {
-			avatar.setSrc(avatar_url);
+			avatar.setImage(avatar_url);
 		} else {
 			StreamResource imageResource = new StreamResource("avatar.png",
 				() -> getClass().getResourceAsStream(IMG_PATH + "avatar.png"));
-			avatar.setSrc(imageResource);
+			avatar.setImageResource(imageResource);
 		}
-		avatar.setAlt("User menu");
+
+		String avatar_name = repositoryManager.getAttribute("name");
+		if (avatar_name != null) {
+			avatar.setName(avatar_name);
+		}
 
 		ContextMenu contextMenu = new ContextMenu(avatar);
 		contextMenu.setOpenOnClick(true);
@@ -308,7 +311,7 @@ public class AppBar extends Header {
 
 	/* === AVATAR == */
 
-	public Image getAvatar() {
+	public Avatar getAvatar() {
 		return avatar;
 	}
 
