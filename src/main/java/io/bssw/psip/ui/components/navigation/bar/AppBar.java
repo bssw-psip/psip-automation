@@ -35,11 +35,13 @@ import static io.bssw.psip.ui.util.UIUtils.IMG_PATH;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
-import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
@@ -57,6 +59,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.shared.Registration;
 
 import io.bssw.psip.backend.service.RepositoryProvider;
@@ -182,8 +185,11 @@ public class AppBar extends Header {
 				e -> Notification.show("Not implemented yet.", 3000,
 						Notification.Position.BOTTOM_CENTER));
 		contextMenu.addItem("Log Out",
-				e -> Notification.show("Not implemented yet.", 3000,
-						Notification.Position.BOTTOM_CENTER));
+				e -> {
+					SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+					logoutHandler.logout(
+						VaadinServletRequest.getCurrent().getHttpServletRequest(), null, null);
+				});
 	}
 
 	private VerticalLayout createDialogLayout() {
@@ -218,7 +224,6 @@ public class AppBar extends Header {
 		signInButton.setVisible(true);
 		signInButton.setClassName(CLASS_NAME + "__signInButton");
 	}
-
 
 	private void initActionItems() {
 		actionItems = new FlexBoxLayout();

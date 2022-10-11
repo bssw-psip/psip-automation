@@ -32,22 +32,33 @@ package io.bssw.psip;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import java.io.IOException;
 import java.util.Arrays;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurityConfigurerAdapter;
+
+import io.bssw.psip.backend.service.RepositoryProviderManager;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
 	@Autowired
 	private Environment env;
+	@Autowired
+	private RepositoryProviderManager repositoryManager;
 	
 	public SecurityConfig() {
 		/*
@@ -107,6 +118,26 @@ public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
 								+ "usb 'none'");
 
 		http.oauth2Login(withDefaults()).oauth2Client(withDefaults());
+
+		/*
+		 * We need to install a success handler that will redirect to the correct URL for Vaadin.
+		 * The default Spring Security handler will not work.
+		 */
+		SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler() {
+			public void onAuthenticationSuccess(HttpServletRequest request,
+				HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
+					String currentUrl = repositoryManager.getCurrentUrl();
+					if (currentUrl != null) {
+						response.sendRedirect(currentUrl);
+						repositoryManager.setCurrentUrl(null);
+					} else {
+						super.onAuthenticationSuccess(request, response, authentication);
+					}
+			}
+		};
+		http.oauth2Login(oauth -> {
+            oauth.successHandler(successHandler);
+        });
 		super.configure(http);
 	}
 }

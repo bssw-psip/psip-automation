@@ -29,6 +29,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin-bottom: calc((var(--app-bar-height) - (var(--lumo-font-size-l) * var(--lumo-line-height-xs))) / 2);
+  margin-top: calc((var(--app-bar-height) - (var(--lumo-font-size-l) * var(--lumo-line-height-xs))) / 2);
 }
 
 .app-bar__title:not(:empty) {
@@ -47,14 +49,14 @@
   padding-top: 0;
 }
 
-/* Avatar */
+/* Avatar - not needed when using Avatar class
 .app-bar__avatar {
   border-radius: 100%;
   flex-shrink: 0;
   height: var(--lumo-size-s);
   margin-left: var(--lumo-space-m);
   width: var(--lumo-size-s);
-}
+} */
 
 /* Tabs */
 .app-bar__tab-container {

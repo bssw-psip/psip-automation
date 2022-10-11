@@ -377,11 +377,12 @@ public class MainLayout extends FlexBoxLayout
 		if (active != null) {
 			if(active.getText() == "Home"){
 				getNaviDrawer().setVisible(false);
-				getAppBar().setHeight(3.5f, Unit.REM);
+				getAppBar().setVisible(false);
 			}
 			else{
 				getNaviDrawer().setVisible(true);
 				getAppBar().setTitle(active.getText());
+				getAppBar().setVisible(true);
 			}
 		}
 	}

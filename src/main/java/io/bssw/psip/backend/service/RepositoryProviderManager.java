@@ -21,6 +21,13 @@ public class RepositoryProviderManager {
 
     private RepositoryProvider currentProvider;
 
+    private String currentUrl;
+
+    /**
+     * Get a list of all know repository providers.
+     * 
+     * @return list of repository providers
+     */
     public List<RepositoryProvider> getProviders() {
         for (RepositoryProvider provider : providers) {
             AbstractRepositoryProvider base = (AbstractRepositoryProvider)provider;
@@ -29,19 +36,58 @@ public class RepositoryProviderManager {
         return providers;
     }
 
+    /**
+     * Set the chosen repository provider. 
+     * 
+     * @param provider provider selected by the user
+     */
     public void setProvider(RepositoryProvider provider) {
         this.currentProvider = provider;
     }
 
+    /**
+     * Get the currently selected provider
+     * 
+     * @return currently selected provider
+     */
     public RepositoryProvider getProvider() {
         return currentProvider;
     }
 
+    /**
+     * Set the current browser URL. Used to redirect back
+     * to the currrent view when authentication is completed.
+     * 
+     * @param url
+     */
+    public void setCurrentUrl(String url) {
+        this.currentUrl = url;
+    }
+
+    /**
+     * Get the current browser URL.
+     * 
+     * @return url
+     */
+    public String getCurrentUrl() {
+        return currentUrl;
+    }
+
+    /**
+     * Check if the user is logged in to a provider.
+     * 
+     * @return true if logged in
+     */
     public boolean isLoggedIn() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return !"anonymousUser".equals(authentication.getPrincipal());
     }
 
+    /**
+     * Get the current access token. Only valid if {@link #isLoggedIn()} returns true.
+     * 
+     * @return access token
+     */
     public OAuth2AccessToken getAccessToken() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken)authentication;
@@ -53,6 +99,13 @@ public class RepositoryProviderManager {
         return null;
     }
 
+    /**
+     * Get an attribute from the provider. Only valid if {@link #isLoggedIn()} is true.
+     * 
+     * @param <A>
+     * @param name
+     * @return
+     */
     public <A> A getAttribute(String name) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getPrincipal() instanceof OAuth2AuthenticatedPrincipal) {
