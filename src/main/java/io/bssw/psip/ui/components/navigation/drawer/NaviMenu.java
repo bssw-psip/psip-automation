@@ -41,7 +41,6 @@ import com.vaadin.flow.component.html.UnorderedList;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.HasUrlParameter;
 
-@SuppressWarnings("serial")
 @CssImport("./styles/components/navi-menu.css")
 public class NaviMenu extends Nav {
 
@@ -115,8 +114,10 @@ public class NaviMenu extends Nav {
 	}
 
 	public List<NaviItem> getNaviItems() {
-		List<NaviItem> items = (List) list.getChildren()
-				.collect(Collectors.toList());
+		List<NaviItem> items = list.getChildren()
+			.filter(c -> c instanceof NaviItem)
+			.map(c -> (NaviItem)c)
+			.collect(Collectors.toList());
 		return items;
 	}
 

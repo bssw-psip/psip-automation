@@ -44,7 +44,6 @@ import io.bssw.psip.ui.util.css.Overflow;
 import io.bssw.psip.ui.util.css.Position;
 import io.bssw.psip.ui.util.css.Shadow;
 
-@SuppressWarnings("serial")
 public class FlexBoxLayout extends FlexLayout {
 
 	public static final String BACKGROUND_COLOR = "background-color";

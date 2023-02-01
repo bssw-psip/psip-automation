@@ -62,7 +62,7 @@ import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.shared.Registration;
 
-import io.bssw.psip.backend.service.RepositoryProvider;
+import io.bssw.psip.backend.model.Repository;
 import io.bssw.psip.backend.service.RepositoryProviderManager;
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
@@ -72,7 +72,6 @@ import io.bssw.psip.ui.util.LumoStyles;
 import io.bssw.psip.ui.util.UIUtils;
 import io.bssw.psip.ui.views.Home;
 
-@SuppressWarnings("serial")
 @CssImport("./styles/components/app-bar.css")
 public class AppBar extends Header {
 
@@ -197,11 +196,11 @@ public class AppBar extends Header {
 				"to enable saving and retrieving results, and automatically " +
 				"creating issues in your repositories.");
 		VerticalLayout dialogLayout = new VerticalLayout(signInText);
-		for (RepositoryProvider provider : repositoryManager.getProviders()) {
+		for (Repository repository : repositoryManager.getRepositories()) {
 			// Anchor signIn = new Anchor(provider.getOAuthUrl(), "Sign in with "+ provider.getName());
-			Button signIn = new Button("Sign in with " + provider.getName());
+			Button signIn = new Button("Sign in with " + repository.getHost());
 			signIn.addClickListener(e -> {
-				provider.login();
+				repository.getProvider().login();
 			});
 			dialogLayout.add(signIn);
 		}

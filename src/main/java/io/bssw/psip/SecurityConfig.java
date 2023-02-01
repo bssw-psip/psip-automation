@@ -48,13 +48,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 
-import com.vaadin.flow.spring.security.VaadinWebSecurityConfigurerAdapter;
+import com.vaadin.flow.spring.security.VaadinWebSecurity;
 
 import io.bssw.psip.backend.service.RepositoryProviderManager;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
+public class SecurityConfig extends VaadinWebSecurity {
 	@Autowired
 	private Environment env;
 	@Autowired
@@ -101,21 +101,21 @@ public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
 				.httpStrictTransportSecurity()
 				.and()
 				.referrerPolicy((Arrays.asList(env.getActiveProfiles()).contains("prod")) ? ReferrerPolicy.STRICT_ORIGIN
-						: ReferrerPolicy.NO_REFERRER)
-				.and()
-				.featurePolicy(
-						"accelerometer 'none'; "
-								+ "camera 'none'; "
-								+ "fullscreen 'self'; "
-								+ "geolocation 'none'; "
-								+ "gyroscope 'none'; "
-								+ "magnetometer 'none'; "
-								+ "microphone 'none'; "
-								+ "midi 'none'; "
-								+ "payment 'none'; "
-								+ "speaker 'none'; "
-								+ "sync-xhr 'none'; "
-								+ "usb 'none'");
+						: ReferrerPolicy.NO_REFERRER);
+				// .and()
+				// .featurePolicy(
+				// 		"accelerometer 'none'; "
+				// 				+ "camera 'none'; "
+				// 				+ "fullscreen 'self'; "
+				// 				+ "geolocation 'none'; "
+				// 				+ "gyroscope 'none'; "
+				// 				+ "magnetometer 'none'; "
+				// 				+ "microphone 'none'; "
+				// 				+ "midi 'none'; "
+				// 				+ "payment 'none'; "
+				// 				+ "speaker 'none'; "
+				// 				+ "sync-xhr 'none'; "
+				// 				+ "usb 'none'");
 
 		http.oauth2Login(withDefaults()).oauth2Client(withDefaults());
 
@@ -126,10 +126,10 @@ public class SecurityConfig extends VaadinWebSecurityConfigurerAdapter {
 		SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler() {
 			public void onAuthenticationSuccess(HttpServletRequest request,
 				HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
-					String currentUrl = repositoryManager.getCurrentUrl();
+					String currentUrl = repositoryManager.getRedirectUrl();
 					if (currentUrl != null) {
 						response.sendRedirect(currentUrl);
-						repositoryManager.setCurrentUrl(null);
+						repositoryManager.setRedirectUrl(null);
 					} else {
 						super.onAuthenticationSuccess(request, response, authentication);
 					}

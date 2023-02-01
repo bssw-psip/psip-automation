@@ -35,7 +35,6 @@ import java.util.Objects;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.tabs.Tab;
 
-@SuppressWarnings("serial")
 public class NaviTab extends Tab {
 
 	private Class<? extends Component> navigationTarget;

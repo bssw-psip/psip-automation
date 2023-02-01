@@ -28,39 +28,82 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-package io.bssw.psip.backend.data;
+package io.bssw.psip.backend.model;
 
-import java.util.Objects;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+public class Category {
+	private String name;
+	private String icon;
+	private String path;
+	private String description;
+	private List<Item> items = Collections.emptyList();
+	private Map<String, Item> itemByPath = new HashMap<>();
+	private Survey survey;
 
-@MappedSuperclass
-public abstract class AbstractEntity {
+	public String getName() {
+		return name;
+	}
 
-	@Id
-	@GeneratedValue
-	private Long id;
+	public void setName(String name) {
+		this.name = name;
+	}
 
-	public Long getId() {
-		return id;
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public List<Item> getItems() {
+		return items;
+	}
+
+	public void setItems(List<Item> items) {
+		itemByPath.clear();
+		items.forEach(i -> {
+			i.setCategory(this);
+			itemByPath.put(i.getPath(), i);
+		});
+		this.items = items;
+	}
+	
+	public Item getItem(String path) {
+		return itemByPath.get(path);
+	}
+
+	public Survey getSurvey() {
+		return survey;
+	}
+
+	public void setSurvey(Survey survey) {
+		this.survey = survey;
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(id);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		AbstractEntity that = (AbstractEntity) o;
-		return Objects.equals(id, that.id);
+	public String toString() {
+		return "Category [name=" + name + ", icon=" + icon + ", path=" + path + ", description=" + description
+				+ ", items=" + items + "]";
 	}
 }

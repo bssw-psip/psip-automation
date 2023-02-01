@@ -35,7 +35,6 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -49,7 +48,6 @@ import io.bssw.psip.ui.util.LumoStyles;
 import io.bssw.psip.ui.util.UIUtils;
 import io.bssw.psip.ui.views.Home;
 
-@SuppressWarnings("serial")
 @CssImport("./styles/components/tab-bar.css")
 public class TabBar extends FlexBoxLayout {
 
@@ -58,7 +56,6 @@ public class TabBar extends FlexBoxLayout {
 	private Button menuIcon;
 	private NaviTabs tabs;
 	private Button addTab;
-	private Image avatar;
 
 	private Button signInButton;
 	private Dialog signInDialog;

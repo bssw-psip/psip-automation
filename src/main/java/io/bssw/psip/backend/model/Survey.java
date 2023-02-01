@@ -28,12 +28,64 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-package io.bssw.psip.backend.repository;
+package io.bssw.psip.backend.model;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import io.bssw.psip.backend.data.Activity;
+public class Survey {
+	private String name;
+	private String description;
+	private List<Score> scores;
+	private List<Category> categories;
+	private Map<String, Category> categoryByPath = new HashMap<>();
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
 
-public interface ActivityRepository extends JpaRepository<Activity, Long> {
-	Activity findByName(String name);
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public List<Score> getScores() {
+		return scores;
+	}
+
+	public void setScores(List<Score> scores) {
+		scores.forEach(s -> s.setSurvey(this));
+		this.scores = scores;
+	}
+
+	public List<Category> getCategories() {
+		return categories;
+	}
+	
+	public void setCategories(List<Category> categories) {
+		categoryByPath.clear();
+		categories.forEach(c -> {
+			c.setSurvey(this);
+			categoryByPath.put(c.getPath(), c);
+		});
+		this.categories = categories;
+	}
+
+	public Category getCategory(String path) {
+		return categoryByPath.get(path);
+	}
+
+	@Override
+	public String toString() {
+		return "Activity [name=" + name + ", description=" + description + ", scores=" + scores
+				+ ", categories=" + categories + "]";
+	}
 }

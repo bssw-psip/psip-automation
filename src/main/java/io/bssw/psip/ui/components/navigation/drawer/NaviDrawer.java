@@ -46,7 +46,6 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import elemental.json.JsonObject;
 import io.bssw.psip.ui.util.UIUtils;
 
-@SuppressWarnings("serial")
 @CssImport("./styles/components/navi-drawer.css")
 @JsModule("./swipe-away.js")
 public class NaviDrawer extends Div
@@ -110,6 +109,7 @@ public class NaviDrawer extends Div
 		mainContent.add(new BrandExpression("psip"));
 	}
 
+	@SuppressWarnings("unused")
 	private void initSearch() {
 		search = new TextField();
 		search.addValueChangeListener(e -> menu.filter(search.getValue()));
@@ -144,7 +144,7 @@ public class NaviDrawer extends Div
 			railButton.setIcon(new Icon(VaadinIcon.CHEVRON_RIGHT_SMALL));
 			railButton.setText("Expand");
 			UIUtils.setAriaLabel("Expand menu", railButton);
-			getUI().get().getPage().executeJavaScript(
+			getUI().get().getPage().executeJs(
 					"var originalStyle = getComputedStyle($0).pointerEvents;" //
 							+ "$0.style.pointerEvents='none';" //
 							+ "setTimeout(function() {$0.style.pointerEvents=originalStyle;}, 170);",
@@ -173,7 +173,7 @@ public class NaviDrawer extends Div
 		// iOS 12.2 sometimes fails to animate the menu away.
 		// It should be gone after 240ms
 		// This will make sure it disappears even when the browser fails.
-		getUI().get().getPage().executeJavaScript(
+		getUI().get().getPage().executeJs(
 				"var originalStyle = getComputedStyle($0).transitionProperty;" //
 						+ "setTimeout(function() {$0.style.transitionProperty='padding'; requestAnimationFrame(function() {$0.style.transitionProperty=originalStyle})}, 250);",
 				mainContent.getElement());

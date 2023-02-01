@@ -44,7 +44,6 @@ import io.bssw.psip.ui.views.Home;
  * NaviTabs supports tabs that can be closed, and that can navigate to a
  * specific target when clicked.
  */
-@SuppressWarnings("serial")
 public class NaviTabs extends Tabs {
 
 	private ComponentEventListener<SelectedChangeEvent> listener = (ComponentEventListener<SelectedChangeEvent>) selectedChangeEvent -> navigateToSelectedTab();

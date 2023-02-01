@@ -28,100 +28,52 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-package io.bssw.psip.backend.data;
+package io.bssw.psip.backend.model;
 
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-
-@Entity
-public class Activity extends AbstractEntity {
-	@NotBlank
-	@Size(max = 255)
+public class Score {
 	private String name;
-	
-	@NotBlank
-	@Size(max = 255)
-	private String icon;
-	
-	@NotBlank
-	@Size(max = 255)
-	private String path;
-	
-	@Column(columnDefinition = "TEXT") // Variable length string
-	private String description;
-	
-	@OneToMany(
-			mappedBy = "activity",
-			cascade = CascadeType.ALL,
-			orphanRemoval = true) 
-	private List<Score> scores;
-	
-	@OneToMany(
-			mappedBy = "activity",
-			cascade = CascadeType.ALL,
-			orphanRemoval = true,
-			fetch = FetchType.EAGER) 
-	// FIXME: EAGER only to avoid LazyInitializationException
-	private List<Category> categories;
-	
+	private String boost;
+	private String color;
+	private Integer value;
+	private Survey survey;
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	public String getIcon() {
-		return icon;
-	}
-	
-	public void setIcon(String icon) {
-		this.icon = icon;
+	public String getBoost() {
+		return boost;
 	}
 
-	public String getPath() {
-		return path;
-	}
-	
-	public void setPath(String path) {
-		this.path = path;
+	public void setBoost(String boost) {
+		this.boost = boost;
 	}
 
-	public String getDescription() {
-		return description;
+	public String getColor() {
+		return color;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setColor(String color) {
+		this.color = color;
 	}
 
-	public List<Score> getScores() {
-		return scores;
+	public Integer getValue() {
+		return value;
 	}
 
-	public void setScores(List<Score> scores) {
-		this.scores = scores;
+	public void setValue(Integer value) {
+		this.value = value;
 	}
 
-	public List<Category> getCategories() {
-		return categories;
-	}
-	
-	public void setCategories(List<Category> categories) {
-		this.categories = categories;
+	public Survey getSurvey() {
+		return survey;
 	}
 
-	@Override
-	public String toString() {
-		return "Activity [name=" + name + ", icon=" + icon + ", path=" + path + ", description=" + description
-				+ ", scores=" + scores + ", categories=" + categories + "]";
+	public void setSurvey(Survey survey) {
+		this.survey = survey;
 	}
 }

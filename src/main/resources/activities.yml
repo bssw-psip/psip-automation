@@ -1,0 +1,35 @@
+# Definitions of activities for the PSIP automation site.
+# 
+# Activity: An activity is a top level menu on the site nav bar that is displayed using the 'name' and 'icon' elements.
+#           The page will display the 'description' along with a summary of each of the categories (see below) using
+#           a progress bar element that indicates how close to completion the activity is. The pages can be directly
+#           accessed using the 'path' element. Scores define the scores being used for assessment.
+#
+# NOTE: Please preserve indenting! YAML only recognizes spaces for indents.
+#
+activities:
+ - name: Assessment
+   path: assessment
+   icon: CLIPBOARD_CHECK 
+   description: The assessment section is used to estimate the degree to which software engineering practices are currently being 
+     used by your project.
+   categories: true
+
+ - name: Tracking
+   path: tracking
+   icon: TASKS
+   description: "** COMING SOON ** The tracking section is used to translate your assessment into progress tracking cards (PTCs) so that you can keep track of improvements
+     to you project''''s practices."
+   categories: false
+
+ - name: Integration
+   path: integration
+   icon: COGS
+   description: "** COMING SOON ** The integration section is used to aid the integration of progress tracking cards into your development workflow."
+   categories: false
+
+ - name: Help
+   path: help
+   icon: QUESTION_CIRCLE
+   description: "** COMING SOON ** The help section is used to explain the instructions for taking the assessment and to address many frequently asked questions."
+   categories: false

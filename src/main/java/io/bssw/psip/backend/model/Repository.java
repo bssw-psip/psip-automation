@@ -28,13 +28,69 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-package io.bssw.psip.backend.repository;
+package io.bssw.psip.backend.model;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import io.bssw.psip.backend.service.RepositoryProvider;
 
-import io.bssw.psip.backend.data.Activity;
-import io.bssw.psip.backend.data.Category;
+public class Repository {
+	private String type;
+	private String host;
+	private String clientId;
+	private String clientSecret;
+	private String redirectUri;
+	private RepositoryProvider provider;
+	
+	public String getType() {
+		return type;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
+	}
 
-public interface CategoryRepository extends JpaRepository<Category, Long> {
-	Category findByActivityAndName(Activity activity, String name);
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public String getClientId() {
+		return clientId;
+	}
+
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
+
+	public String getClientSecret() {
+		return clientSecret;
+	}
+
+	public void setClientSecret(String clientSecret) {
+		this.clientSecret = clientSecret;
+	}
+
+	public String getRedirectUri() {
+		return redirectUri;
+	}
+
+	public void setRedirectUri(String redirectUri) {
+		this.redirectUri = redirectUri;
+	}
+
+	public RepositoryProvider getProvider() {
+		return provider;
+	}
+
+	public void setProvider(RepositoryProvider provider) {
+		this.provider = provider;
+	}
+	
+	@Override
+	public String toString() {
+		return "Repository [type=" + type + ", host=" + host + ", clientId=" + clientId
+				+ ", clientSecret=" + clientSecret + ", redirectUri=" + redirectUri + "]";
+	}
 }

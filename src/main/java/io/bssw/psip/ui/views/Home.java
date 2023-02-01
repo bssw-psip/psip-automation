@@ -56,7 +56,6 @@ import io.bssw.psip.ui.util.LumoStyles;
 import io.bssw.psip.ui.util.UIUtils;
 
 
-@SuppressWarnings("serial")
 @PageTitle("PSIP")
 @Route(value = "", layout = MainLayout.class)
 @AnonymousAllowed
@@ -104,9 +103,6 @@ public class Home extends ViewFrame {
 		surveyButton.setWidthFull(); //keep this line, makes the button the full width of its max size
 		surveyButton.setHeight(LumoStyles.Size.M);
 		surveyButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY); //this worked, commit this
-
-
-
 
 		FlexBoxLayout content = new FlexBoxLayout(intro, surveyButton);
 		content.setFlexDirection(FlexDirection.COLUMN);

@@ -53,7 +53,7 @@ public class RadialChart extends ApexChartsBuilder {
 	public RadialChart(String color) {
         withChart(ChartBuilder.get()
         		.withBackground("#f3f5f7") // Background of chart area
-                .withType(Type.radialBar)
+                .withType(Type.RADIALBAR)
                 .build())
                 .withPlotOptions(PlotOptionsBuilder.get()
                 	.withRadialBar(RadialBarBuilder.get()
@@ -63,7 +63,7 @@ public class RadialChart extends ApexChartsBuilder {
                                 .withMargin(0.0)
                                 .withSize("30%")
                                 .withBackground("#f3f5f7")
-                                .withPosition(HollowPosition.front)
+                                .withPosition(HollowPosition.FRONT)
                                 .build())
 //                        .withHollow(HollowBuilder.get()
 //                                .withMargin(0.0)
@@ -145,7 +145,7 @@ public class RadialChart extends ApexChartsBuilder {
                 .withSeries(0.0)
                 .withLabels(Arrays.asList(color).toArray(new String[0]))
                 .withStroke(StrokeBuilder.get()
-                        .withLineCap(LineCap.butt)
+                        .withLineCap(LineCap.BUTT)
                 		.withColors(Arrays.asList(color).toArray(new String[0]))
 //                        .withDashArray(Collections.singletonList(4.0))
                         .build());	

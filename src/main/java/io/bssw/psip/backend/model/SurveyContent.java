@@ -28,26 +28,24 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-package io.bssw.psip.backend.data;
-
-import java.util.List;
+package io.bssw.psip.backend.model;
 
 /**
- * Used for loading content.yml file
+ * Used for loading survey.yml file
  */
-public class Content {
-	public List<Activity> activities;
+public class SurveyContent {
+	public Survey survey;
 
-	public List<Activity> getActivities() {
-		return activities;
+	public Survey getSurvey() {
+		return survey;
 	}
 
-	public void setActivities(List<Activity> activities) {
-		this.activities = activities;
+	public void setSurvey(Survey survey) {
+		this.survey = survey;
 	}
 	
 	@Override
 	public String toString() {
-		return "Content [activities=" + activities + "]";
+		return "SurveyContent [survey=" + survey + "]";
 	}
 }

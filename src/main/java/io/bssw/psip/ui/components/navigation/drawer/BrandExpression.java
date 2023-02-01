@@ -38,7 +38,6 @@ import com.vaadin.flow.server.StreamResource;
 
 import io.bssw.psip.ui.util.UIUtils;
 
-@SuppressWarnings("serial")
 @CssImport("./styles/components/brand-expression.css")
 public class BrandExpression extends Div {
 
