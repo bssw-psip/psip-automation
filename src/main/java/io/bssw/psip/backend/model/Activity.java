@@ -28,48 +28,19 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-package io.bssw.psip.backend.data;
+package io.bssw.psip.backend.model;
 
-import java.util.List;
-import java.util.Optional;
-
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-
-@Entity
-public class Item extends AbstractEntity {
-	@NotBlank
-	@Size(max = 255)
+public class Activity {
 	private String name;
-	
-	@NotBlank
-	@Size(max = 255)
 	private String icon;
-	
-	@NotBlank
-	@Size(max = 255)
 	private String path;
-	
-	@Column(columnDefinition = "TEXT") // Variable length string
 	private String description;
+	private boolean categories;
 	
-	@ElementCollection(fetch = FetchType.EAGER)
-	private List<String> questions;
-
-	private Integer score; // score value
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	private Category category;
-
 	public String getName() {
 		return name;
 	}
-
+	
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -77,7 +48,7 @@ public class Item extends AbstractEntity {
 	public String getIcon() {
 		return icon;
 	}
-
+	
 	public void setIcon(String icon) {
 		this.icon = icon;
 	}
@@ -85,7 +56,7 @@ public class Item extends AbstractEntity {
 	public String getPath() {
 		return path;
 	}
-
+	
 	public void setPath(String path) {
 		this.path = path;
 	}
@@ -98,33 +69,17 @@ public class Item extends AbstractEntity {
 		this.description = description;
 	}
 
-	public List<String> getQuestions() {
-		return questions;
+	public boolean hasCategories() {
+		return categories;
 	}
-
-	public void setQuestions(List<String> questions) {
-		this.questions = questions;
-	}
-
-	public Optional<Integer> getScore() {
-		return Optional.ofNullable(score);
-	}
-
-	public void setScore(Integer score) {
-		this.score = score;
-	}
-
-	public Category getCategory() {
-		return category;
-	}
-
-	public void setCategory(Category category) {
-		this.category = category;
+	
+	public void setCategories(boolean categories) {
+		this.categories = categories;
 	}
 
 	@Override
 	public String toString() {
-		return "Item [name=" + name + ", icon=" + icon + ", path=" + path + ", description=" + description
-				+ ", questions=" + questions + "]";
+		return "Activity [name=" + name + ", icon=" + icon + ", path=" + path + ", description=" + description
+				+ ", categories=" + categories + "]";
 	}
 }

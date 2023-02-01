@@ -68,10 +68,13 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
-import io.bssw.psip.backend.data.Activity;
-import io.bssw.psip.backend.data.Category;
-import io.bssw.psip.backend.data.Item;
+import io.bssw.psip.backend.model.Activity;
+import io.bssw.psip.backend.model.Category;
+import io.bssw.psip.backend.model.Item;
+import io.bssw.psip.backend.model.Survey;
 import io.bssw.psip.backend.service.ActivityService;
+import io.bssw.psip.backend.service.RepositoryProviderManager;
+import io.bssw.psip.backend.service.SurveyService;
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.components.RadarChart;
@@ -82,17 +85,21 @@ import io.bssw.psip.ui.layout.size.Uniform;
 import io.bssw.psip.ui.util.Strong;
 import io.bssw.psip.ui.util.UIUtils;
 
-@SuppressWarnings("serial")
 @PageTitle("Assessment")
 @AnonymousAllowed
 @Route(value = "assessment", layout = MainLayout.class)
 public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	private Label description;
 	private VerticalLayout mainLayout;
+
+	@Autowired
+	private RepositoryProviderManager repositoryManager;
+	@Autowired
 	private ActivityService activityService;
-	
-	public Assessment(@Autowired ActivityService activityService) {
-		this.activityService = activityService;
+	@Autowired
+	private SurveyService surveyService;
+
+	public Assessment() {
 		setViewContent(createContent());
 	}
 
@@ -113,8 +120,8 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	private void createItemLayout(Item item) {
 		mainLayout.removeAll();
 		ScoreItem scoreItem = new ScoreItem(item);
-		String path = item.getCategory().getActivity().getPath() + "/" + item.getCategory().getPath() + "/" + item.getPath();
-		Item prevItem =  activityService.getPrevItem(path);
+		String path = item.getCategory().getPath() + "/" + item.getPath();
+		Item prevItem =  surveyService.getPrevItem(path);
 		Button button1 = UIUtils.createLargeButton(VaadinIcon.CHEVRON_CIRCLE_LEFT);
 		button1.getElement().getStyle().set("background", "#F3F5F7").set("font-size", "30px"); // FIXME: Don't hard code background
 		button1.getElement().addEventListener("click", e -> {
@@ -123,7 +130,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		if (prevItem == null) {
 			button1.getElement().setEnabled(false);
 		}
-		Item nextItem = activityService.getNextItem(path);
+		Item nextItem = surveyService.getNextItem(path);
 		Button button2 =  UIUtils.createLargeButton(VaadinIcon.CHEVRON_CIRCLE_RIGHT);
 		button2.getElement().getStyle().set("background", "#F3F5F7").set("font-size", "30px"); // FIXME: Don't hard code background
 		button2.getElement().addEventListener("click", e -> {
@@ -170,31 +177,46 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		mainLayout.add(div, anchor, form);
 	}
 	
-	private void createActivityLayout(Activity activity) {
+	private void createActivityLayout(Survey survey) {
 		mainLayout.removeAll();
 
 		Anchor saveAnchor = new Anchor();
 		saveAnchor.setText("save your current assessment.");
 		saveAnchor.getElement().addEventListener("click", e -> {
-		    String url = generateSaveUrl(activity);
+		    String url = generateSaveUrl(survey);
 		    displaySaveDialog(url);
 		});
 
-		Div div = new Div();
-		div.add(new Paragraph(new Emphasis("The diagram below shows how your project is progressing in all practice areas. "
+		Div repoDiv = new Div();
+		if (repositoryManager.isLoggedIn()) {
+			TextField urlField = new TextField("Repository URL:");
+			urlField.setWidth("200");
+			urlField.setValue("None");
+			Button repoButton = new Button("Select Repository"); //commit this
+			repoButton.addClickListener(buttonClickEvent -> {
+				repoButton.getUI().ifPresent(ui -> ui.navigate("assessment"));
+			});
+			HorizontalLayout urlLayout = new HorizontalLayout(urlField, repoButton);
+			urlLayout.setAlignItems(Alignment.BASELINE);
+			urlLayout.setWidthFull();
+			repoDiv.add(urlLayout);
+		}
+
+		Div descDiv = new Div();
+		descDiv.add(new Paragraph(new Emphasis("The diagram below shows how your project is progressing in all practice areas. "
 				+ "You can come back to this page any time during the assessment to see your progress. ")));
 		
-		div.add(new Paragraph(new Emphasis(new Strong("We do not save your data in any way. If you refresh or close your browser, "
+				descDiv.add(new Paragraph(new Emphasis(new Strong("We do not save your data in any way. If you refresh or close your browser, "
 				+ "your assessment will be lost. We suggest you regularly use this link to "),
 				saveAnchor)));
 		
 		Anchor startAnchor = new Anchor();
 		startAnchor.setText("Click here to start assessing your practices.");
-		startAnchor.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, activity.getCategories().get(0).getPath()));
+		startAnchor.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, survey.getCategories().get(0).getPath()));
 
-		Component summary = createActivitySummary(activity);
+		Component summary = createSurveySummary(survey);
 		
-		mainLayout.add(div, startAnchor, summary);
+		mainLayout.add(repoDiv, descDiv, startAnchor, summary);
 		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startAnchor);
 	}
 	
@@ -203,9 +225,9 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	 * @param activity
 	 * @return url
 	 */
-	private String generateSaveUrl(Activity activity) {
+	private String generateSaveUrl(Survey survey) {
 		StringBuilder query = new StringBuilder();
-		Iterator<Category> categoryIter = activity.getCategories().iterator();
+		Iterator<Category> categoryIter = survey.getCategories().iterator();
 		while (categoryIter.hasNext()) {
 			Category category = categoryIter.next();
 			query.append(category.getPath() + "=");
@@ -232,7 +254,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	 * @param activity
 	 * @param query query from URL
 	 */
-	private void restoreSaveUrl(Activity activity, Map<String, List<String>> parameters) {
+	private void restoreSaveUrl(Survey survey, Map<String, List<String>> parameters) {
 		for (String categoryPath : parameters.keySet()) {
 			List<String> values = parameters.get(categoryPath);
 			if (!values.isEmpty()) {
@@ -240,12 +262,15 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 				for (String itemScore : values.get(0).split("\\+")) {
 					String[] kv = itemScore.split(":");
 					if (kv.length == 2) {
-						Item item = activityService.getItem("assessment/" + categoryPath + "/" + kv[0]);
-						if (item != null) {
-							try {
-								item.setScore(Integer.parseInt(kv[1]));
-							} catch (NumberFormatException e) {
-								// Skip it
+						Category category = survey.getCategory(categoryPath);
+						if (category != null) {
+							Item item = category.getItem(kv[0]);
+							if (item != null) {
+								try {
+									item.setScore(Integer.parseInt(kv[1]));
+								} catch (NumberFormatException e) {
+									// Skip it
+								}
 							}
 						}
 					}
@@ -288,16 +313,16 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	    return request.getRequestURL().toString();
 	}
 	
-	private Component createActivitySummary(Activity activity) {
-		ApexCharts chart = new RadarChart(activity).build();
+	private Component createSurveySummary(Survey survey) {
+		ApexCharts chart = new RadarChart(survey).build();
 		chart.setWidth("100%");
 		return chart;
 	}
 	
 	@SuppressWarnings("unused")
-	private Component createActivitySummaryAsProgress(Activity activity) {
+	private Component createActivitySummaryAsProgress(Survey survey) {
 		FormLayout form = new FormLayout();
-		for (Category category : activity.getCategories()) {
+		for (Category category : survey.getCategories()) {
 			int score = 0;
 			for (Item item : category.getItems()) {
 				if (item.getScore().isPresent()) {
@@ -329,22 +354,25 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		    QueryParameters queryParameters = location.getQueryParameters();
 		    Map<String, List<String>> parametersMap = queryParameters.getParameters();
 			if (!parametersMap.isEmpty()) {
-				restoreSaveUrl(activity, parametersMap);
+				restoreSaveUrl(surveyService.getSurvey(), parametersMap);
 			}
 
-			createActivityLayout(activity);
+			createActivityLayout(surveyService.getSurvey());
 		} else if (parameter.contains("/")) {
-			// Item
-			Item item = activityService.getItem("assessment/" + parameter);
-			if (item != null) {
-				desc = item.getDescription();
-				createItemLayout(item);
-			} else {
-				System.out.println("invalid parameter="+parameter);
+			String[] paths = parameter.split("/");
+			if (paths.length == 2) {
+				// Item
+				Item item = surveyService.getSurvey().getCategory(paths[0]).getItem(paths[1]);
+				if (item != null) {
+					desc = item.getDescription();
+					createItemLayout(item);
+				} else {
+					System.out.println("invalid parameter="+parameter);
+				}
 			}
 		} else {
 			// Category
-			Category category = activityService.getCategory("assessment/" + parameter);
+			Category category = surveyService.getSurvey().getCategory(parameter);
 			desc = category.getDescription();
 			createCategoryLayout(category);
 		}

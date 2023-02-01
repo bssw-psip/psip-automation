@@ -43,13 +43,12 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-import io.bssw.psip.backend.data.Item;
-import io.bssw.psip.backend.data.Score;
+import io.bssw.psip.backend.model.Item;
+import io.bssw.psip.backend.model.Score;
 import io.bssw.psip.ui.util.FontSize;
 import io.bssw.psip.ui.util.TextColor;
 import io.bssw.psip.ui.util.UIUtils;
 
-@SuppressWarnings("serial")
 @Tag("score-group")
 public class ScoreItem extends AbstractCompositeField<VerticalLayout, ScoreItem, Item> {
 	private Map<Integer, HorizontalLayout> scoreLayouts = new LinkedHashMap<>();	// Keep ordered by keys
@@ -59,7 +58,7 @@ public class ScoreItem extends AbstractCompositeField<VerticalLayout, ScoreItem,
 		super(null);
 		this.item = item;
 
-		List<Score> scores = item.getCategory().getActivity().getScores();
+		List<Score> scores = item.getCategory().getSurvey().getScores();
 		for (int i = 0; i < scores.size(); i++) {
 			Score score = scores.get(i);
 			Button button = UIUtils.createPrimaryButton(score.getName());

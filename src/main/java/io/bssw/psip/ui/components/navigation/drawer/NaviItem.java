@@ -50,7 +50,6 @@ import com.vaadin.flow.router.RouterLink;
 
 import io.bssw.psip.ui.util.UIUtils;
 
-@SuppressWarnings("serial")
 @CssImport("./styles/components/navi-item.css")
 public class NaviItem extends ListItem {
 
@@ -83,7 +82,7 @@ public class NaviItem extends ListItem {
 		this.navigationTarget = navigationTarget;
 
 		if (navigationTarget != null) {
-			RouterLink routerLink = new RouterLink(null, navigationTarget);
+			RouterLink routerLink = new RouterLink("", navigationTarget);
 			routerLink.add(new Span(text));
 			routerLink.setClassName(CLASS_NAME + "__link");
 			routerLink.setHighlightCondition(HighlightConditions.sameLocation());
@@ -102,7 +101,7 @@ public class NaviItem extends ListItem {
 		this.text = text;
 		this.navigationTarget = navigationTarget;
 
-		RouterLink routerLink = new RouterLink(null, navigationTarget, parameter);
+		RouterLink routerLink = new RouterLink("", navigationTarget, parameter);
 		routerLink.add(new Span(text));
 		routerLink.setClassName(CLASS_NAME + "__link");
 		routerLink.setHighlightCondition(HighlightConditions.sameLocation());

@@ -28,45 +28,20 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-package io.bssw.psip.backend.data;
+package io.bssw.psip.backend.model;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-
-@Entity
-public class Category extends AbstractEntity {
-	@NotBlank
-	@Size(max = 255)
+public class Item {
 	private String name;
-	
-	@NotBlank
-	@Size(max = 255)
 	private String icon;
-	
-	@NotBlank
-	@Size(max = 255)
 	private String path;
-	
-	@Column(columnDefinition = "TEXT") // Variable length string
 	private String description;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	private Activity activity;
-	
-	@OneToMany(
-			mappedBy = "category",
-			cascade = CascadeType.ALL,
-			orphanRemoval = true,
-			fetch = FetchType.EAGER) 
-	private List<Item> items;
+	private List<String> questions = Collections.emptyList();
+	private Integer score; // score value
+	private Category category;
 
 	public String getName() {
 		return name;
@@ -100,25 +75,33 @@ public class Category extends AbstractEntity {
 		this.description = description;
 	}
 
-	public Activity getActivity() {
-		return activity;
+	public List<String> getQuestions() {
+		return questions;
 	}
 
-	public void setActivity(Activity activity) {
-		this.activity = activity;
+	public void setQuestions(List<String> questions) {
+		this.questions = questions;
 	}
 
-	public List<Item> getItems() {
-		return items;
+	public Optional<Integer> getScore() {
+		return Optional.ofNullable(score);
 	}
 
-	public void setItems(List<Item> items) {
-		this.items = items;
+	public void setScore(Integer score) {
+		this.score = score;
+	}
+
+	public Category getCategory() {
+		return category;
+	}
+
+	public void setCategory(Category category) {
+		this.category = category;
 	}
 
 	@Override
 	public String toString() {
-		return "Category [name=" + name + ", icon=" + icon + ", path=" + path + ", description=" + description
-				+ ", items=" + items + "]";
+		return "Item [name=" + name + ", icon=" + icon + ", path=" + path + ", description=" + description
+				+ ", questions=" + questions + "]";
 	}
 }

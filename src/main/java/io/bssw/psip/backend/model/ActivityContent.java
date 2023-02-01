@@ -28,27 +28,26 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-package io.bssw.psip.backend.service;
+package io.bssw.psip.backend.model;
 
-import javax.persistence.EntityNotFoundException;
+import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+/**
+ * Used for loading activities.yml file
+ */
+public class ActivityContent {
+	public List<Activity> activities;
 
-import io.bssw.psip.backend.data.AbstractEntity;
-
-public interface CrudService<R extends JpaRepository<T, Long>, T extends AbstractEntity> {
-
-	R getRepository();
-
-	default long count() {
-		return getRepository().count();
+	public List<Activity> getActivities() {
+		return activities;
 	}
 
-	default T load(long id) {
-		T entity = getRepository().findById(id).orElse(null);
-		if (entity == null) {
-			throw new EntityNotFoundException();
-		}
-		return entity;
+	public void setActivities(List<Activity> activities) {
+		this.activities = activities;
+	}
+	
+	@Override
+	public String toString() {
+		return "ActivityContent [activities=" + activities + "]";
 	}
 }

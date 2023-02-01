@@ -48,7 +48,6 @@ import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.layout.size.Horizontal;
 import io.bssw.psip.ui.layout.size.Uniform;
 
-@SuppressWarnings("serial")
 @PageTitle("Integration")
 @AnonymousAllowed
 @Route(value = "integration", layout = MainLayout.class)

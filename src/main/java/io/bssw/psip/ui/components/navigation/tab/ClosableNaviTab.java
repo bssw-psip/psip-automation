@@ -38,7 +38,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import io.bssw.psip.ui.util.FontSize;
 import io.bssw.psip.ui.util.UIUtils;
 
-@SuppressWarnings("serial")
 public class ClosableNaviTab extends NaviTab {
 
 	private final Button close;

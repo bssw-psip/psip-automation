@@ -22,7 +22,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider {
          * Security success handler will not work with Vaadin.
          */
         UI.getCurrent().getPage().fetchCurrentURL(currentUrl -> {
-            repositoryManager.setCurrentUrl(currentUrl.toString());
+            repositoryManager.setRedirectUrl(currentUrl.toString());
             UI.getCurrent().getUI().ifPresent(ui -> ui.getPage().setLocation(oauth2url));
         });
         return true;

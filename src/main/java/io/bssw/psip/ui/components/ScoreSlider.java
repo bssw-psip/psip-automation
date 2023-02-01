@@ -43,10 +43,9 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 
-import io.bssw.psip.backend.data.Item;
-import io.bssw.psip.backend.data.Score;
+import io.bssw.psip.backend.model.Item;
+import io.bssw.psip.backend.model.Score;
 
-@SuppressWarnings("serial")
 @Tag("score-group")
 public class ScoreSlider extends Component implements HasComponents, HasSize {
 	private static final int BUTTON_RADIUS = 10;
@@ -62,7 +61,7 @@ public class ScoreSlider extends Component implements HasComponents, HasSize {
 
 	public ScoreSlider(Item item) {
 		this.item = item;
-		this.scores = item.getCategory().getActivity().getScores();
+		this.scores = item.getCategory().getSurvey().getScores();
 		this.label = new Label();
 		this.label.getElement().getStyle().set("font-style", "italic");
 		

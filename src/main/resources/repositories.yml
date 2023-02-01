@@ -1,0 +1,14 @@
+repositories:
+ - type: github
+   host: github.com
+   clientId: ${GITHUB_CLIENT_ID}
+   clientSecret: ${GITHUB_CLIENT_SECRET}
+   redirectUri: http://localhost/login/oauth2/code/github
+
+ - type: gitlab
+   host: code.ornl.gov
+   clientId: ${GITHUB_CLIENT_ID}
+   clientSecret: ${GITHUB_CLIENT_SECRET}
+   redirectUri: http://localhost/login/oauth2/code/gitlab
+
+

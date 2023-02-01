@@ -48,7 +48,6 @@ import io.bssw.psip.ui.MainLayout;
  * <li>Bottom {@link #setViewFooter(Component...) footer}</li>
  * </ul>
  */
-@SuppressWarnings("serial")
 @CssImport("./styles/components/view-frame.css")
 public class ViewFrame extends Composite<Div> implements HasStyle {
 

@@ -1,6 +1,12 @@
 package io.bssw.psip.backend.service;
 
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -11,30 +17,61 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+
+import io.bssw.psip.backend.model.Repository;
+import io.bssw.psip.backend.model.RepositoryContent;
 
 @Service
 public class RepositoryProviderManager {
     @Autowired
-    private List<RepositoryProvider> providers;
-    @Autowired
     private OAuth2AuthorizedClientService clientService;
+    @Autowired
+    private List<RepositoryProvider> providerTypes;
 
+    private List<Repository> repositories;
+    private Map<String, RepositoryProvider> providers = new HashMap<>();
     private RepositoryProvider currentProvider;
-
-    private String currentUrl;
+    private String redirectUrl;
 
     /**
      * Get a list of all know repository providers.
      * 
      * @return list of repository providers
      */
-    public List<RepositoryProvider> getProviders() {
-        for (RepositoryProvider provider : providers) {
-            AbstractRepositoryProvider base = (AbstractRepositoryProvider)provider;
-            base.setRepositoryManager(this);
+    public List<Repository> getRepositories() {
+        if (providers.isEmpty()) {
+            for (RepositoryProvider provider : providerTypes) {
+                providers.put(provider.getName().toLowerCase(), provider);
+                AbstractRepositoryProvider base = (AbstractRepositoryProvider)provider;
+                base.setRepositoryManager(this);
+            }
         }
-        return providers;
+        if (repositories == null) {
+            InputStream inputStream = getClass().getResourceAsStream("/repositories.yml");
+            load(inputStream);
+        
+            for (Repository repository : repositories) {
+                RepositoryProvider provider = providers.get(repository.getType());
+                if (provider != null) {
+                    repository.setProvider(provider);
+                }
+            }
+        }
+        return repositories;
     }
+
+    public void load(InputStream inputStream) {
+		Yaml yaml = new Yaml(new Constructor(RepositoryContent.class));
+		try {
+			RepositoryContent content = yaml.load(inputStream);
+			repositories = content.getRepositories();
+        } catch (Exception e) {
+            repositories = new ArrayList<>();
+        	System.out.println(e.getLocalizedMessage());
+        }
+	}
 
     /**
      * Set the chosen repository provider. 
@@ -46,31 +83,42 @@ public class RepositoryProviderManager {
     }
 
     /**
-     * Get the currently selected provider
+     * Get the provider associated with the host from the URL.
      * 
-     * @return currently selected provider
+     * @return provider
      */
-    public RepositoryProvider getProvider() {
-        return currentProvider;
+    public RepositoryProvider getProvider(String url) {
+        try {
+            URL pathUrl = new URL(url);
+            String host = pathUrl.getHost();
+            for (Repository repository : repositories) {
+                if (repository.getHost().equals(host)) {
+                    return repository.getProvider();
+                }
+            }
+            return null;
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 
     /**
-     * Set the current browser URL. Used to redirect back
+     * Set the browser URL used to redirect back
      * to the currrent view when authentication is completed.
      * 
      * @param url
      */
-    public void setCurrentUrl(String url) {
-        this.currentUrl = url;
+    public void setRedirectUrl(String url) {
+        this.redirectUrl = url;
     }
 
     /**
-     * Get the current browser URL.
+     * Get the browser URL to redirect to after authentication.
      * 
      * @return url
      */
-    public String getCurrentUrl() {
-        return currentUrl;
+    public String getRedirectUrl() {
+        return redirectUrl;
     }
 
     /**

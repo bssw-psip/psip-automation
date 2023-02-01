@@ -28,54 +28,71 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-package io.bssw.psip.ui.views;
+package io.bssw.psip.backend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.WildcardParameter;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
+import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
-import io.bssw.psip.backend.service.ActivityService;
-import io.bssw.psip.ui.MainLayout;
-import io.bssw.psip.ui.components.FlexBoxLayout;
-import io.bssw.psip.ui.layout.size.Horizontal;
-import io.bssw.psip.ui.layout.size.Uniform;
+import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 
-@PageTitle("Tracking")
-@AnonymousAllowed
-@Route(value = "tracking", layout = MainLayout.class)
-public class Tracking extends ViewFrame  implements HasUrlParameter<String> {
-	private ActivityService activityService;
-	private Html description;
+import io.bssw.psip.backend.model.Item;
+import io.bssw.psip.backend.model.Survey;
+import io.bssw.psip.backend.model.SurveyContent;
 
-	public Tracking(@Autowired ActivityService activityService) {
-		this.activityService = activityService;
-		setViewContent(createContent());
-	}
+// Must be session scope to ensure only one service (and resulting entities) per session
+@VaadinSessionScope 
+@Service
+public class SurveyService {
+	private Survey survey;
 
-	private Component createContent() {
-		description = new Html("<p></p>");
-		FlexBoxLayout content = new FlexBoxLayout(description);
-		content.setFlexDirection(FlexDirection.COLUMN);
-		content.setMargin(Horizontal.AUTO);
-		content.setMaxWidth("840px");
-		content.setPadding(Uniform.RESPONSIVE_L);
-		return content;
-	}
+	private final Map<String, Item> items = new HashMap<String, Item>();
+	private final Map<String, Item> prevItems = new HashMap<String, Item>();
+	private final Map<String, Item> nextItems = new HashMap<String, Item>();
 
-	@Override
-	public void setParameter(BeforeEvent event, @WildcardParameter String parameter) {
-		String desc = "";
-		if (parameter.isEmpty()) {
-			desc = activityService.getActivity("Tracking").getDescription();
+	public Survey getSurvey() {
+		if (survey == null) {
+			load(getClass().getResourceAsStream("/assessment.yml"));
 		}
-		description.getElement().setText(desc);
+		return survey;
 	}
+
+	public Item getItem(String path) {
+		return items.get(path);
+	}
+	
+	public void setItem(String path, Item item) {
+		items.put(path, item);
+	}
+	
+	public Item getNextItem(String path) {
+		return nextItems.get(path);
+	}
+	
+	public void setNextItem(String path, Item item) {
+		nextItems.put(path, item);
+	}
+	
+	public Item getPrevItem(String path) {
+		return prevItems.get(path);
+	}
+	
+	public void setPrevItem(String path, Item item) {
+		prevItems.put(path, item);
+	}
+	
+	public void load(InputStream inputStream) {
+		Yaml yaml = new Yaml(new Constructor(SurveyContent.class));
+		try {
+			SurveyContent content = yaml.load(inputStream);
+			survey = content.getSurvey();
+		} catch (Exception e) {
+			System.out.println(e.getLocalizedMessage());
+		}
+	}
+
 }

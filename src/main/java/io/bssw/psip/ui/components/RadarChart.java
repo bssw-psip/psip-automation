@@ -44,24 +44,24 @@ import com.github.appreciated.apexcharts.config.xaxis.builder.LabelsBuilder;
 import com.github.appreciated.apexcharts.config.xaxis.labels.builder.StyleBuilder;
 import com.github.appreciated.apexcharts.helper.Series;
 
-import io.bssw.psip.backend.data.Activity;
-import io.bssw.psip.backend.data.Category;
-import io.bssw.psip.backend.data.Item;
+import io.bssw.psip.backend.model.Category;
+import io.bssw.psip.backend.model.Item;
+import io.bssw.psip.backend.model.Survey;
 
 public class RadarChart extends ApexChartsBuilder {
 	
 	List<Double> scores = new ArrayList<>();
 	List<String> labels = new ArrayList<>();
 
-	public RadarChart(Activity activity) {
-		activity.getCategories().forEach(c -> {
+	public RadarChart(Survey survey) {
+		survey.getCategories().forEach(c -> {
 			scores.add(getCategorySummaryScore(c));
 			labels.add(c.getName());
 		});
         withChart(ChartBuilder.get()
         		.withToolbar(ToolbarBuilder.get().withShow(false).build())
 	        		.withBackground("#f3f5f7") // Background of chart area
-	                .withType(Type.radar)
+	                .withType(Type.RADAR)
 	                .build())
                 .withSeries(new Series<>(scores.toArray()))
                 .withXaxis(XAxisBuilder.get()

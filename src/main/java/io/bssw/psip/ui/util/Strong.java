@@ -54,7 +54,6 @@ import com.vaadin.flow.component.Tag;
 /**
  * Component representing a <code>&lt;strong&gt;</code> element.
  */
-@SuppressWarnings("serial")
 @Tag(Tag.STRONG)
 public class Strong extends HtmlContainer implements ClickNotifier<Strong> {
 

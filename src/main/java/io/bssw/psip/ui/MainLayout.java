@@ -37,10 +37,8 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 
-import com.vaadin.flow.component.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasElement;
@@ -60,11 +58,13 @@ import com.vaadin.flow.server.ErrorHandler;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.Lumo;
 
-import io.bssw.psip.backend.data.Activity;
-import io.bssw.psip.backend.data.Category;
-import io.bssw.psip.backend.data.Item;
+import io.bssw.psip.backend.model.Activity;
+import io.bssw.psip.backend.model.Category;
+import io.bssw.psip.backend.model.Item;
+import io.bssw.psip.backend.model.Survey;
 import io.bssw.psip.backend.service.ActivityService;
 import io.bssw.psip.backend.service.RepositoryProviderManager;
+import io.bssw.psip.backend.service.SurveyService;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.components.navigation.bar.AppBar;
 import io.bssw.psip.ui.components.navigation.bar.TabBar;
@@ -76,7 +76,6 @@ import io.bssw.psip.ui.util.css.Display;
 import io.bssw.psip.ui.util.css.Overflow;
 import io.bssw.psip.ui.views.Home;
 
-@SuppressWarnings("serial")
 @CssImport(value = "./styles/components/charts.css", themeFor = "vaadin-chart", include = "vaadin-chart-default-theme")
 @CssImport(value = "./styles/components/floating-action-button.css", themeFor = "vaadin-button")
 @CssImport(value = "./styles/components/grid.css", themeFor = "vaadin-grid")
@@ -114,12 +113,13 @@ public class MainLayout extends FlexBoxLayout
 	
 	private static Map<String, NaviItem> naviItems = new HashMap<String, NaviItem>();
 
-	// Can't autowire these beans because MainLayout is not managed by Spring
-	private ActivityService activityService;
-	private RepositoryProviderManager repositoryManager;
+	private final ActivityService activityService;
+	private final SurveyService surveyService;
+	private final RepositoryProviderManager repositoryManager;
 
-	public MainLayout(@Autowired ActivityService activityService, @Autowired RepositoryProviderManager manager) {
+	public MainLayout(ActivityService activityService, SurveyService surveyService, RepositoryProviderManager manager) {
 		this.activityService = activityService;
+		this.surveyService = surveyService;
 		this.repositoryManager = manager;
 
 		VaadinSession.getCurrent()
@@ -183,33 +183,33 @@ public class MainLayout extends FlexBoxLayout
 				Class<? extends Component> route = optRoute.get();
 				NaviItem actNav = menu.addNaviItem(VaadinIcon.valueOf(activity.getIcon()), activity.getName(), optRoute.get());
 				naviItems.put(activity.getPath(),  actNav);
-				ListIterator<Category> categoryIter = activity.getCategories().listIterator();
-				Item prev = null;
-				Item next = null;
-				while (categoryIter.hasNext()) {
-					Category category = categoryIter.next();
-					if (HasUrlParameter.class.isAssignableFrom(route)) {
-						@SuppressWarnings("unchecked")
-						NaviItem catNav = menu.addNaviItem(actNav, category.getName(), (Class<? extends C>)route, category.getPath());
-						String catPath = activity.getPath() + "/" + category.getPath();
-						activityService.setCategory(catPath, category);
-						naviItems.put(catPath,  catNav);
-						ListIterator<Item> itemIter = category.getItems().listIterator();
-						while(itemIter.hasNext()) {
-							Item item = itemIter.next();
-							next = findNextItem(itemIter, categoryIter, category, activity);
-							String itemNavPath = category.getPath() + "/" + item.getPath();
-							NaviItem naviItem = menu.addNaviItem(catNav, item.getName(), (Class<? extends C>)route, itemNavPath);
-							String itemPath = activity.getPath() + "/" + itemNavPath;
-							activityService.setItem(itemPath, item);
-							activityService.setPrevItem(itemPath, prev);
-							activityService.setNextItem(itemPath, next);
-							naviItems.put(itemPath,  naviItem);
-							String p = prev != null ? prev.getName() : "";
-							String n = next != null ? next.getName() : "";
-							prev = item;
+				if (activity.hasCategories()) {
+					Survey survey = surveyService.getSurvey();
+					List<Category> categories = survey.getCategories();
+					ListIterator<Category> categoryIter = categories.listIterator();
+					Item prev = null;
+					Item next = null;
+					while (categoryIter.hasNext()) {
+						Category category = categoryIter.next();
+						if (HasUrlParameter.class.isAssignableFrom(route)) {
+							@SuppressWarnings("unchecked") NaviItem catNav = menu.addNaviItem(actNav, category.getName(), (Class<? extends C>)route, category.getPath()); 
+							String catPath = activity.getPath() + "/assessment/" + category.getPath();
+							naviItems.put(catPath,  catNav);
+							ListIterator<Item> itemIter = category.getItems().listIterator();
+							while(itemIter.hasNext()) {
+								Item item = itemIter.next();
+								next = findNextItem(itemIter, categoryIter, category, categories);
+								String itemNavPath = category.getPath() + "/" + item.getPath();
+								@SuppressWarnings("unchecked") NaviItem naviItem = menu.addNaviItem(catNav, item.getName(), (Class<? extends C>)route, itemNavPath); 
+								String itemPath = activity.getPath() + "/" + itemNavPath;
+								surveyService.setItem(itemNavPath, item);
+								surveyService.setPrevItem(itemNavPath, prev);
+								surveyService.setNextItem(itemNavPath, next);
+								naviItems.put(itemPath,  naviItem);
+								prev = item;
+							}
+							catNav.setExpanded(false);
 						}
-						catNav.setExpanded(false);
 					}
 				}
 				actNav.setExpanded(false);
@@ -218,12 +218,12 @@ public class MainLayout extends FlexBoxLayout
 	}
 	
 	// Next item of the last element is the first item in the next category
-	private Item findNextItem(ListIterator<Item> itemIter, ListIterator<Category> categoryIter, Category category, Activity activity) {
+	private Item findNextItem(ListIterator<Item> itemIter, ListIterator<Category> categoryIter, Category category, List<Category> categories) {
 		if (itemIter.hasNext()) {
 			return category.getItems().get(itemIter.nextIndex());
 		}
 		if (categoryIter.hasNext()) {
-			List<Item> items = activity.getCategories().get(categoryIter.nextIndex()).getItems();
+			List<Item> items = categories.get(categoryIter.nextIndex()).getItems();
 			return !items.isEmpty() ? items.get(0) : null;
 		}
 		return null;
@@ -375,11 +375,11 @@ public class MainLayout extends FlexBoxLayout
 	private void afterNavigationWithoutTabs(AfterNavigationEvent e) {
 		NaviItem active = getActiveItem(e);
 		if (active != null) {
-			if(active.getText() == "Home"){
+			if (active.getText() == "Home") {
 				getNaviDrawer().setVisible(false);
-				getAppBar().setVisible(false);
-			}
-			else{
+				getAppBar().setTitle("  ");
+				getAppBar().setVisible(true);
+			} else {
 				getNaviDrawer().setVisible(true);
 				getAppBar().setTitle(active.getText());
 				getAppBar().setVisible(true);
