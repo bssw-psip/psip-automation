@@ -1,38 +1,30 @@
 package io.bssw.psip.backend.service;
 
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static org.yaml.snakeyaml.env.EnvScalarConstructor.ENV_FORMAT;
+import static org.yaml.snakeyaml.env.EnvScalarConstructor.ENV_TAG;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.env.EnvScalarConstructor;
+
+import com.vaadin.flow.component.UI;
 
 import io.bssw.psip.backend.model.Repository;
 import io.bssw.psip.backend.model.RepositoryContent;
 
 @Service
 public class RepositoryProviderManager {
-    @Autowired
-    private OAuth2AuthorizedClientService clientService;
-    @Autowired
-    private List<RepositoryProvider> providerTypes;
-
     private List<Repository> repositories;
-    private Map<String, RepositoryProvider> providers = new HashMap<>();
-    private RepositoryProvider currentProvider;
+    private Repository currentRepository;
     private String redirectUrl;
 
     /**
@@ -41,29 +33,17 @@ public class RepositoryProviderManager {
      * @return list of repository providers
      */
     public List<Repository> getRepositories() {
-        if (providers.isEmpty()) {
-            for (RepositoryProvider provider : providerTypes) {
-                providers.put(provider.getName().toLowerCase(), provider);
-                AbstractRepositoryProvider base = (AbstractRepositoryProvider)provider;
-                base.setRepositoryManager(this);
-            }
-        }
         if (repositories == null) {
             InputStream inputStream = getClass().getResourceAsStream("/repositories.yml");
             load(inputStream);
-        
-            for (Repository repository : repositories) {
-                RepositoryProvider provider = providers.get(repository.getType());
-                if (provider != null) {
-                    repository.setProvider(provider);
-                }
-            }
         }
         return repositories;
     }
 
-    public void load(InputStream inputStream) {
-		Yaml yaml = new Yaml(new Constructor(RepositoryContent.class));
+    private void load(InputStream inputStream) {
+		Yaml yaml = new Yaml(new EnvScalarConstructor(new TypeDescription(RepositoryContent.class),
+        new ArrayList<TypeDescription>(), new LoaderOptions()));
+        yaml.addImplicitResolver(ENV_TAG, ENV_FORMAT, "$");
 		try {
 			RepositoryContent content = yaml.load(inputStream);
 			repositories = content.getRepositories();
@@ -73,33 +53,12 @@ public class RepositoryProviderManager {
         }
 	}
 
-    /**
-     * Set the chosen repository provider. 
-     * 
-     * @param provider provider selected by the user
-     */
-    public void setProvider(RepositoryProvider provider) {
-        this.currentProvider = provider;
+    public Repository getRepository() {
+        return currentRepository;
     }
 
-    /**
-     * Get the provider associated with the host from the URL.
-     * 
-     * @return provider
-     */
-    public RepositoryProvider getProvider(String url) {
-        try {
-            URL pathUrl = new URL(url);
-            String host = pathUrl.getHost();
-            for (Repository repository : repositories) {
-                if (repository.getHost().equals(host)) {
-                    return repository.getProvider();
-                }
-            }
-            return null;
-        } catch (MalformedURLException e) {
-            return null;
-        }
+    public void setRepository(Repository currenRepository) {
+        this.currentRepository = currenRepository;
     }
 
     /**
@@ -136,16 +95,16 @@ public class RepositoryProviderManager {
      * 
      * @return access token
      */
-    public OAuth2AccessToken getAccessToken() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken)authentication;
-        if (authentication.getPrincipal() instanceof OAuth2AuthenticatedPrincipal) {
-            OAuth2AuthenticatedPrincipal principal = (OAuth2AuthenticatedPrincipal)authentication.getPrincipal();
-            OAuth2AuthorizedClient client = clientService.loadAuthorizedClient(authToken.getAuthorizedClientRegistrationId(), principal.getName());
-            return client.getAccessToken();
-        }
-        return null;
-    }
+    // public OAuth2AccessToken getAccessToken() {
+    //     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    //     OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken)authentication;
+    //     if (authentication.getPrincipal() instanceof OAuth2AuthenticatedPrincipal) {
+    //         OAuth2AuthenticatedPrincipal principal = (OAuth2AuthenticatedPrincipal)authentication.getPrincipal();
+    //         OAuth2AuthorizedClient client = clientService.loadAuthorizedClient(authToken.getAuthorizedClientRegistrationId(), principal.getName());
+    //         return client.getAccessToken();
+    //     }
+    //     return null;
+    // }
 
     /**
      * Get an attribute from the provider. Only valid if {@link #isLoggedIn()} is true.
@@ -162,4 +121,24 @@ public class RepositoryProviderManager {
         }
 		return null;
 	}
+
+    public boolean login(Repository repository) {
+        setRepository(repository);
+        /*
+         * Save the current browser URL before redirecting to the OAuth 2.0 auth
+         * URL. This will be used to restore the current view when redirecting
+         * back to the application. This is needed because the standard Spring
+         * Security success handler will not work with Vaadin.
+         */
+        UI.getCurrent().getPage().fetchCurrentURL(currentUrl -> {
+            setRedirectUrl(currentUrl.toString());
+            UI.getCurrent().getUI().ifPresent(ui -> ui.getPage().setLocation("/oauth2/authorization/" + getRepository().getType()));
+        });
+        return true;
+    }
+
+    public boolean logout() {
+        setRepository(null);
+        return true;
+    }
 }

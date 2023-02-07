@@ -183,7 +183,7 @@ public class MainLayout extends FlexBoxLayout
 				Class<? extends Component> route = optRoute.get();
 				NaviItem actNav = menu.addNaviItem(VaadinIcon.valueOf(activity.getIcon()), activity.getName(), optRoute.get());
 				naviItems.put(activity.getPath(),  actNav);
-				if (activity.hasCategories()) {
+				if (activity.hasSurvey()) {
 					Survey survey = surveyService.getSurvey();
 					List<Category> categories = survey.getCategories();
 					ListIterator<Category> categoryIter = categories.listIterator();

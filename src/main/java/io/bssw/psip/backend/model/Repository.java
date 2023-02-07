@@ -30,15 +30,19 @@
 *******************************************************************************/
 package io.bssw.psip.backend.model;
 
-import io.bssw.psip.backend.service.RepositoryProvider;
-
+/*
+ * Represents an entry in the repository.yml file
+ */
 public class Repository {
 	private String type;
-	private String host;
+	private String clientName;
 	private String clientId;
 	private String clientSecret;
 	private String redirectUri;
-	private RepositoryProvider provider;
+	private String authorizationUri;
+	private String tokenUri;
+	private String userInfoUri;
+	private String userNameAttributeName;
 	
 	public String getType() {
 		return type;
@@ -48,12 +52,12 @@ public class Repository {
 		this.type = type;
 	}
 
-	public String getHost() {
-		return host;
+	public String getClientName() {
+		return clientName;
 	}
 
-	public void setHost(String host) {
-		this.host = host;
+	public void setClientName(String host) {
+		this.clientName = host;
 	}
 
 	public String getClientId() {
@@ -79,18 +83,42 @@ public class Repository {
 	public void setRedirectUri(String redirectUri) {
 		this.redirectUri = redirectUri;
 	}
-
-	public RepositoryProvider getProvider() {
-		return provider;
-	}
-
-	public void setProvider(RepositoryProvider provider) {
-		this.provider = provider;
-	}
 	
+	public String getAuthorizationUri() {
+		return authorizationUri;
+	}
+
+	public void setAuthorizationUri(String authorizationUri) {
+		this.authorizationUri = authorizationUri;
+	}
+
+	public String getTokenUri() {
+		return tokenUri;
+	}
+
+	public void setTokenUri(String tokenUri) {
+		this.tokenUri = tokenUri;
+	}
+
+	public String getUserInfoUri() {
+		return userInfoUri;
+	}
+
+	public void setUserInfoUri(String userInfoUri) {
+		this.userInfoUri = userInfoUri;
+	}
+
+	public String getUserNameAttributeName() {
+		return userNameAttributeName;
+	}
+
+	public void setUserNameAttributeName(String userNameAttributeName) {
+		this.userNameAttributeName = userNameAttributeName;
+	}
+
 	@Override
 	public String toString() {
-		return "Repository [type=" + type + ", host=" + host + ", clientId=" + clientId
+		return "Repository [type=" + type + ", clientName=" + clientName + ", clientId=" + clientId
 				+ ", clientSecret=" + clientSecret + ", redirectUri=" + redirectUri + "]";
 	}
 }
