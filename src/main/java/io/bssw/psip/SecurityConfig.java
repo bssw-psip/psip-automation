@@ -59,30 +59,22 @@ public class SecurityConfig extends VaadinWebSecurity {
 	private Environment env;
 	@Autowired
 	private RepositoryProviderManager repositoryManager;
-	
-	public SecurityConfig() {
-		/*
-		 * Disable Spring security defaults - we are only using it for the HTTP header
-		 * configuration
-		 */
-		// super(true);
-	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		/*
-		 * General headers used.
-		 * 
-		 * Referrer policy header depends on whether or not the application is in
-		 * production: if so, reveal the origin (but never the path). Otherwise, mask
-		 * the origin entirely.
-		 * 
-		 * Vaadin productionMode will load fonts/styles from Google; for simplicity's
-		 * sake, this isn't blocked locally.
-		 * 
-		 * TODO: try to make the CSP better, but unfortunately using Vaadin may make
-		 * this difficult
-		 */
+		* General headers used.
+		* 
+		* Referrer policy header depends on whether or not the application is in
+		* production: if so, reveal the origin (but never the path). Otherwise, mask
+		* the origin entirely.
+		* 
+		* Vaadin productionMode will load fonts/styles from Google; for simplicity's
+		* sake, this isn't blocked locally.
+		* 
+		* TODO: try to make the CSP better, but unfortunately using Vaadin may make
+		* this difficult
+		*/
 		http.headers()
 				.contentSecurityPolicy(
 						"default-src 'none'; "
@@ -120,9 +112,9 @@ public class SecurityConfig extends VaadinWebSecurity {
 		http.oauth2Login(withDefaults()).oauth2Client(withDefaults());
 
 		/*
-		 * We need to install a success handler that will redirect to the correct URL for Vaadin.
-		 * The default Spring Security handler will not work.
-		 */
+		* We need to install a success handler that will redirect to the correct URL for Vaadin.
+		* The default Spring Security handler will not work.
+		*/
 		SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler() {
 			public void onAuthenticationSuccess(HttpServletRequest request,
 				HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
@@ -135,9 +127,8 @@ public class SecurityConfig extends VaadinWebSecurity {
 					}
 			}
 		};
-		http.oauth2Login(oauth -> {
-            oauth.successHandler(successHandler);
-        });
+		http.oauth2Login().successHandler(successHandler);
+
 		super.configure(http);
 	}
 }

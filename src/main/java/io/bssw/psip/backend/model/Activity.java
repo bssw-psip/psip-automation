@@ -35,7 +35,7 @@ public class Activity {
 	private String icon;
 	private String path;
 	private String description;
-	private boolean categories;
+	private boolean survey;
 	
 	public String getName() {
 		return name;
@@ -69,17 +69,17 @@ public class Activity {
 		this.description = description;
 	}
 
-	public boolean hasCategories() {
-		return categories;
+	public boolean hasSurvey() {
+		return survey;
 	}
 	
-	public void setCategories(boolean categories) {
-		this.categories = categories;
+	public void setSurvey(boolean survey) {
+		this.survey = survey;
 	}
 
 	@Override
 	public String toString() {
 		return "Activity [name=" + name + ", icon=" + icon + ", path=" + path + ", description=" + description
-				+ ", categories=" + categories + "]";
+				+ ", survey=" + survey + "]";
 	}
 }

@@ -198,9 +198,9 @@ public class AppBar extends Header {
 		VerticalLayout dialogLayout = new VerticalLayout(signInText);
 		for (Repository repository : repositoryManager.getRepositories()) {
 			// Anchor signIn = new Anchor(provider.getOAuthUrl(), "Sign in with "+ provider.getName());
-			Button signIn = new Button("Sign in with " + repository.getHost());
+			Button signIn = new Button("Sign in with " + repository.getClientName());
 			signIn.addClickListener(e -> {
-				repository.getProvider().login();
+				repositoryManager.login(repository);
 			});
 			dialogLayout.add(signIn);
 		}

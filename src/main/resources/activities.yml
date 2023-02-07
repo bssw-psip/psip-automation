@@ -13,23 +13,23 @@ activities:
    icon: CLIPBOARD_CHECK 
    description: The assessment section is used to estimate the degree to which software engineering practices are currently being 
      used by your project.
-   categories: true
+   survey: true
 
  - name: Tracking
    path: tracking
    icon: TASKS
    description: "** COMING SOON ** The tracking section is used to translate your assessment into progress tracking cards (PTCs) so that you can keep track of improvements
      to you project''''s practices."
-   categories: false
+   survey: false
 
  - name: Integration
    path: integration
    icon: COGS
    description: "** COMING SOON ** The integration section is used to aid the integration of progress tracking cards into your development workflow."
-   categories: false
+   survey: false
 
  - name: Help
    path: help
    icon: QUESTION_CIRCLE
    description: "** COMING SOON ** The help section is used to explain the instructions for taking the assessment and to address many frequently asked questions."
-   categories: false
+   survey: false
