@@ -3,7 +3,7 @@ repositories:
    clientName: GitHub
    clientId: ${GITHUB_CLIENT_ID}
    clientSecret: ${GITHUB_CLIENT_SECRET}
-   redirectUri: https://rateyourproject.org/login/oauth2/code/github
+   redirectUri: https://rateyourproject.org/{action}/oauth2/code/{registrationId}
    authorizationUri: https://github.com/login/oauth/authorize
    tokenUri: https://github.com/login/oauth/access_token
    userInfoUri: https://api.github.com/user
@@ -14,7 +14,7 @@ repositories:
    clientName: code.ornl.gov
    clientId: ${GITLAB_CLIENT_ID}
    clientSecret: ${GITLAB_CLIENT_SECRET}
-   redirectUri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
+   redirectUri: https://rateyourproject.org/{action}/oauth2/code/{registrationId}
    authorizationUri: https://code.ornl.gov/oauth/authorize
    tokenUri: https://code.ornl.gov/oauth/token
    userInfoUri: https://code.ornl.gov/api/v4/user
