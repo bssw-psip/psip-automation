@@ -63,13 +63,13 @@ public class RepositoryRegistrationConfig {
 		List<ClientRegistration> registrations = new ArrayList<>();
 		for (Repository repository : repositoryManager.getRepositories()) {
             if (!repository.getClientId().isEmpty()) {
-                registrations.add(ClientRegistration.withRegistrationId(repository.getType())
+                registrations.add(ClientRegistration.withRegistrationId(repository.getRegistrationId())
                     .clientId(repository.getClientId())
                     .clientSecret(repository.getClientSecret())
                     .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                     .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                     .redirectUri(repository.getRedirectUri())
-                    .scope("read:user")
+                    .scope(repository.getScope())
                     .authorizationUri(repository.getAuthorizationUri())
                     .tokenUri(repository.getTokenUri())
                     .userInfoUri(repository.getUserInfoUri())
