@@ -30,24 +30,27 @@
 *******************************************************************************/
 package io.bssw.psip.backend.service;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-
-import com.vaadin.flow.spring.annotation.VaadinSessionScope;
 
 import io.bssw.psip.backend.model.Item;
 import io.bssw.psip.backend.model.Survey;
 import io.bssw.psip.backend.model.SurveyContent;
 
 // Must be session scope to ensure only one service (and resulting entities) per session
-@VaadinSessionScope 
+// @VaadinSessionScope 
 @Service
 public class SurveyService {
+	@Autowired
+	private RepositoryProviderManager repositoryManager;
+
 	private Survey survey;
 
 	private final Map<String, Item> items = new HashMap<String, Item>();
@@ -56,7 +59,7 @@ public class SurveyService {
 
 	public Survey getSurvey() {
 		if (survey == null) {
-			load(getClass().getResourceAsStream("/assessment.yml"));
+			return loadSurvey();
 		}
 		return survey;
 	}
@@ -85,14 +88,40 @@ public class SurveyService {
 		prevItems.put(path, item);
 	}
 	
-	public void load(InputStream inputStream) {
+	public Survey load(InputStream inputStream) {
 		Yaml yaml = new Yaml(new Constructor(SurveyContent.class));
 		try {
 			SurveyContent content = yaml.load(inputStream);
-			survey = content.getSurvey();
+			return content.getSurvey();
 		} catch (Exception e) {
 			System.out.println(e.getLocalizedMessage());
 		}
+		return null;
+	}
+
+	/*
+	 * (Re)load a new survey. Make sure we get a new survey if
+	 * the repository provider changes.
+	 */
+	public Survey loadSurvey() {
+		survey = null;
+		items.clear();
+		prevItems.clear();
+		nextItems.clear();
+		InputStream stream = null;
+		if (repositoryManager.isLoggedIn()) {
+			RepositoryProvider provider = repositoryManager.getRepositoryProvider();
+			try {
+				stream = provider.getSurveyFile();
+			} catch (IOException e) {
+				// Just use default file
+			}
+		}
+		if (stream == null) {
+			stream = getClass().getResourceAsStream("/assessment.yml");
+		}
+		survey = load(stream);
+		return survey;
 	}
 
 }

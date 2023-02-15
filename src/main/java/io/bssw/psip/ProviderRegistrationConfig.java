@@ -42,8 +42,8 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
-import io.bssw.psip.backend.model.Repository;
-import io.bssw.psip.backend.service.RepositoryProviderManager;
+import io.bssw.psip.backend.model.ProviderConfiguration;
+import io.bssw.psip.backend.service.ProviderService;
 
 /*
  * This class is responsible for configuring the Spring Boot OAuth2 client registration.
@@ -54,27 +54,27 @@ import io.bssw.psip.backend.service.RepositoryProviderManager;
  * NOTE: all fields in repository.yml are required 
  */
 @Configuration
-public class RepositoryRegistrationConfig {
+public class ProviderRegistrationConfig {
     @Autowired
-	private RepositoryProviderManager repositoryManager;
+	private ProviderService providerService;
     
 	@Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
 		List<ClientRegistration> registrations = new ArrayList<>();
-		for (Repository repository : repositoryManager.getRepositories()) {
-            if (!repository.getClientId().isEmpty()) {
-                registrations.add(ClientRegistration.withRegistrationId(repository.getRegistrationId())
-                    .clientId(repository.getClientId())
-                    .clientSecret(repository.getClientSecret())
+		for (ProviderConfiguration configuration : providerService.getProviderConfigurations()) {
+            if (!configuration.getClientId().isEmpty()) {
+                registrations.add(ClientRegistration.withRegistrationId(configuration.getRegistrationId())
+                    .clientId(configuration.getClientId())
+                    .clientSecret(configuration.getClientSecret())
                     .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                     .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                    .redirectUri(repository.getRedirectUri())
-                    .scope(repository.getScope())
-                    .authorizationUri(repository.getAuthorizationUri())
-                    .tokenUri(repository.getTokenUri())
-                    .userInfoUri(repository.getUserInfoUri())
-                    .userNameAttributeName(repository.getUserNameAttributeName())
-                    .clientName(repository.getClientName())
+                    .redirectUri(configuration.getRedirectUri())
+                    .scope(configuration.getScope())
+                    .authorizationUri(configuration.getAuthorizationUri())
+                    .tokenUri(configuration.getTokenUri())
+                    .userInfoUri(configuration.getUserInfoUri())
+                    .userNameAttributeName(configuration.getUserNameAttributeName())
+                    .clientName(configuration.getClientName())
                     .build());
             }
 		}

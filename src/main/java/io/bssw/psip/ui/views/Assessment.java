@@ -73,7 +73,6 @@ import io.bssw.psip.backend.model.Category;
 import io.bssw.psip.backend.model.Item;
 import io.bssw.psip.backend.model.Survey;
 import io.bssw.psip.backend.service.ActivityService;
-import io.bssw.psip.backend.service.RepositoryProviderManager;
 import io.bssw.psip.backend.service.SurveyService;
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
@@ -92,8 +91,6 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	private Label description;
 	private VerticalLayout mainLayout;
 
-	@Autowired
-	private RepositoryProviderManager repositoryManager;
 	@Autowired
 	private ActivityService activityService;
 	@Autowired
@@ -187,21 +184,6 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		    displaySaveDialog(url);
 		});
 
-		Div repoDiv = new Div();
-		if (repositoryManager.isLoggedIn()) {
-			TextField urlField = new TextField("Repository URL:");
-			urlField.setWidth("200");
-			urlField.setValue("None");
-			Button repoButton = new Button("Select Repository"); //commit this
-			repoButton.addClickListener(buttonClickEvent -> {
-				repoButton.getUI().ifPresent(ui -> ui.navigate("assessment"));
-			});
-			HorizontalLayout urlLayout = new HorizontalLayout(urlField, repoButton);
-			urlLayout.setAlignItems(Alignment.BASELINE);
-			urlLayout.setWidthFull();
-			repoDiv.add(urlLayout);
-		}
-
 		Div descDiv = new Div();
 		descDiv.add(new Paragraph(new Emphasis("The diagram below shows how your project is progressing in all practice areas. "
 				+ "You can come back to this page any time during the assessment to see your progress. ")));
@@ -216,7 +198,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 
 		Component summary = createSurveySummary(survey);
 		
-		mainLayout.add(repoDiv, descDiv, startAnchor, summary);
+		mainLayout.add(descDiv, startAnchor, summary);
 		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startAnchor);
 	}
 	

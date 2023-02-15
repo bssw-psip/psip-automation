@@ -99,7 +99,7 @@ public class ViewFrame extends Composite<Div> implements HasStyle {
 	@Override
 	protected void onAttach(AttachEvent attachEvent) {
 		super.onAttach(attachEvent);
-		MainLayout.get().getAppBar().reset();
+		// MainLayout.get().getAppBar().reset();
 	}
 
 }

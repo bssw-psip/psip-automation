@@ -30,12 +30,8 @@
 *******************************************************************************/
 package io.bssw.psip.ui;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +44,6 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Main;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -59,23 +54,13 @@ import com.vaadin.flow.server.ErrorHandler;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.Lumo;
 
-import io.bssw.psip.backend.model.Activity;
-import io.bssw.psip.backend.model.Category;
-import io.bssw.psip.backend.model.Item;
-import io.bssw.psip.backend.model.Survey;
-import io.bssw.psip.backend.service.ActivityService;
 import io.bssw.psip.backend.service.RepositoryProviderManager;
-import io.bssw.psip.backend.service.SurveyService;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.components.navigation.bar.AppBar;
-import io.bssw.psip.ui.components.navigation.bar.TabBar;
-import io.bssw.psip.ui.components.navigation.drawer.NaviDrawer;
 import io.bssw.psip.ui.components.navigation.drawer.NaviItem;
-import io.bssw.psip.ui.components.navigation.drawer.NaviMenu;
 import io.bssw.psip.ui.util.UIUtils;
 import io.bssw.psip.ui.util.css.Display;
 import io.bssw.psip.ui.util.css.Overflow;
-import io.bssw.psip.ui.views.Home;
 
 @CssImport(value = "./styles/components/charts.css", themeFor = "vaadin-chart", include = "vaadin-chart-default-theme")
 @CssImport(value = "./styles/components/floating-action-button.css", themeFor = "vaadin-button")
@@ -90,7 +75,7 @@ import io.bssw.psip.ui.views.Home;
 @CssImport("./styles/misc/box-shadow-borders.css")
 @CssImport(value = "./styles/styles.css", include = "lumo-badge")
 @JsModule("@vaadin/vaadin-lumo-styles/badge")
-public class MainLayout extends FlexBoxLayout
+public class HomeLayout extends FlexBoxLayout
 		implements RouterLayout, AfterNavigationObserver {
 
 	private static final Logger log = LoggerFactory.getLogger(MainLayout.class);
@@ -99,29 +84,21 @@ public class MainLayout extends FlexBoxLayout
 	private Div appHeaderOuter;
 
 	private FlexBoxLayout row;
-	private NaviDrawer naviDrawer;
 	private FlexBoxLayout column;
 
 	private Div appHeaderInner;
 	private Main viewContainer;
 	private Div appFooterInner;
-
 	private Div appFooterOuter;
 
-	private TabBar tabBar;
-	private boolean navigationTabs = false;
 	private AppBar appBar;
 	
 	private static Map<String, NaviItem> naviItems = new HashMap<String, NaviItem>();
 
-	private final ActivityService activityService;
-	private final SurveyService surveyService;
 	private final RepositoryProviderManager repositoryManager;
 
 	@Autowired 
-	public MainLayout(ActivityService activityService, SurveyService surveyService, RepositoryProviderManager manager) {
-		this.activityService = activityService;
-		this.surveyService = surveyService;
+	public HomeLayout(RepositoryProviderManager manager) {
 		this.repositoryManager = manager;
 
 		VaadinSession.getCurrent()
@@ -139,9 +116,6 @@ public class MainLayout extends FlexBoxLayout
 		// Initialise the UI building blocks
 		initStructure();
 
-		// Populate the navigation drawer
-		initNaviItems();
-
 		// Configure the headers and footers (optional)
 		initHeadersAndFooters();
 	}
@@ -150,9 +124,6 @@ public class MainLayout extends FlexBoxLayout
 	 * Initialise the required components and containers.
 	 */
 	private void initStructure() {
-		naviDrawer = new NaviDrawer();
-		naviDrawer.setVisible(false);
-
 		viewContainer = new Main();
 		viewContainer.addClassName(CLASS_NAME + "__view-container");
 		UIUtils.setDisplay(Display.FLEX, viewContainer);
@@ -165,76 +136,12 @@ public class MainLayout extends FlexBoxLayout
 		column.setFlexGrow(1, viewContainer);
 		column.setOverflow(Overflow.HIDDEN);
 
-		row = new FlexBoxLayout(naviDrawer, column);
+		row = new FlexBoxLayout(column);
 		row.addClassName(CLASS_NAME + "__row");
 		row.setFlexGrow(1, column);
 		row.setOverflow(Overflow.HIDDEN);
 		add(row);
 		setFlexGrow(1, row);
-	}
-
-	/**
-	 * Initialize the navigation items.
-	 */
-	public <C extends Component & HasUrlParameter<String>> void initNaviItems() {
-		NaviMenu menu = naviDrawer.getMenu();
-        menu.addNaviItem(VaadinIcon.HOME, "Home", Home.class);
-		for (Activity activity : activityService.getActivities()) {
-			Optional<Class<? extends Component>> optRoute = RouteConfiguration.forSessionScope().getRoute(activity.getPath(), Collections.singletonList(""));
-			if (optRoute.isPresent()) {
-				activityService.setActivity(activity.getName(), activity);
-				Class<? extends Component> route = optRoute.get();
-				NaviItem actNav = menu.addNaviItem(VaadinIcon.valueOf(activity.getIcon()), activity.getName(), optRoute.get());
-				naviItems.put(activity.getPath(), actNav);
-				if (activity.hasSurvey()) {
-					loadSurvey(activity, route, actNav);
-				}
-				actNav.setExpanded(false);
-			}
-		}
-	}
-
-	private <C extends Component & HasUrlParameter<String>> void loadSurvey(Activity activity, Class<? extends Component> route, NaviItem actNav) {
-		NaviMenu menu = getNaviDrawer().getMenu();
-		Survey survey = surveyService.loadSurvey();
-		List<Category> categories = survey.getCategories();
-		ListIterator<Category> categoryIter = categories.listIterator();
-		Item prev = null;
-		Item next = null;
-		while (categoryIter.hasNext()) {
-			Category category = categoryIter.next();
-			if (HasUrlParameter.class.isAssignableFrom(route)) {
-				@SuppressWarnings("unchecked") NaviItem catNav = menu.addNaviItem(actNav, category.getName(), (Class<? extends C>)route, category.getPath()); 
-				String catPath = activity.getPath() + "/assessment/" + category.getPath();
-				naviItems.put(catPath,  catNav);
-				ListIterator<Item> itemIter = category.getItems().listIterator();
-				while(itemIter.hasNext()) {
-					Item item = itemIter.next();
-					next = findNextItem(itemIter, categoryIter, category, categories);
-					String itemNavPath = category.getPath() + "/" + item.getPath();
-					@SuppressWarnings("unchecked") NaviItem naviItem = menu.addNaviItem(catNav, item.getName(), (Class<? extends C>)route, itemNavPath); 
-					String itemPath = activity.getPath() + "/" + itemNavPath;
-					surveyService.setItem(itemNavPath, item);
-					surveyService.setPrevItem(itemNavPath, prev);
-					surveyService.setNextItem(itemNavPath, next);
-					naviItems.put(itemPath,  naviItem);
-					prev = item;
-				}
-				catNav.setExpanded(false);
-			}
-		}
-	}
-	
-	// Next item of the last element is the first item in the next category
-	private Item findNextItem(ListIterator<Item> itemIter, ListIterator<Category> categoryIter, Category category, List<Category> categories) {
-		if (itemIter.hasNext()) {
-			return category.getItems().get(itemIter.nextIndex());
-		}
-		if (categoryIter.hasNext()) {
-			List<Item> items = categories.get(categoryIter.nextIndex()).getItems();
-			return !items.isEmpty() ? items.get(0) : null;
-		}
-		return null;
 	}
 
 	/**
@@ -245,32 +152,9 @@ public class MainLayout extends FlexBoxLayout
 		 setAppFooterInner();
 		 setAppFooterOuter();
 
-		// Default inner header setup:
-		// - When using tabbed navigation the view title, user avatar and main menu button will appear in the TabBar.
-		// - When tabbed navigation is turned off they appear in the AppBar.
-
-		appBar = new AppBar(repositoryManager, "", false);
-
-		// Tabbed navigation
-		if (navigationTabs) {
-			tabBar = new TabBar();
-			UIUtils.setTheme(Lumo.DARK, tabBar);
-
-			// Shift-click to add a new tab
-			// for (NaviItem item : naviDrawer.getMenu().getNaviItems()) {
-			// 	item.addClickListener(e -> {
-			// 		if (e.getButton() == 0 && e.isShiftKey()) {
-			// 			tabBar.setSelectedTab(tabBar.addClosableTab(item.getText(), item.getNavigationTarget()));
-			// 		}
-			// 	});
-			// }
-			setAppHeaderInner(tabBar, appBar);
-
-			// Default navigation
-		} else {
-			UIUtils.setTheme(Lumo.DARK, appBar);
-			setAppHeaderInner(appBar);
-		}
+		appBar = new AppBar(repositoryManager, "", true);
+		UIUtils.setTheme(Lumo.DARK, appBar);
+		setAppHeaderInner(appBar);
 	}
 
 	private void setAppHeaderOuter(Component... components) {
@@ -320,10 +204,6 @@ public class MainLayout extends FlexBoxLayout
 		this.viewContainer.getElement().appendChild(content.getElement());
 	}
 
-	public NaviDrawer getNaviDrawer() {
-		return naviDrawer;
-	}
-
 	public static MainLayout get() {
 		return (MainLayout) UI.getCurrent().getChildren()
 				.filter(component -> component.getClass() == MainLayout.class)
@@ -346,52 +226,5 @@ public class MainLayout extends FlexBoxLayout
 
 	@Override
 	public void afterNavigation(AfterNavigationEvent event) {
-		if (navigationTabs) {
-			afterNavigationWithTabs(event);
-		} else {
-			afterNavigationWithoutTabs(event);
-		}
-	}
-
-	private void afterNavigationWithTabs(AfterNavigationEvent e) {
-		NaviItem active = getActiveItem(e);
-		if (active == null) {
-			if (tabBar.getTabCount() == 0) {
-				tabBar.addClosableTab("", Home.class);
-			}
-		} else {
-			if (tabBar.getTabCount() > 0) {
-				tabBar.updateSelectedTab(active.getText(),
-						active.getNavigationTarget());
-			} else {
-				tabBar.addClosableTab(active.getText(),
-						active.getNavigationTarget());
-			}
-		}
-		appBar.getMenuIcon().setVisible(false);
-	}
-
-	private NaviItem getActiveItem(AfterNavigationEvent e) {
-		for (NaviItem item : naviDrawer.getMenu().getNaviItems()) {
-			if (item.isHighlighted(e)) {
-				return item;
-			}
-		}
-		return null;
-	}
-
-	private void afterNavigationWithoutTabs(AfterNavigationEvent e) {
-		NaviItem active = getActiveItem(e);
-		if (active != null) {
-			if (active.getText() == "Home") {
-				getNaviDrawer().setVisible(false);
-				getAppBar().setTitle("  ");
-				getAppBar().setVisible(true);
-			} else {
-				getNaviDrawer().setVisible(true);
-				getAppBar().setTitle(active.getText());
-				getAppBar().setVisible(true);
-			}
-		}
 	}
 }

@@ -1,16 +1,18 @@
-repositories:
- - registrationId: github
+providers:
+ - type: github
+   registrationId: github
    clientName: GitHub
    clientId: ${GITHUB_CLIENT_ID}
    clientSecret: ${GITHUB_CLIENT_SECRET}
-   redirectUri: https://rateyourproject.org/{action}/oauth2/code/{registrationId}
+   redirectUri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
    authorizationUri: https://github.com/login/oauth/authorize
    tokenUri: https://github.com/login/oauth/access_token
    userInfoUri: https://api.github.com/user
    userNameAttributeName: id
    scope: read:user
 
- - registrationId: gitlab
+ - type: gitlab
+   registrationId: gitlab
    clientName: code.ornl.gov
    clientId: ${GITLAB_CLIENT_ID}
    clientSecret: ${GITLAB_CLIENT_SECRET}

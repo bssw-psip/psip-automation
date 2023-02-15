@@ -31,9 +31,10 @@
 package io.bssw.psip.backend.model;
 
 /*
- * Represents an entry in the repository.yml file
+ * Represents an entry in the provider.yml file
  */
-public class Repository {
+public class ProviderConfiguration {
+	private String type;
 	private String registrationId;
 	private String clientName;
 	private String clientId;
@@ -45,14 +46,22 @@ public class Repository {
 	private String userNameAttributeName;
 	private String scope;
 	
+	public String getType() {
+		return type;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
+	}
+
 	public String getRegistrationId() {
 		return registrationId;
 	}
-	
-	public void setRegistrationId(String type) {
-		this.registrationId = type;
-	}
 
+	public void setRegistrationId(String registrationId) {
+		this.registrationId = registrationId;
+	}
+	
 	public String getClientName() {
 		return clientName;
 	}
@@ -127,7 +136,7 @@ public class Repository {
 
 	@Override
 	public String toString() {
-		return "Repository [type=" + registrationId + ", clientName=" + clientName + ", clientId=" + clientId
+		return "Provider [type=" + registrationId + ", clientName=" + clientName + ", clientId=" + clientId
 				+ ", clientSecret=" + clientSecret + ", redirectUri=" + redirectUri + "]";
 	}
 }

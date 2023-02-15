@@ -30,50 +30,67 @@
 *******************************************************************************/
 package io.bssw.psip.backend.service;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Service;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+import com.vaadin.flow.component.html.Image;
 
-import io.bssw.psip.backend.model.Activity;
-import io.bssw.psip.backend.model.ActivityContent;
+public interface RepositoryProvider {
+    /*
+     * Get the name of the provider for display purposes
+     */
+    String getName();
 
-// Must be session scope to ensure only one service (and resulting entities) per session
-// @VaadinSessionScope 
-@Service
-public class ActivityService {
-	private final Map<String, Activity> activityMap = new HashMap<String, Activity>();
-	private List<Activity> activities;
+    /*
+     * Get an image that can be used for display purposes
+     */
+    Image getImage();
 
-	public List<Activity> getActivities() {
-		if (activities == null) {
-			InputStream inputStream = getClass().getResourceAsStream("/activities.yml");
-			activities = load(inputStream);
-		}
-		return activities;
-	}
-	
-	public Activity getActivity(String name) {
-		return activityMap.get(name);
-	}
-	
-	public void setActivity(String name, Activity activity) {
-		activityMap.put(name, activity);
-	}
+    /* 
+     * Perform any handler-specific activities on successful authentication.
+     */
+    boolean login();
 
-	public List<Activity> load(InputStream inputStream) {
-		Yaml yaml = new Yaml(new Constructor(ActivityContent.class));
-		try {
-			ActivityContent content = yaml.load(inputStream);
-			return content.getActivities();
-        } catch (Exception e) {
-			return new ArrayList<>();
-        }
-	}
+    /*
+     * Perform any handler-specific activities prior to invalidating session.
+     */
+    void logout();
 
+    /*
+     * Get the user attribute map supplied by the provider
+     */
+    Map<String, String> getUserInfo();
+
+    /*
+     * Get the contents of a file from branch 'ref' in a repoistory 'repo' that is owned by 'owner'. 
+     * 
+     * @Return null if no file exists, otherwise the contents as a string
+     */
+    String getFile(String owner, String repo, String ref, String path);
+
+    /*
+     * Put the string 'content' into a file specified by 'path' on branch 'ref' in a repository 'repo' owned by 'owner'. 
+     * If the file does not exist, it will be created. If it does exist, the contents will be replaced with the new value.
+     */
+    boolean putFile(String owner, String repo, String ref, String path, String message, String content);
+
+    InputStream getSurveyFile() throws IOException;
+    
+    void connect(String url, String branch) throws Exception;
+
+    boolean isConnected();
+
+    List<String> getRepositories();
+
+    List<String> getBranches(String repository);
+
+    String getDefaultBranch(String repository);
+
+    /*
+     * Check to see if the provider is able to supply a list of repositories
+     * that the user can select from.
+     */
+    boolean canProvideRepositories();
 }

@@ -35,12 +35,11 @@ import static io.bssw.psip.ui.util.UIUtils.IMG_PATH;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -59,10 +58,9 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.shared.Registration;
 
-import io.bssw.psip.backend.model.Repository;
+import io.bssw.psip.backend.model.ProviderConfiguration;
 import io.bssw.psip.backend.service.RepositoryProviderManager;
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
@@ -103,7 +101,7 @@ public class AppBar extends Header {
 		MENU, CONTEXTUAL
 	}
 
-	public AppBar(RepositoryProviderManager manager, String title, NaviTab... tabs) {
+	public AppBar(RepositoryProviderManager manager, String title, boolean allowLogin, NaviTab... tabs) {
 		this.repositoryManager = manager;
 
 		setClassName(CLASS_NAME);
@@ -112,7 +110,7 @@ public class AppBar extends Header {
 		initContextIcon();
 		initTitle(title);
 		initSearch();
-		if (repositoryManager.isLoggedIn()) {
+		if (!allowLogin || repositoryManager.isLoggedIn()) {
 			initAvatar();
 		} else {
 			initSignInDialog();
@@ -178,17 +176,20 @@ public class AppBar extends Header {
 			avatar.setName(avatar_name);
 		}
 
-		ContextMenu contextMenu = new ContextMenu(avatar);
-		contextMenu.setOpenOnClick(true);
-		contextMenu.addItem("Settings",
-				e -> Notification.show("Not implemented yet.", 3000,
-						Notification.Position.BOTTOM_CENTER));
-		contextMenu.addItem("Log Out",
-				e -> {
-					SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-					logoutHandler.logout(
-						VaadinServletRequest.getCurrent().getHttpServletRequest(), null, null);
-				});
+		if (repositoryManager.isLoggedIn()) {
+			ContextMenu contextMenu = new ContextMenu(avatar);
+			contextMenu.setOpenOnClick(true);
+			contextMenu.addItem("Settings",
+					e -> Notification.show("Not implemented yet.", 3000,
+							Notification.Position.BOTTOM_CENTER));
+			contextMenu.addItem("Log Out",
+					e -> {
+						UI.getCurrent().getPage().setLocation("/");
+						if (repositoryManager.isLoggedIn()) {
+							repositoryManager.logout();
+						}
+					});
+		}
 	}
 
 	private VerticalLayout createDialogLayout() {
@@ -196,7 +197,7 @@ public class AppBar extends Header {
 				"to enable saving and retrieving results, and automatically " +
 				"creating issues in your repositories.");
 		VerticalLayout dialogLayout = new VerticalLayout(signInText);
-		for (Repository repository : repositoryManager.getRepositories()) {
+		for (ProviderConfiguration repository : repositoryManager.getProviderConfigurations()) {
 			// Anchor signIn = new Anchor(provider.getOAuthUrl(), "Sign in with "+ provider.getName());
 			Button signIn = new Button("Sign in with " + repository.getClientName());
 			signIn.addClickListener(e -> {

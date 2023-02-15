@@ -45,6 +45,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 
@@ -118,16 +120,24 @@ public class SecurityConfig extends VaadinWebSecurity {
 		SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler() {
 			public void onAuthenticationSuccess(HttpServletRequest request,
 				HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
-					String currentUrl = repositoryManager.getRedirectUrl();
+					String currentUrl = repositoryManager.loginSuccessful();
 					if (currentUrl != null) {
 						response.sendRedirect(currentUrl);
-						repositoryManager.setRedirectUrl(null);
 					} else {
 						super.onAuthenticationSuccess(request, response, authentication);
 					}
 			}
 		};
 		http.oauth2Login().successHandler(successHandler);
+
+		AuthenticationFailureHandler failureHandler = new AuthenticationFailureHandler() {
+			@Override
+			public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+					AuthenticationException exception) throws IOException, ServletException {
+				repositoryManager.loginFailure();
+			}
+		};
+		http.oauth2Login().failureHandler(failureHandler);
 
 		super.configure(http);
 	}

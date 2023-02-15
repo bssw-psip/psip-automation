@@ -28,52 +28,26 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-package io.bssw.psip.backend.service;
+package io.bssw.psip.backend.model;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.springframework.stereotype.Service;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+/**
+ * Used for loading providers.yml file
+ */
+public class ProviderContent {
+	public List<ProviderConfiguration> providers;
 
-import io.bssw.psip.backend.model.Activity;
-import io.bssw.psip.backend.model.ActivityContent;
+	public List<ProviderConfiguration> getProviders() {
+		return providers;
+	}
 
-// Must be session scope to ensure only one service (and resulting entities) per session
-// @VaadinSessionScope 
-@Service
-public class ActivityService {
-	private final Map<String, Activity> activityMap = new HashMap<String, Activity>();
-	private List<Activity> activities;
-
-	public List<Activity> getActivities() {
-		if (activities == null) {
-			InputStream inputStream = getClass().getResourceAsStream("/activities.yml");
-			activities = load(inputStream);
-		}
-		return activities;
+	public void setProviders(List<ProviderConfiguration> providers) {
+		this.providers = providers;
 	}
 	
-	public Activity getActivity(String name) {
-		return activityMap.get(name);
+	@Override
+	public String toString() {
+		return "ProviderContent [providers=" + providers + "]";
 	}
-	
-	public void setActivity(String name, Activity activity) {
-		activityMap.put(name, activity);
-	}
-
-	public List<Activity> load(InputStream inputStream) {
-		Yaml yaml = new Yaml(new Constructor(ActivityContent.class));
-		try {
-			ActivityContent content = yaml.load(inputStream);
-			return content.getActivities();
-        } catch (Exception e) {
-			return new ArrayList<>();
-        }
-	}
-
 }

@@ -1,64 +1,63 @@
 package io.bssw.psip.backend.service;
 
-import static org.yaml.snakeyaml.env.EnvScalarConstructor.ENV_FORMAT;
-import static org.yaml.snakeyaml.env.EnvScalarConstructor.ENV_TAG;
-
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.TypeDescription;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.env.EnvScalarConstructor;
 
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.server.VaadinServletRequest;
 
-import io.bssw.psip.backend.model.Repository;
-import io.bssw.psip.backend.model.RepositoryContent;
+import io.bssw.psip.backend.model.ProviderConfiguration;
 
 @Service
 public class RepositoryProviderManager {
-    private List<Repository> repositories;
-    private Repository currentRepository;
+    @Autowired
+    private List<RepositoryProvider> repositoryProviders;
+    @Autowired
+    private ProviderService providerService;
+    @Autowired
+    private OAuth2AuthorizedClientService clientService;
+
+    private ProviderConfiguration currentConfiguration;
+    private RepositoryProvider currentProvider;
     private String redirectUrl;
 
-    /**
-     * Get a list of all know repository providers.
-     * 
-     * @return list of repository providers
-     */
-    public List<Repository> getRepositories() {
-        if (repositories == null) {
-            InputStream inputStream = getClass().getResourceAsStream("/repositories.yml");
-            load(inputStream);
+    private RepositoryProvider findProviderByType(ProviderConfiguration configuration) {
+        for (RepositoryProvider provider : repositoryProviders) {
+            if (provider.getName().equalsIgnoreCase(configuration.getType()) &&
+                    provider instanceof AbstractRepositoryProvider) {
+                ((AbstractRepositoryProvider)provider).setConfiguration(configuration);
+                ((AbstractRepositoryProvider)provider).setRepositoryManager(this);
+                return provider;
+            }
         }
-        return repositories;
+        return null;
     }
 
-    private void load(InputStream inputStream) {
-		Yaml yaml = new Yaml(new EnvScalarConstructor(new TypeDescription(RepositoryContent.class),
-        new ArrayList<TypeDescription>(), new LoaderOptions()));
-        yaml.addImplicitResolver(ENV_TAG, ENV_FORMAT, "$");
-		try {
-			RepositoryContent content = yaml.load(inputStream);
-			repositories = content.getRepositories();
-        } catch (Exception e) {
-            repositories = new ArrayList<>();
-        	System.out.println(e.getLocalizedMessage());
-        }
-	}
-
-    public Repository getRepository() {
-        return currentRepository;
+    public List<ProviderConfiguration> getProviderConfigurations() {
+        return providerService.getProviderConfigurations();
     }
 
-    public void setRepository(Repository currenRepository) {
-        this.currentRepository = currenRepository;
+    private ProviderConfiguration getProviderConfiguration() {
+        return currentConfiguration;
+    }
+
+    private void setProviderConfiguration(ProviderConfiguration configuration) {
+        this.currentConfiguration = configuration;
+        this.currentProvider = configuration != null ? findProviderByType(configuration) : null;
+    }
+
+    public RepositoryProvider getRepositoryProvider() {
+        return currentProvider;
     }
 
     /**
@@ -67,7 +66,7 @@ public class RepositoryProviderManager {
      * 
      * @param url
      */
-    public void setRedirectUrl(String url) {
+    private void setRedirectUrl(String url) {
         this.redirectUrl = url;
     }
 
@@ -76,7 +75,7 @@ public class RepositoryProviderManager {
      * 
      * @return url
      */
-    public String getRedirectUrl() {
+    private String getRedirectUrl() {
         return redirectUrl;
     }
 
@@ -87,24 +86,8 @@ public class RepositoryProviderManager {
      */
     public boolean isLoggedIn() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return !"anonymousUser".equals(authentication.getPrincipal());
+        return authentication != null && !"anonymousUser".equals(authentication.getPrincipal());
     }
-
-    /**
-     * Get the current access token. Only valid if {@link #isLoggedIn()} returns true.
-     * 
-     * @return access token
-     */
-    // public OAuth2AccessToken getAccessToken() {
-    //     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    //     OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken)authentication;
-    //     if (authentication.getPrincipal() instanceof OAuth2AuthenticatedPrincipal) {
-    //         OAuth2AuthenticatedPrincipal principal = (OAuth2AuthenticatedPrincipal)authentication.getPrincipal();
-    //         OAuth2AuthorizedClient client = clientService.loadAuthorizedClient(authToken.getAuthorizedClientRegistrationId(), principal.getName());
-    //         return client.getAccessToken();
-    //     }
-    //     return null;
-    // }
 
     /**
      * Get an attribute from the provider. Only valid if {@link #isLoggedIn()} is true.
@@ -122,8 +105,12 @@ public class RepositoryProviderManager {
 		return null;
 	}
 
-    public boolean login(Repository repository) {
-        setRepository(repository);
+    /*
+     * Entrypoint for OAuth2 login. This initates the OAuth2 flow and will result in calls to either
+     * #loginSuccessful() or loginFailure().
+     */
+    public boolean login(ProviderConfiguration configuration) {
+        setProviderConfiguration(configuration);
         /*
          * Save the current browser URL before redirecting to the OAuth 2.0 auth
          * URL. This will be used to restore the current view when redirecting
@@ -132,13 +119,57 @@ public class RepositoryProviderManager {
          */
         UI.getCurrent().getPage().fetchCurrentURL(currentUrl -> {
             setRedirectUrl(currentUrl.toString());
-            UI.getCurrent().getUI().ifPresent(ui -> ui.getPage().setLocation("/oauth2/authorization/" + getRepository().getRegistrationId()));
+            UI.getCurrent().getUI().ifPresent(ui -> ui.getPage().setLocation("/oauth2/authorization/" + getProviderConfiguration().getRegistrationId()));
         });
         return true;
     }
 
+    /*
+     * Logs out of an OAuth2 session.
+     */
     public boolean logout() {
-        setRepository(null);
+        if (currentProvider != null) {
+            currentProvider.logout();
+        }
+        setProviderConfiguration(null);
+        SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+        logoutHandler.logout(
+            VaadinServletRequest.getCurrent().getHttpServletRequest(), null, null);
         return true;
+    }
+
+    /*
+     * Callback when OAuth2 login is successful
+     */
+    public String loginSuccessful() {
+        if (currentProvider != null) {
+            currentProvider.login();
+        }
+        String url = getRedirectUrl();
+        setRedirectUrl(null);
+        return url;
+    }
+
+    /*
+     * Callback when OAuth2 login is unsuccessful
+     */
+    public void loginFailure() {
+        setProviderConfiguration(null);
+    }
+
+     /**
+     * Get the current access token. Only valid if {@link #isLoggedIn()} returns true.
+     * 
+     * @return access token
+     */
+    protected OAuth2AccessToken getAccessToken() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken)authentication;
+        if (authentication.getPrincipal() instanceof OAuth2AuthenticatedPrincipal) {
+            OAuth2AuthenticatedPrincipal principal = (OAuth2AuthenticatedPrincipal)authentication.getPrincipal();
+            OAuth2AuthorizedClient client = clientService.loadAuthorizedClient(authToken.getAuthorizedClientRegistrationId(), principal.getName());
+            return client.getAccessToken();
+        }
+        return null;
     }
 }

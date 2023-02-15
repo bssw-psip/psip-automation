@@ -28,26 +28,53 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
-package io.bssw.psip.backend.model;
+package io.bssw.psip.backend.service;
 
+import static org.yaml.snakeyaml.env.EnvScalarConstructor.ENV_FORMAT;
+import static org.yaml.snakeyaml.env.EnvScalarConstructor.ENV_TAG;
+
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Used for loading repositories.yml file
- */
-public class RepositoryContent {
-	public List<Repository> repositories;
+import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.env.EnvScalarConstructor;
 
-	public List<Repository> getRepositories() {
-		return repositories;
-	}
+import io.bssw.psip.backend.model.ProviderConfiguration;
+import io.bssw.psip.backend.model.ProviderContent;
 
-	public void setRepositories(List<Repository> repositories) {
-		this.repositories = repositories;
-	}
-	
-	@Override
-	public String toString() {
-		return "RepositoryContent [repositories=" + repositories + "]";
+@Service
+public class ProviderService {
+    private static final String PROVIDER_FILE = "/providers.yml";
+
+    private List<ProviderConfiguration> providerConfigurations;
+
+        /**
+     * Get a list of all know repository providers.
+     * 
+     * @return list of repository providers
+     */
+    public List<ProviderConfiguration> getProviderConfigurations() {
+        if (providerConfigurations == null) {
+            InputStream inputStream = getClass().getResourceAsStream(PROVIDER_FILE);
+            load(inputStream);
+        }
+        return providerConfigurations;
+    }
+
+    private void load(InputStream inputStream) {
+		Yaml yaml = new Yaml(new EnvScalarConstructor(new TypeDescription(ProviderContent.class),
+        new ArrayList<TypeDescription>(), new LoaderOptions()));
+        yaml.addImplicitResolver(ENV_TAG, ENV_FORMAT, "$");
+		try {
+			ProviderContent content = yaml.load(inputStream);
+			providerConfigurations = content.getProviders();
+        } catch (Exception e) {
+            providerConfigurations = new ArrayList<>();
+        	System.out.println(e.getLocalizedMessage());
+        }
 	}
 }
