@@ -4,7 +4,7 @@ providers:
    clientName: GitHub
    clientId: ${GITHUB_CLIENT_ID}
    clientSecret: ${GITHUB_CLIENT_SECRET}
-   redirectUri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
+   redirectUri: https://rateyourproject.org/{action}/oauth2/code/{registrationId}
    authorizationUri: https://github.com/login/oauth/authorize
    tokenUri: https://github.com/login/oauth/access_token
    userInfoUri: https://api.github.com/user
@@ -22,3 +22,15 @@ providers:
    userInfoUri: https://code.ornl.gov/api/v4/user
    userNameAttributeName: username
    scope: read_user
+
+ - type: github
+   registrationId: github_test
+   clientName: GitHub (test)
+   clientId: ${GITHUB_CLIENT_ID}
+   clientSecret: ${GITHUB_CLIENT_SECRET}
+   redirectUri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
+   authorizationUri: https://github.com/login/oauth/authorize
+   tokenUri: https://github.com/login/oauth/access_token
+   userInfoUri: https://api.github.com/user
+   userNameAttributeName: id
+   scope: read:user
