@@ -78,8 +78,19 @@ public interface RepositoryProvider {
 
     InputStream getSurveyFile() throws IOException;
     
+    /*
+     * Associate the provider with a repository and branch
+     */
     void connect(String url, String branch) throws Exception;
 
+    /*
+     * Reset association
+     */
+    void disconnect();
+
+    /*
+     * Check if a repsository/branch has been connected
+     */
     boolean isConnected();
 
     List<String> getRepositories();

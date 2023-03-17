@@ -54,6 +54,12 @@ public class GitHubRepositoryProvider extends AbstractRepositoryProvider {
     }
 
     @Override
+    public void disconnect() {
+        ghRepo = null;
+        ghBranch = null;    
+    }
+
+    @Override
     public boolean isConnected() {
         return ghBranch != null;
     }

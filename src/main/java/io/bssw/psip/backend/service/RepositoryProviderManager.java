@@ -119,7 +119,9 @@ public class RepositoryProviderManager {
          */
         UI.getCurrent().getPage().fetchCurrentURL(currentUrl -> {
             setRedirectUrl(currentUrl.toString());
-            UI.getCurrent().getUI().ifPresent(ui -> ui.getPage().setLocation("/oauth2/authorization/" + getProviderConfiguration().getRegistrationId()));
+            UI.getCurrent().getUI().ifPresent(ui -> {
+                ui.getPage().setLocation("/oauth2/authorization/" + getProviderConfiguration().getRegistrationId());
+            });
         });
         return true;
     }

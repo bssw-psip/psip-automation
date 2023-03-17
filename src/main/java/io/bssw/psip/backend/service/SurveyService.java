@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.error.YAMLException;
 
 import io.bssw.psip.backend.model.Item;
 import io.bssw.psip.backend.model.Survey;
@@ -88,22 +89,17 @@ public class SurveyService {
 		prevItems.put(path, item);
 	}
 	
-	public Survey load(InputStream inputStream) {
+	public Survey load(InputStream inputStream) throws YAMLException {
 		Yaml yaml = new Yaml(new Constructor(SurveyContent.class));
-		try {
-			SurveyContent content = yaml.load(inputStream);
-			return content.getSurvey();
-		} catch (Exception e) {
-			System.out.println(e.getLocalizedMessage());
-		}
-		return null;
+		SurveyContent content = yaml.load(inputStream);
+		return content.getSurvey();
 	}
 
 	/*
 	 * (Re)load a new survey. Make sure we get a new survey if
 	 * the repository provider changes.
 	 */
-	public Survey loadSurvey() {
+	public Survey loadSurvey() throws YAMLException {
 		survey = null;
 		items.clear();
 		prevItems.clear();

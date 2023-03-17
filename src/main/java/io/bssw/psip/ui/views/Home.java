@@ -63,6 +63,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import io.bssw.psip.backend.service.RepositoryProvider;
 import io.bssw.psip.backend.service.RepositoryProviderManager;
+import io.bssw.psip.backend.service.SurveyService;
 import io.bssw.psip.ui.HomeLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
 import io.bssw.psip.ui.layout.size.Horizontal;
@@ -78,10 +79,12 @@ public class Home extends ViewFrame {
 	private static final String DEFAULT_BRANCH = "main";
 
 	private final RepositoryProviderManager repositoryManager;
+	private final SurveyService surveyService;
 
 	@Autowired
-	public Home(RepositoryProviderManager repositoryManager) {
+	public Home(RepositoryProviderManager repositoryManager, SurveyService surveyService) {
 		this.repositoryManager = repositoryManager;
+		this.surveyService = surveyService;
 		setId("home");
 		setViewContent(createContent());
 	}
@@ -129,7 +132,6 @@ public class Home extends ViewFrame {
 			} else {
 				createTextFieldControls(surveyLayout, surveyButton, provider);
 			}
-
 		} else {
 			surveyButton.addClickListener(buttonClickEvent -> {
 				surveyButton.getUI().ifPresent(ui -> ui.navigate("assessment"));
@@ -187,9 +189,11 @@ public class Home extends ViewFrame {
 						branch = branchField.getValue();
 					}
 					repositoryManager.getRepositoryProvider().connect(repoField.getValue(), branch);
+					surveyService.loadSurvey();
 				}
 				button.getUI().ifPresent(ui -> ui.navigate("assessment"));
 			} catch (Exception e) {
+				repositoryManager.getRepositoryProvider().disconnect();
 				displayError(e.getLocalizedMessage());
 			}
 		});

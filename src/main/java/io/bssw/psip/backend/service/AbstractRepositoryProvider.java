@@ -47,6 +47,10 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider {
     }
 
     @Override
+    public void disconnect() {
+    }
+
+    @Override
     public boolean isConnected() {
         return false;
     }
