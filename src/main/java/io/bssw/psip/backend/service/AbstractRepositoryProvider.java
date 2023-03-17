@@ -56,8 +56,12 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider {
     }
 
     @Override
-    public InputStream getSurveyFile() throws IOException {
+    public InputStream readFile(String path) throws IOException {
         return null;
+    }
+
+    @Override
+    public void writeFile(String path, String contents) throws IOException {
     }
 
     @Override

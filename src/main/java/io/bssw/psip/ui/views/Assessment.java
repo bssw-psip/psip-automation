@@ -30,6 +30,7 @@
 *******************************************************************************/
 package io.bssw.psip.ui.views;
 
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.olli.ClipboardHelper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.appreciated.apexcharts.ApexCharts;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -55,6 +58,7 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
@@ -70,8 +74,11 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import io.bssw.psip.backend.model.Activity;
 import io.bssw.psip.backend.model.Category;
+import io.bssw.psip.backend.model.CategoryScore;
 import io.bssw.psip.backend.model.Item;
+import io.bssw.psip.backend.model.ItemScore;
 import io.bssw.psip.backend.model.Survey;
+import io.bssw.psip.backend.model.SurveyScore;
 import io.bssw.psip.backend.service.ActivityService;
 import io.bssw.psip.backend.service.SurveyService;
 import io.bssw.psip.ui.MainLayout;
@@ -177,11 +184,18 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	private void createActivityLayout(Survey survey) {
 		mainLayout.removeAll();
 
-		Anchor saveAnchor = new Anchor();
+		Button saveAnchor = new Button();
 		saveAnchor.setText("save your current assessment.");
-		saveAnchor.getElement().addEventListener("click", e -> {
-		    String url = generateSaveUrl(survey);
-		    displaySaveDialog(url);
+		saveAnchor.addClickListener(event -> {
+			SurveyScore score = generateScore(survey);
+			ObjectMapper mapper = new ObjectMapper();
+			String value;
+			try {
+				value = mapper.writeValueAsString(score);
+			} catch (JsonProcessingException e) {
+				value = e.getLocalizedMessage();
+			}
+		    displaySaveDialog(value);
 		});
 
 		Div descDiv = new Div();
@@ -229,6 +243,27 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		}
 		return getLocation() + RouteConfiguration.forSessionScope().getUrl(Assessment.class, "?" + query.toString());
 	}
+
+	private SurveyScore generateScore(Survey survey) {
+		SurveyScore surveyScore = new SurveyScore();
+		surveyScore.setVersion(survey.getVersion());
+		surveyScore.setTimestamp(Instant.now().toString());
+		Iterator<Category> categoryIter = survey.getCategories().iterator();
+		while (categoryIter.hasNext()) {
+			Category category = categoryIter.next();
+			CategoryScore catScore = new CategoryScore();
+			Iterator<Item> itemIter = category.getItems().iterator();
+			while (itemIter.hasNext()) {
+				Item item = itemIter.next();
+				ItemScore score = new ItemScore();
+				score.setPath(item.getPath());
+				score.setValue(item.getScore().orElse(0).toString());
+				catScore.getItemScores().add(score);
+			}
+			surveyScore.getCategoryScores().add(catScore);
+		}
+		return surveyScore;
+	}
 	
 	/**
 	 * Restore the state from the given query string
@@ -266,21 +301,22 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	    dialog.setCloseOnOutsideClick(false);
 	    dialog.setWidth("500px");
 	    Label header = new Label("Copy this URL and paste into your browser to resume your assessment.");
-	    TextField field = new TextField();
-	    field.setValue(url);
+		TextArea area = new TextArea();
+		area.setMaxHeight("150px");
+	    area.setValue(url);
 	    Button copyButton = new Button(VaadinIcon.COPY.create());
 	    ClipboardHelper helper = new ClipboardHelper(url, copyButton);
-	    HorizontalLayout fieldLayout = new HorizontalLayout(field, helper);
+	    HorizontalLayout fieldLayout = new HorizontalLayout(area, helper);
 	    fieldLayout.setMargin(false);
 	    fieldLayout.setWidthFull();
-	    fieldLayout.setFlexGrow(1, field);
+	    fieldLayout.setFlexGrow(1, area);
 	    Anchor closeButton = new Anchor();
 	    closeButton.setText("Close");
 	    closeButton.getElement().addEventListener("click", event -> {
 	        dialog.close();
 	    });
 	    VerticalLayout dialogLayout = new VerticalLayout(header, fieldLayout, closeButton);
-	    dialogLayout.setHorizontalComponentAlignment(Alignment.START, header, field);
+	    dialogLayout.setHorizontalComponentAlignment(Alignment.START, header, area);
 	    dialogLayout.setHorizontalComponentAlignment(Alignment.CENTER, closeButton);
 	    dialog.add(dialogLayout);
 	    dialog.open();

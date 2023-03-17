@@ -65,10 +65,18 @@ public class GitHubRepositoryProvider extends AbstractRepositoryProvider {
     }
 
     @Override
-    public InputStream getSurveyFile() throws IOException {
+    public InputStream readFile(String path) throws IOException {
         if (ghRepo != null && ghBranch != null) {
-            GHContent survey = ghRepo.getFileContent(".psip/survey.yml", ghBranch.getName());
-            return survey.read();
+            GHContent file = ghRepo.getFileContent(path, ghBranch.getName());
+            return file.read();
+        }
+        throw new IOException("Not connected");
+    }
+
+    @Override
+    public void writeFile(String path, String contents) throws IOException {
+        if (ghRepo != null && ghBranch != null) {
+            ghRepo.createContent().path(path).content(contents).branch(ghBranch.getName()).commit();
         }
         throw new IOException("Not connected");
     }

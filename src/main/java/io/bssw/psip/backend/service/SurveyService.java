@@ -49,6 +49,8 @@ import io.bssw.psip.backend.model.SurveyContent;
 // @VaadinSessionScope 
 @Service
 public class SurveyService {
+	private static final String SURVEY_FILE = ".psip/survey.yml";
+
 	@Autowired
 	private RepositoryProviderManager repositoryManager;
 
@@ -108,7 +110,7 @@ public class SurveyService {
 		if (repositoryManager.isLoggedIn()) {
 			RepositoryProvider provider = repositoryManager.getRepositoryProvider();
 			try {
-				stream = provider.getSurveyFile();
+				stream = provider.readFile(SURVEY_FILE);
 			} catch (IOException e) {
 				// Just use default file
 			}

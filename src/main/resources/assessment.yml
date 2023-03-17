@@ -19,6 +19,7 @@
 #
 survey:
    name: PSIP
+   version: 1.0.0
    description: Standard Productivity and Improvement Planning survey
 
    scores:

@@ -76,8 +76,18 @@ public interface RepositoryProvider {
      */
     boolean putFile(String owner, String repo, String ref, String path, String message, String content);
 
-    InputStream getSurveyFile() throws IOException;
+    /*
+     * Read a file from the current repository. The path argument is
+     * replative to the root of the repository.
+     */
+    InputStream readFile(String path) throws IOException;
     
+    /*
+     * Create/replace file with new contents. The path argument is
+     * replative to the root of the repository.
+     */
+    void writeFile(String path, String contents) throws IOException;
+
     /*
      * Associate the provider with a repository and branch
      */

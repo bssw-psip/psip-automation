@@ -30,71 +30,30 @@
 *******************************************************************************/
 package io.bssw.psip.backend.model;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class Survey {
-	private String name;
-	private String description;
-	private String version;
-	private List<Score> scores;
-	private List<Category> categories;
-	private Map<String, Category> categoryByPath = new HashMap<>();
-	
-	public String getName() {
-		return name;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
+public class CategoryScore {
+    private String path = "";
+    private String score = "";
+    private List<ItemScore> surveyScores = new ArrayList<>();
 
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	public List<Score> getScores() {
-		return scores;
-	}
-
-	public void setScores(List<Score> scores) {
-		scores.forEach(s -> s.setSurvey(this));
-		this.scores = scores;
-	}
-
-	public List<Category> getCategories() {
-		return categories;
-	}
-	
-	public void setCategories(List<Category> categories) {
-		categoryByPath.clear();
-		categories.forEach(c -> {
-			c.setSurvey(this);
-			categoryByPath.put(c.getPath(), c);
-		});
-		this.categories = categories;
-	}
-
-	public Category getCategory(String path) {
-		return categoryByPath.get(path);
-	}
-
-	@Override
-	public String toString() {
-		return "Activity [name=" + name + ", description=" + description + ", scores=" + scores
-				+ ", categories=" + categories + "]";
-	}
+    public String getPath() {
+        return path;
+    }
+    public void setPath(String path) {
+        this.path = path;
+    }
+    public String getScore() {
+        return score;
+    }
+    public void setScore(String score) {
+        this.score = score;
+    }
+    public List<ItemScore> getItemScores() {
+        return surveyScores;
+    }
+    public void setSurveyScores(List<ItemScore> surveyScores) {
+        this.surveyScores = surveyScores;
+    }
 }
