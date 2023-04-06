@@ -114,7 +114,7 @@
         <dependency>
 		   <groupId>com.github.appreciated</groupId>
 		   <artifactId>apexcharts</artifactId>
-		   <version>23.0.0</version>
+		   <version>23.0.1</version>
 		</dependency>
 		
 		<!-- For canvas -->

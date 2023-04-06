@@ -36,10 +36,12 @@ import java.util.stream.Collectors;
 
 import com.github.appreciated.apexcharts.ApexChartsBuilder;
 import com.github.appreciated.apexcharts.config.builder.ChartBuilder;
+import com.github.appreciated.apexcharts.config.builder.GridBuilder;
 import com.github.appreciated.apexcharts.config.builder.XAxisBuilder;
 import com.github.appreciated.apexcharts.config.builder.YAxisBuilder;
 import com.github.appreciated.apexcharts.config.chart.Type;
 import com.github.appreciated.apexcharts.config.chart.builder.ToolbarBuilder;
+import com.github.appreciated.apexcharts.config.grid.builder.PaddingBuilder;
 import com.github.appreciated.apexcharts.config.xaxis.builder.LabelsBuilder;
 import com.github.appreciated.apexcharts.config.xaxis.labels.builder.StyleBuilder;
 import com.github.appreciated.apexcharts.helper.Series;
@@ -78,6 +80,13 @@ public class RadarChart extends ApexChartsBuilder {
                 		.withMax(100.0)
                 		.withTickAmount(5.0)
                 		.build())
+				// try to reduce the padding around the chart
+				.withGrid(GridBuilder.get()
+						.withPadding(PaddingBuilder.get()
+							.withTop(-50.0)
+							.withBottom(-50.0)
+							.build())
+						.build())
                 .build();	
 	}
 

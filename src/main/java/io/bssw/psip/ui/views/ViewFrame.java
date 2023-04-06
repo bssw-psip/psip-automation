@@ -37,8 +37,6 @@ import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 
-import io.bssw.psip.ui.MainLayout;
-
 /**
  * A view frame that establishes app design guidelines. It consists of three
  * parts:

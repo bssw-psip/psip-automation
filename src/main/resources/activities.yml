@@ -11,8 +11,8 @@ activities:
  - name: Assessment
    path: assessment
    icon: CLIPBOARD_CHECK 
-   description: The assessment section is used to estimate the degree to which software engineering practices are currently being 
-     used by your project.
+   description: By assessing project practices, teams are able to get a better understanding
+     of how to improve the quality, reproducibility, and sustainability of their software.
    survey: true
 
  - name: Tracking

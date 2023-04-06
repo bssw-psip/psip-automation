@@ -43,10 +43,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.appreciated.apexcharts.ApexCharts;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
-import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Emphasis;
 import com.vaadin.flow.component.html.Label;
@@ -59,7 +59,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.Location;
@@ -67,6 +66,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteConfiguration;
+import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.router.WildcardParameter;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
@@ -121,6 +121,9 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		return content;
 	}
 	
+	/*
+	 * Layout used when displaying an individual item from the survey
+	 */
 	private void createItemLayout(Item item) {
 		mainLayout.removeAll();
 		ScoreItem scoreItem = new ScoreItem(item);
@@ -146,9 +149,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		HorizontalLayout hz = new HorizontalLayout(button1, button2);
 		hz.setJustifyContentMode(JustifyContentMode.CENTER);
 		hz.setWidthFull();
-		Anchor anchor = new Anchor();
-		anchor.setText("Show me my assessment");
-		anchor.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, null) );
+		RouterLink anchor = new RouterLink("Show me my assessment", Assessment.class);
 		HorizontalLayout hz2 = new HorizontalLayout(anchor);
 		hz2.setJustifyContentMode(JustifyContentMode.CENTER);
 		hz2.setWidthFull();
@@ -157,6 +158,9 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		mainLayout.addAndExpand(scoreItem, footer);
 	}
 	
+	/*
+	 * Layout use when displaying a category from the survey.
+	 */
 	private void createCategoryLayout(Category category) {
 		mainLayout.removeAll();
 		FormLayout form = new FormLayout();
@@ -174,19 +178,36 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		div.add(new Paragraph(new Emphasis("The rows below show how well your team is doing for each practice. "
 				+ "As your practices improve, you can always return to this page to update them directly.")));
 
-		Anchor anchor = new Anchor();
-		anchor.setText("Click here to assess your individual practices.");
-		anchor.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, category.getPath() + "/" + category.getItems().get(0).getPath()));
+		Button assessButton = new Button();
+		assessButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		assessButton.setText("Assess your individual practices");
+		assessButton.addClickListener(event -> {
+			MainLayout.navigate(Assessment.class, category.getPath() + "/" + category.getItems().get(0).getPath());
+		});
 
-		mainLayout.add(div, anchor, form);
+		mainLayout.add(assessButton, div, form);
+		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, assessButton);
+
 	}
 	
+	/*
+	 * Main layout when the user first begins the survey or selects the 
+	 * Assessment menu.
+	 */
 	private void createActivityLayout(Survey survey) {
 		mainLayout.removeAll();
 
-		Button saveAnchor = new Button();
-		saveAnchor.setText("save your current assessment.");
-		saveAnchor.addClickListener(event -> {
+		Button startButton = new Button();
+		startButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		startButton.setText("Start the assessment");
+		startButton.addClickListener(event -> {
+			MainLayout.navigate(Assessment.class, survey.getCategories().get(0).getPath());
+		});
+
+		Button saveButton = new Button();
+		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		saveButton.setText("Save your current assessment");
+		saveButton.addClickListener(event -> {
 			SurveyScore score = generateScore(survey);
 			ObjectMapper mapper = new ObjectMapper();
 			String value;
@@ -199,21 +220,19 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		});
 
 		Div descDiv = new Div();
-		descDiv.add(new Paragraph(new Emphasis("The diagram below shows how your project is progressing in all practice areas. "
+		descDiv.add(survey.getDescription());
+
+		Div resultDiv = new Div();
+		resultDiv.add(new Paragraph(new Emphasis("The diagram below shows how your project is progressing in all practice areas. "
 				+ "You can come back to this page any time during the assessment to see your progress. ")));
 		
-				descDiv.add(new Paragraph(new Emphasis(new Strong("We do not save your data in any way. If you refresh or close your browser, "
-				+ "your assessment will be lost. We suggest you regularly use this link to "),
-				saveAnchor)));
-		
-		Anchor startAnchor = new Anchor();
-		startAnchor.setText("Click here to start assessing your practices.");
-		startAnchor.getElement().addEventListener("click", e -> MainLayout.navigate(Assessment.class, survey.getCategories().get(0).getPath()));
+		resultDiv.add(new Paragraph(new Emphasis(new Strong("We do not save your data in any way. If you refresh or close your browser, "
+				+ "your assessment will be lost. Click on the button below to save your assessment once it is completed."))));
 
 		Component summary = createSurveySummary(survey);
 		
-		mainLayout.add(descDiv, startAnchor, summary);
-		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startAnchor);
+		mainLayout.add(descDiv, startButton, resultDiv, summary, saveButton);
+		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startButton, saveButton, summary);
 	}
 	
 	/**
@@ -252,6 +271,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		while (categoryIter.hasNext()) {
 			Category category = categoryIter.next();
 			CategoryScore catScore = new CategoryScore();
+			catScore.setPath(category.getPath());
 			Iterator<Item> itemIter = category.getItems().iterator();
 			while (itemIter.hasNext()) {
 				Item item = itemIter.next();
@@ -310,9 +330,10 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	    fieldLayout.setMargin(false);
 	    fieldLayout.setWidthFull();
 	    fieldLayout.setFlexGrow(1, area);
-	    Anchor closeButton = new Anchor();
+	    Button closeButton = new Button();
+		closeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 	    closeButton.setText("Close");
-	    closeButton.getElement().addEventListener("click", event -> {
+	    closeButton.addClickListener(event -> {
 	        dialog.close();
 	    });
 	    VerticalLayout dialogLayout = new VerticalLayout(header, fieldLayout, closeButton);
@@ -333,8 +354,9 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	
 	private Component createSurveySummary(Survey survey) {
 		ApexCharts chart = new RadarChart(survey).build();
-		chart.setWidth("100%");
-		return chart;
+		HorizontalLayout layout = new HorizontalLayout(chart);
+		layout.setWidth("60%");
+		return layout;
 	}
 	
 	@SuppressWarnings("unused")

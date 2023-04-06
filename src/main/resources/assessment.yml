@@ -20,7 +20,9 @@
 survey:
    name: PSIP
    version: 1.0.0
-   description: Standard Productivity and Improvement Planning survey
+   description: The Productivity and Improvement Planning (PSIP) survey provides a way to estimate the degree to which some basic software 
+     engineering practices are currently being used by your project. It is also useful as a means of learning about new practices
+     that may be beneficial for your project to adopt. 
 
    scores:
     - name: None
