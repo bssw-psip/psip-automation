@@ -196,7 +196,7 @@ public class MainLayout extends FlexBoxLayout
 
 	private <C extends Component & HasUrlParameter<String>> void loadSurvey(Activity activity, Class<? extends Component> route, NaviItem actNav) {
 		NaviMenu menu = getNaviDrawer().getMenu();
-		Survey survey = surveyService.loadSurvey();
+		Survey survey = surveyService.getSurvey();
 		List<Category> categories = survey.getCategories();
 		ListIterator<Category> categoryIter = categories.listIterator();
 		Item prev = null;

@@ -9,7 +9,7 @@ providers:
    tokenUri: https://github.com/login/oauth/access_token
    userInfoUri: https://api.github.com/user
    userNameAttributeName: id
-   scope: read:user
+   scope: read:user,repo
 
  - type: gitlab
    registrationId: gitlab
@@ -33,4 +33,4 @@ providers:
    tokenUri: https://github.com/login/oauth/access_token
    userInfoUri: https://api.github.com/user
    userNameAttributeName: id
-   scope: read:user
+   scope: read:user,repo

@@ -30,7 +30,6 @@
 *******************************************************************************/
 package io.bssw.psip.ui.views;
 
-import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +37,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.olli.ClipboardHelper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.appreciated.apexcharts.ApexCharts;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -52,6 +49,7 @@ import com.vaadin.flow.component.html.Emphasis;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
@@ -74,12 +72,10 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import io.bssw.psip.backend.model.Activity;
 import io.bssw.psip.backend.model.Category;
-import io.bssw.psip.backend.model.CategoryScore;
 import io.bssw.psip.backend.model.Item;
-import io.bssw.psip.backend.model.ItemScore;
 import io.bssw.psip.backend.model.Survey;
-import io.bssw.psip.backend.model.SurveyScore;
 import io.bssw.psip.backend.service.ActivityService;
+import io.bssw.psip.backend.service.RepositoryProviderManager;
 import io.bssw.psip.backend.service.SurveyService;
 import io.bssw.psip.ui.MainLayout;
 import io.bssw.psip.ui.components.FlexBoxLayout;
@@ -102,6 +98,8 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	private ActivityService activityService;
 	@Autowired
 	private SurveyService surveyService;
+	@Autowired
+	private RepositoryProviderManager repositoryManager;
 
 	public Assessment() {
 		setViewContent(createContent());
@@ -120,7 +118,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		content.setHeightFull();
 		return content;
 	}
-	
+
 	/*
 	 * Layout used when displaying an individual item from the survey
 	 */
@@ -128,9 +126,10 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		mainLayout.removeAll();
 		ScoreItem scoreItem = new ScoreItem(item);
 		String path = item.getCategory().getPath() + "/" + item.getPath();
-		Item prevItem =  surveyService.getPrevItem(path);
+		Item prevItem = surveyService.getPrevItem(path);
 		Button button1 = UIUtils.createLargeButton(VaadinIcon.CHEVRON_CIRCLE_LEFT);
-		button1.getElement().getStyle().set("background", "#F3F5F7").set("font-size", "30px"); // FIXME: Don't hard code background
+		button1.getElement().getStyle().set("background", "#F3F5F7").set("font-size", "30px"); // FIXME: Don't hard code
+																								// background
 		button1.getElement().addEventListener("click", e -> {
 			MainLayout.navigate(Assessment.class, prevItem.getCategory().getPath() + "/" + prevItem.getPath());
 		});
@@ -138,8 +137,9 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 			button1.getElement().setEnabled(false);
 		}
 		Item nextItem = surveyService.getNextItem(path);
-		Button button2 =  UIUtils.createLargeButton(VaadinIcon.CHEVRON_CIRCLE_RIGHT);
-		button2.getElement().getStyle().set("background", "#F3F5F7").set("font-size", "30px"); // FIXME: Don't hard code background
+		Button button2 = UIUtils.createLargeButton(VaadinIcon.CHEVRON_CIRCLE_RIGHT);
+		button2.getElement().getStyle().set("background", "#F3F5F7").set("font-size", "30px"); // FIXME: Don't hard code
+																								// background
 		button2.getElement().addEventListener("click", e -> {
 			MainLayout.navigate(Assessment.class, nextItem.getCategory().getPath() + "/" + nextItem.getPath());
 		});
@@ -157,7 +157,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		footer.setMargin(false);
 		mainLayout.addAndExpand(scoreItem, footer);
 	}
-	
+
 	/*
 	 * Layout use when displaying a category from the survey.
 	 */
@@ -168,12 +168,13 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		for (Item item : category.getItems()) {
 			ScoreSlider slider = new ScoreSlider(item);
 			FormItem formItem = form.addFormItem(slider, item.getName());
-			formItem.getElement().getStyle().set("--vaadin-form-item-label-width", "15em"); // Set width of label otherwise it will wrap
+			formItem.getElement().getStyle().set("--vaadin-form-item-label-width", "15em"); // Set width of label
+																							// otherwise it will wrap
 			formItem.getElement().getStyle().set("align-self", "flex-start");
 			formItem.getElement().getStyle().set("padding", "5px");
 			form.setColspan(formItem, 2); // FormLayout defaults to 2 columns so span both
 		}
-		
+
 		Div div = new Div();
 		div.add(new Paragraph(new Emphasis("The rows below show how well your team is doing for each practice. "
 				+ "As your practices improve, you can always return to this page to update them directly.")));
@@ -189,9 +190,9 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, assessButton);
 
 	}
-	
+
 	/*
-	 * Main layout when the user first begins the survey or selects the 
+	 * Main layout when the user first begins the survey or selects the
 	 * Assessment menu.
 	 */
 	private void createActivityLayout(Survey survey) {
@@ -208,35 +209,41 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		saveButton.setText("Save your current assessment");
 		saveButton.addClickListener(event -> {
-			SurveyScore score = generateScore(survey);
-			ObjectMapper mapper = new ObjectMapper();
-			String value;
-			try {
-				value = mapper.writeValueAsString(score);
-			} catch (JsonProcessingException e) {
-				value = e.getLocalizedMessage();
+			if (repositoryManager.isLoggedIn() &&
+				repositoryManager.getRepositoryProvider().isConnected()) {
+				try {
+					surveyService.saveSurveyHistory(survey);
+					Notification.show("Survey saved!");
+				} catch (Exception e) {
+					UIUtils.showError("Unable to save survey", e.getLocalizedMessage());
+				}
+			} else {
+				String value = generateSaveUrl(survey);
+				displaySaveDialog(value);
 			}
-		    displaySaveDialog(value);
 		});
 
 		Div descDiv = new Div();
 		descDiv.add(survey.getDescription());
 
 		Div resultDiv = new Div();
-		resultDiv.add(new Paragraph(new Emphasis("The diagram below shows how your project is progressing in all practice areas. "
-				+ "You can come back to this page any time during the assessment to see your progress. ")));
-		
-		resultDiv.add(new Paragraph(new Emphasis(new Strong("We do not save your data in any way. If you refresh or close your browser, "
-				+ "your assessment will be lost. Click on the button below to save your assessment once it is completed."))));
+		resultDiv.add(new Paragraph(
+				new Emphasis("The diagram below shows how your project is progressing in all practice areas. "
+						+ "You can come back to this page any time during the assessment to see your progress. ")));
+
+		resultDiv.add(new Paragraph(
+				new Emphasis(new Strong("We do not save your data in any way. If you refresh or close your browser, "
+						+ "your assessment will be lost. Click on the button below to save your assessment once it is completed."))));
 
 		Component summary = createSurveySummary(survey);
-		
+
 		mainLayout.add(descDiv, startButton, resultDiv, summary, saveButton);
 		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startButton, saveButton, summary);
 	}
-	
+
 	/**
 	 * Generate a url that can be used to resume assessment
+	 * 
 	 * @param activity
 	 * @return url
 	 */
@@ -263,33 +270,11 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		return getLocation() + RouteConfiguration.forSessionScope().getUrl(Assessment.class, "?" + query.toString());
 	}
 
-	private SurveyScore generateScore(Survey survey) {
-		SurveyScore surveyScore = new SurveyScore();
-		surveyScore.setVersion(survey.getVersion());
-		surveyScore.setTimestamp(Instant.now().toString());
-		Iterator<Category> categoryIter = survey.getCategories().iterator();
-		while (categoryIter.hasNext()) {
-			Category category = categoryIter.next();
-			CategoryScore catScore = new CategoryScore();
-			catScore.setPath(category.getPath());
-			Iterator<Item> itemIter = category.getItems().iterator();
-			while (itemIter.hasNext()) {
-				Item item = itemIter.next();
-				ItemScore score = new ItemScore();
-				score.setPath(item.getPath());
-				score.setValue(item.getScore().orElse(0).toString());
-				catScore.getItemScores().add(score);
-			}
-			surveyScore.getCategoryScores().add(catScore);
-		}
-		return surveyScore;
-	}
-	
 	/**
 	 * Restore the state from the given query string
 	 * 
 	 * @param activity
-	 * @param query query from URL
+	 * @param query    query from URL
 	 */
 	private void restoreSaveUrl(Survey survey, Map<String, List<String>> parameters) {
 		for (String categoryPath : parameters.keySet()) {
@@ -315,50 +300,51 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 			}
 		}
 	}
-	
+
 	private void displaySaveDialog(String url) {
-	    Dialog dialog = new Dialog();
-	    dialog.setCloseOnOutsideClick(false);
-	    dialog.setWidth("500px");
-	    Label header = new Label("Copy this URL and paste into your browser to resume your assessment.");
+		Dialog dialog = new Dialog();
+		dialog.setCloseOnOutsideClick(false);
+		dialog.setWidth("500px");
+		Label header = new Label("Copy this URL and paste into your browser to resume your assessment.");
 		TextArea area = new TextArea();
 		area.setMaxHeight("150px");
-	    area.setValue(url);
-	    Button copyButton = new Button(VaadinIcon.COPY.create());
-	    ClipboardHelper helper = new ClipboardHelper(url, copyButton);
-	    HorizontalLayout fieldLayout = new HorizontalLayout(area, helper);
-	    fieldLayout.setMargin(false);
-	    fieldLayout.setWidthFull();
-	    fieldLayout.setFlexGrow(1, area);
-	    Button closeButton = new Button();
+		area.setValue(url);
+		Button copyButton = new Button(VaadinIcon.COPY.create());
+		ClipboardHelper helper = new ClipboardHelper(url, copyButton);
+		HorizontalLayout fieldLayout = new HorizontalLayout(area, helper);
+		fieldLayout.setMargin(false);
+		fieldLayout.setWidthFull();
+		fieldLayout.setFlexGrow(1, area);
+		Button closeButton = new Button();
 		closeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-	    closeButton.setText("Close");
-	    closeButton.addClickListener(event -> {
-	        dialog.close();
-	    });
-	    VerticalLayout dialogLayout = new VerticalLayout(header, fieldLayout, closeButton);
-	    dialogLayout.setHorizontalComponentAlignment(Alignment.START, header, area);
-	    dialogLayout.setHorizontalComponentAlignment(Alignment.CENTER, closeButton);
-	    dialog.add(dialogLayout);
-	    dialog.open();
+		closeButton.setText("Close");
+		closeButton.addClickListener(event -> {
+			dialog.close();
+		});
+		VerticalLayout dialogLayout = new VerticalLayout(header, fieldLayout, closeButton);
+		dialogLayout.setHorizontalComponentAlignment(Alignment.START, header, area);
+		dialogLayout.setHorizontalComponentAlignment(Alignment.CENTER, closeButton);
+		dialog.add(dialogLayout);
+		dialog.open();
 	}
-	
+
 	/**
 	 * Get the location in the browser. NOTE this only works from the UI thread!
+	 * 
 	 * @return location
 	 */
-	private static String getLocation(){
-	    VaadinServletRequest request = (VaadinServletRequest) VaadinService.getCurrentRequest();
-	    return request.getRequestURL().toString();
+	private static String getLocation() {
+		VaadinServletRequest request = (VaadinServletRequest) VaadinService.getCurrentRequest();
+		return request.getRequestURL().toString();
 	}
-	
+
 	private Component createSurveySummary(Survey survey) {
 		ApexCharts chart = new RadarChart(survey).build();
 		HorizontalLayout layout = new HorizontalLayout(chart);
 		layout.setWidth("60%");
 		return layout;
 	}
-	
+
 	@SuppressWarnings("unused")
 	private Component createActivitySummaryAsProgress(Survey survey) {
 		FormLayout form = new FormLayout();
@@ -376,7 +362,8 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 				bar.getElement().setEnabled(false);
 			}
 			FormItem formItem = form.addFormItem(bar, category.getName());
-			formItem.getElement().getStyle().set("--vaadin-form-item-label-width", "15em"); // Set width of label otherwise it will wrap
+			formItem.getElement().getStyle().set("--vaadin-form-item-label-width", "15em"); // Set width of label
+																							// otherwise it will wrap
 			form.setColspan(formItem, 2); // FormLayout defaults to 2 columns so span both
 		}
 		return form;
@@ -388,11 +375,11 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		if (parameter.isEmpty()) {
 			Activity activity = activityService.getActivity("Assessment");
 			desc = activity.getDescription();
-			
+
 			// Get query parameters and restore state if there are any
 			Location location = event.getLocation();
-		    QueryParameters queryParameters = location.getQueryParameters();
-		    Map<String, List<String>> parametersMap = queryParameters.getParameters();
+			QueryParameters queryParameters = location.getQueryParameters();
+			Map<String, List<String>> parametersMap = queryParameters.getParameters();
 			if (!parametersMap.isEmpty()) {
 				restoreSaveUrl(surveyService.getSurvey(), parametersMap);
 			}
@@ -407,7 +394,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 					desc = item.getDescription();
 					createItemLayout(item);
 				} else {
-					System.out.println("invalid parameter="+parameter);
+					System.out.println("invalid parameter=" + parameter);
 				}
 			}
 		} else {

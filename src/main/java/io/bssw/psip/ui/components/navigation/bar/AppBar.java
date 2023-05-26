@@ -184,10 +184,10 @@ public class AppBar extends Header {
 							Notification.Position.BOTTOM_CENTER));
 			contextMenu.addItem("Log Out",
 					e -> {
-						UI.getCurrent().getPage().setLocation("/");
 						if (repositoryManager.isLoggedIn()) {
 							repositoryManager.logout();
 						}
+						UI.getCurrent().getPage().setLocation("/");
 					});
 		}
 	}

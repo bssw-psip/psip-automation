@@ -32,29 +32,42 @@ package io.bssw.psip.backend.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.bssw.psip.backend.model.Category;
+import io.bssw.psip.backend.model.CategoryScore;
 import io.bssw.psip.backend.model.Item;
+import io.bssw.psip.backend.model.ItemScore;
 import io.bssw.psip.backend.model.Survey;
 import io.bssw.psip.backend.model.SurveyContent;
+import io.bssw.psip.backend.model.SurveyScore;
+import io.bssw.psip.backend.service.events.AuthChangeEvent;
+import io.bssw.psip.backend.model.SurveyHistory;
 
 // Must be session scope to ensure only one service (and resulting entities) per session
 // @VaadinSessionScope 
 @Service
-public class SurveyService {
+public class SurveyService implements ApplicationListener<AuthChangeEvent> {
 	private static final String SURVEY_FILE = ".psip/survey.yml";
+	private static final String HISTORY_FILE = ".psip/history.json";
 
 	@Autowired
 	private RepositoryProviderManager repositoryManager;
 
 	private Survey survey;
+	private SurveyHistory history;
 
 	private final Map<String, Item> items = new HashMap<String, Item>();
 	private final Map<String, Item> prevItems = new HashMap<String, Item>();
@@ -62,9 +75,14 @@ public class SurveyService {
 
 	public Survey getSurvey() {
 		if (survey == null) {
-			return loadSurvey();
+			loadSurvey();
+			loadSurveyHistory();
 		}
 		return survey;
+	}
+
+	public void reset() {
+		survey = null;
 	}
 
 	public Item getItem(String path) {
@@ -98,11 +116,10 @@ public class SurveyService {
 	}
 
 	/*
-	 * (Re)load a new survey. Make sure we get a new survey if
-	 * the repository provider changes.
+	 * (Re)load a new survey from a repository. Assumes that the repository
+	 * provider is connected. If not it will load the default survey. 
 	 */
-	public Survey loadSurvey() throws YAMLException {
-		survey = null;
+	private void loadSurvey() throws YAMLException {
 		items.clear();
 		prevItems.clear();
 		nextItems.clear();
@@ -119,7 +136,69 @@ public class SurveyService {
 			stream = getClass().getResourceAsStream("/assessment.yml");
 		}
 		survey = load(stream);
-		return survey;
 	}
 
+	private void loadSurveyHistory() {
+		history = new SurveyHistory();
+		InputStream stream = null;
+		if (repositoryManager.isLoggedIn()) {
+			RepositoryProvider provider = repositoryManager.getRepositoryProvider();
+			try {
+				stream = provider.readFile(HISTORY_FILE);
+			} catch (IOException e) {
+				// Just use default file
+			}
+		}
+		if (stream != null) {
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				history = mapper.readValue(stream, SurveyHistory.class);
+			} catch (IOException e) {
+			}
+		}
+	}
+
+	public SurveyScore generateScore(Survey survey) {
+		SurveyScore surveyScore = new SurveyScore();
+		surveyScore.setVersion(survey.getVersion());
+		surveyScore.setTimestamp(Instant.now().toString());
+		Iterator<Category> categoryIter = survey.getCategories().iterator();
+		while (categoryIter.hasNext()) {
+			Category category = categoryIter.next();
+			CategoryScore catScore = new CategoryScore();
+			catScore.setPath(category.getPath());
+			Iterator<Item> itemIter = category.getItems().iterator();
+			while (itemIter.hasNext()) {
+				Item item = itemIter.next();
+				ItemScore score = new ItemScore();
+				score.setPath(item.getPath());
+				score.setValue(item.getScore().orElse(0).toString());
+				catScore.getItemScores().add(score);
+			}
+			surveyScore.getCategoryScores().add(catScore);
+		}
+		return surveyScore;
+	}
+
+	/*
+	 * Save the current survey values into the history and
+	 * write out to the repository
+	 */
+	public void saveSurveyHistory(Survey survey) throws Exception {
+		SurveyScore score = generateScore(survey);
+		history.addScore(score);
+		ObjectMapper mapper = new ObjectMapper();
+		String value = mapper.writeValueAsString(history);
+		if (repositoryManager.isLoggedIn()) {
+			RepositoryProvider provider = repositoryManager.getRepositoryProvider();
+			provider.writeFile(HISTORY_FILE, value);
+		} else {
+			throw new IOException("Not logged in");
+		}
+	}
+
+	@Override
+	public void onApplicationEvent(AuthChangeEvent event) {
+		reset();
+	}
 }

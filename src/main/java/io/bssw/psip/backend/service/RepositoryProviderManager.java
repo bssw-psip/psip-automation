@@ -3,6 +3,8 @@ package io.bssw.psip.backend.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -17,9 +19,11 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
 
 import io.bssw.psip.backend.model.ProviderConfiguration;
+import io.bssw.psip.backend.service.events.AuthChangeEvent;
+import io.bssw.psip.backend.service.events.AuthChangeEvent.Type;
 
 @Service
-public class RepositoryProviderManager {
+public class RepositoryProviderManager implements ApplicationEventPublisherAware {
     @Autowired
     private List<RepositoryProvider> repositoryProviders;
     @Autowired
@@ -27,6 +31,7 @@ public class RepositoryProviderManager {
     @Autowired
     private OAuth2AuthorizedClientService clientService;
 
+    private ApplicationEventPublisher publisher;
     private ProviderConfiguration currentConfiguration;
     private RepositoryProvider currentProvider;
     private String redirectUrl;
@@ -133,6 +138,7 @@ public class RepositoryProviderManager {
         if (currentProvider != null) {
             currentProvider.logout();
         }
+        publisher.publishEvent(new AuthChangeEvent(this, Type.LOGOUT));
         setProviderConfiguration(null);
         SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
         logoutHandler.logout(
@@ -147,6 +153,7 @@ public class RepositoryProviderManager {
         if (currentProvider != null) {
             currentProvider.login();
         }
+        publisher.publishEvent(new AuthChangeEvent(this, Type.LOGIN));
         String url = getRedirectUrl();
         setRedirectUrl(null);
         return url;
@@ -173,5 +180,10 @@ public class RepositoryProviderManager {
             return client.getAccessToken();
         }
         return null;
+    }
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher publisher) {
+        this.publisher = publisher;
     }
 }

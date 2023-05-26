@@ -230,7 +230,7 @@
       "@vaadin/vertical-layout": "23.2.11",
       "@vaadin/virtual-list": "23.2.11",
       "@webcomponents/webcomponentsjs": "^2.2.10",
-      "apexcharts": "3.30.0",
+      "apexcharts": "3.35.0",
       "construct-style-sheets-polyfill": "3.1.0",
       "date-fns": "2.29.3",
       "lit": "2.3.1",

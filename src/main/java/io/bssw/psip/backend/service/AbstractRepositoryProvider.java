@@ -5,11 +5,15 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.context.ApplicationListener;
+
 import com.vaadin.flow.component.html.Image;
 
 import io.bssw.psip.backend.model.ProviderConfiguration;
+import io.bssw.psip.backend.service.events.AuthChangeEvent;
+import io.bssw.psip.backend.service.events.AuthChangeEvent.Type;
 
-public abstract class AbstractRepositoryProvider implements RepositoryProvider {
+public abstract class AbstractRepositoryProvider implements RepositoryProvider, ApplicationListener<AuthChangeEvent> {
     private ProviderConfiguration configuration;
     private RepositoryProviderManager repositoryManager;
 
@@ -93,5 +97,15 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider {
 
     protected void setRepositoryManager(RepositoryProviderManager repositoryManager) {
         this.repositoryManager = repositoryManager;
+    }
+
+    @Override
+    public void onApplicationEvent(AuthChangeEvent event) {
+        if (event.getType() == Type.LOGIN) {
+            login();
+        } else {
+            logout();
+        }
+        
     }
 }

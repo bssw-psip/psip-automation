@@ -35,7 +35,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -46,15 +45,12 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.UnorderedList;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.FlexDirection;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
@@ -92,38 +88,40 @@ public class Home extends ViewFrame {
 	private Component createContent() {
 		Div intro = new Div();
 		StreamResource imageResource = new StreamResource("ryp_logo.png",
-			() -> getClass().getResourceAsStream(UIUtils.IMG_PATH + "logos/ryp_logo.png"));
+				() -> getClass().getResourceAsStream(UIUtils.IMG_PATH + "logos/ryp_logo.png"));
 		intro.add(new Image(imageResource, "Rate Your Project"));
 		intro.add(new H2("A self assessment tool for improving software practices"));
-		intro.add(new Paragraph("Software engineering is a systematic approach to the design, development, and maintenance of a software system. "
-				+ "Teams seldom have the time to stop development and focus solely on improving productivity or sustainability. However, "
-				+ "teams can incorporate improvements on the way to developing new science capabilities."));
-		
+		intro.add(new Paragraph(
+				"Software engineering is a systematic approach to the design, development, and maintenance of a software system. "
+						+ "Teams seldom have the time to stop development and focus solely on improving productivity or sustainability. However, "
+						+ "teams can incorporate improvements on the way to developing new science capabilities."));
+
 		intro.add(new Paragraph("The tools on this site will help you:"));
-		
-		intro.add(new UnorderedList( 
+
+		intro.add(new UnorderedList(
 				new ListItem("Assess your current practices"),
 				new ListItem("Create progress tracking cards"),
 				new ListItem("Integrate tracking cards with your workflow")));
-		
-		intro.add(new Paragraph("The self-assessment introduces software engineering practices that increase in maturity. "
-				+ "Check the practices that your project already uses to rate your project."));
-		
+
+		intro.add(new Paragraph(
+				"The self-assessment introduces software engineering practices that increase in maturity. "
+						+ "Check the practices that your project already uses to rate your project."));
+
 		intro.add(new Paragraph("Take the survey by clicking the button below or sign in to customize your survey"
 				+ " and save the results directly to your project repository!"));
 
 		VerticalLayout layout = new VerticalLayout();
 		HorizontalLayout surveyLayout = new HorizontalLayout();
 		surveyLayout.setAlignItems(Alignment.BASELINE);
-		
+
 		layout.add(surveyLayout);
 		layout.setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, surveyLayout);
 
-		Button surveyButton = new Button("Take the Survey"); //commit this
+		Button surveyButton = new Button("Take the Survey"); // commit this
 		surveyButton.setMaxWidth(15, Unit.REM);
-		surveyButton.setWidthFull(); //keep this line, makes the button the full width of its max size
+		surveyButton.setWidthFull(); // keep this line, makes the button the full width of its max size
 		surveyButton.setHeight(LumoStyles.Size.M);
-		surveyButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY); //this worked, commit this
+		surveyButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY); // this worked, commit this
 
 		if (repositoryManager.isLoggedIn()) {
 			RepositoryProvider provider = repositoryManager.getRepositoryProvider();
@@ -169,12 +167,12 @@ public class Home extends ViewFrame {
 				}
 				button.getUI().ifPresent(ui -> ui.navigate("assessment"));
 			} catch (Exception e) {
-				displayError(e.getLocalizedMessage());
+				UIUtils.showError(e.getLocalizedMessage());
 			}
 		});
 	}
 
-	private void createTextFieldControls(HorizontalLayout layout,Button button, RepositoryProvider provider) {
+	private void createTextFieldControls(HorizontalLayout layout, Button button, RepositoryProvider provider) {
 		TextField repoField = new TextField("Repository:");
 		repoField.setWidth("400px");
 		repoField.setPlaceholder("Repository name");
@@ -189,33 +187,14 @@ public class Home extends ViewFrame {
 						branch = branchField.getValue();
 					}
 					repositoryManager.getRepositoryProvider().connect(repoField.getValue(), branch);
-					surveyService.loadSurvey();
+					surveyService.reset();
 				}
 				button.getUI().ifPresent(ui -> ui.navigate("assessment"));
 			} catch (Exception e) {
 				repositoryManager.getRepositoryProvider().disconnect();
-				displayError(e.getLocalizedMessage());
+				UIUtils.showError(e.getLocalizedMessage());
 			}
 		});
 	}
 
-	private void displayError(String message) {
-		Notification notification = new Notification();
-		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-
-		Div text = new Div(new Text(message));
-
-		Button closeButton = new Button(new Icon("lumo", "cross"));
-		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-		closeButton.getElement().setAttribute("aria-label", "Close");
-		closeButton.addClickListener(event -> {
-			notification.close();
-		});
-
-		HorizontalLayout noteLayout = new HorizontalLayout(text, closeButton);
-		noteLayout.setAlignItems(Alignment.CENTER);
-
-		notification.add(noteLayout);
-		notification.open();
-	}
 }

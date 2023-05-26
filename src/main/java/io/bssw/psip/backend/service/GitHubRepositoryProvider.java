@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.kohsuke.github.GHBranch;
 import org.kohsuke.github.GHContent;
+import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.PagedIterator;
@@ -76,9 +77,23 @@ public class GitHubRepositoryProvider extends AbstractRepositoryProvider {
     @Override
     public void writeFile(String path, String contents) throws IOException {
         if (ghRepo != null && ghBranch != null) {
-            ghRepo.createContent().path(path).content(contents).branch(ghBranch.getName()).commit();
+            try {
+                GHContent file = ghRepo.getFileContent(path, ghBranch.getName());
+                file.update(contents, "User action: update history");
+            } catch (IOException e) {
+                if (!(e instanceof GHFileNotFoundException)) {
+                    throw e;
+                }
+                ghRepo.createContent()
+                    .path(path)
+                    .content(contents)
+                    .branch(ghBranch.getName())
+                    .message("User action: new history")
+                    .commit();
+            }
+        } else {
+            throw new IOException("Not connected");
         }
-        throw new IOException("Not connected");
     }
 
     @Override
