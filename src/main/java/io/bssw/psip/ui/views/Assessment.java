@@ -34,10 +34,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import io.bssw.psip.backend.model.*;
+import io.bssw.psip.ui.components.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.olli.ClipboardHelper;
 
 import com.github.appreciated.apexcharts.ApexCharts;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -70,18 +73,10 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
-import io.bssw.psip.backend.model.Activity;
-import io.bssw.psip.backend.model.Category;
-import io.bssw.psip.backend.model.Item;
-import io.bssw.psip.backend.model.Survey;
 import io.bssw.psip.backend.service.ActivityService;
 import io.bssw.psip.backend.service.RepositoryProviderManager;
 import io.bssw.psip.backend.service.SurveyService;
 import io.bssw.psip.ui.MainLayout;
-import io.bssw.psip.ui.components.FlexBoxLayout;
-import io.bssw.psip.ui.components.RadarChart;
-import io.bssw.psip.ui.components.ScoreItem;
-import io.bssw.psip.ui.components.ScoreSlider;
 import io.bssw.psip.ui.layout.size.Horizontal;
 import io.bssw.psip.ui.layout.size.Uniform;
 import io.bssw.psip.ui.util.Strong;
@@ -235,10 +230,22 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 				new Emphasis(new Strong("We do not save your data in any way. If you refresh or close your browser, "
 						+ "your assessment will be lost. Click on the button below to save your assessment once it is completed."))));
 
+		//TODO: Implement the slider bar component before the apex chart
+		//String labelText = new Emphasis("Use the slider below to view your survey scores history").toString();
+		Label sliderLabel = new Label("Use the slider below to view your survey scores history");
+		sliderLabel.add(new Icon(VaadinIcon.ARROW_DOWN));
+		PaperSlider slider = new PaperSlider();
+		slider.setPin(true);
+		slider.addValueChangeListener(slider);
+		if (!repositoryManager.isLoggedIn()) {
+			sliderLabel.setVisible(false);
+			slider.setVisible(false);
+		}
+
 		Component summary = createSurveySummary(survey);
 
-		mainLayout.add(descDiv, startButton, resultDiv, summary, saveButton);
-		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startButton, saveButton, summary);
+		mainLayout.add(descDiv, startButton, resultDiv, sliderLabel, slider, summary, saveButton);
+		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startButton, saveButton, sliderLabel, slider, summary);
 	}
 
 	/**
