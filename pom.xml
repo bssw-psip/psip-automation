@@ -55,6 +55,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+
     </repositories>
 
     <pluginRepositories>
@@ -109,6 +110,15 @@
             <artifactId>spring-boot-starter-oauth2-client</artifactId>
         </dependency>
         <!-- End Spring -->
+
+        <!-- Vaadin -->
+        <dependency>
+            <groupId>org.vaadin.addons.componentfactory</groupId>
+            <artifactId>lumo-paper-slider</artifactId>
+            <version>1.0.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- End Vaadin -->
         
         <!-- For RadarChart -->
         <dependency>

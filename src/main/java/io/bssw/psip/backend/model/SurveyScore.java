@@ -30,16 +30,45 @@
 *******************************************************************************/
 package io.bssw.psip.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SurveyScore {
     private String timestamp = "";
     private String version = "";
+    @JsonIgnore
+    private String friendlyTimestamp = "";
     private List<CategoryScore> categoryScores = new ArrayList<>();
 
     public String getTimestamp() {
         return timestamp;
+    }
+    @JsonIgnore
+    public String getFriendlyTimestamp() {
+        //TODO: see if it's possible to pass in a locale, everything is in UTC
+        /*NOTE: assuming that the formatting of the date and time don't change
+            these hard-coded numbers should work.
+         */
+        if (friendlyTimestamp.equals("")) {
+            String dateStamp = timestamp.substring(0, 10);
+            String timeStamp = timestamp.substring(11, 19);
+            LocalDate date = LocalDate.parse(dateStamp);
+            String newDate = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM));
+            LocalTime time = LocalTime.parse(timeStamp);
+            String newTime = time.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT));
+            return newDate + " at " + newTime;
+        }
+        return friendlyTimestamp;
+    }
+    @JsonIgnore
+    public void setFriendlyTimestamp(String friendlyTimestamp) {
+        this.friendlyTimestamp = friendlyTimestamp;
     }
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
@@ -56,4 +85,5 @@ public class SurveyScore {
     public void setCategoryScores(List<CategoryScore> categoryScores) {
         this.categoryScores = categoryScores;
     }
+
 }
