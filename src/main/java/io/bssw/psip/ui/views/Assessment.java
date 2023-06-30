@@ -33,10 +33,14 @@ package io.bssw.psip.ui.views;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import com.vaadin.flow.component.notification.NotificationVariant;
 import io.bssw.psip.backend.model.*;
+import io.bssw.psip.backend.service.RepositoryProvider;
 import io.bssw.psip.ui.components.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.addons.componentfactory.PaperSlider;
 import org.vaadin.olli.ClipboardHelper;
 
 import com.github.appreciated.apexcharts.ApexCharts;
@@ -89,12 +93,18 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	private Label description;
 	private VerticalLayout mainLayout;
 
+	private SurveySlider surveySlider;
+
+	private ApexCharts chart;
+
 	@Autowired
 	private ActivityService activityService;
 	@Autowired
 	private SurveyService surveyService;
 	@Autowired
 	private RepositoryProviderManager repositoryManager;
+
+
 
 	public Assessment() {
 		setViewContent(createContent());
@@ -231,21 +241,30 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 						+ "your assessment will be lost. Click on the button below to save your assessment once it is completed."))));
 
 		//TODO: Implement the slider bar component before the apex chart
-		//String labelText = new Emphasis("Use the slider below to view your survey scores history").toString();
 		Label sliderLabel = new Label("Use the slider below to view your survey scores history");
 		sliderLabel.add(new Icon(VaadinIcon.ARROW_DOWN));
-		PaperSlider slider = new PaperSlider();
-		slider.setPin(true);
-		slider.addValueChangeListener(slider);
-		if (!repositoryManager.isLoggedIn()) {
-			sliderLabel.setVisible(false);
-			slider.setVisible(false);
+
+		//NOTE: pay attention to this for the radar chart
+		if (surveyService.getSurvey() != null) {
+			//TODO: radar chart stuff after PR
 		}
+
+		if (repositoryManager != null && repositoryManager.isLoggedIn()) {
+			surveySlider = new SurveySlider(surveyService);
+		}
+
+		//TODO: implement apex chart stuff after PR
 
 		Component summary = createSurveySummary(survey);
 
-		mainLayout.add(descDiv, startButton, resultDiv, sliderLabel, slider, summary, saveButton);
-		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startButton, saveButton, sliderLabel, slider, summary);
+		 if (surveySlider != null) {
+			mainLayout.add(descDiv, startButton, resultDiv, sliderLabel, surveySlider, summary, saveButton);
+			mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startButton, saveButton,
+					sliderLabel, surveySlider, summary);
+		} else {
+		mainLayout.add(descDiv, startButton, resultDiv, summary, saveButton);
+		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startButton, saveButton, summary);
+		}
 	}
 
 	/**
@@ -346,7 +365,7 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	}
 
 	private Component createSurveySummary(Survey survey) {
-		ApexCharts chart = new RadarChart(survey).build();
+		chart = new RadarChart(survey).build();
 		HorizontalLayout layout = new HorizontalLayout(chart);
 		layout.setWidth("60%");
 		return layout;
