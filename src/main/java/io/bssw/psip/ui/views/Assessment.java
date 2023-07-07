@@ -97,6 +97,8 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 
 	private ApexCharts chart;
 
+	private static Component summary;
+
 	@Autowired
 	private ActivityService activityService;
 	@Autowired
@@ -249,13 +251,20 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 			//TODO: radar chart stuff after PR
 		}
 
+//		summary = createSurveySummary(survey);
+
 		if (repositoryManager != null && repositoryManager.isLoggedIn()) {
 			surveySlider = new SurveySlider(surveyService);
+			if (surveyService.getHistory().getScores().size() > 0) {
+				summary = createSurveySummary(surveyService.getHistory().getScores().
+						get(surveyService.getHistory().getScores().size() - 1));
+			} else {
+				summary = createSurveySummary(survey);
+			}
+		} else {
+			summary = createSurveySummary(survey);
 		}
 
-		//TODO: implement apex chart stuff after PR
-
-		Component summary = createSurveySummary(survey);
 
 		 if (surveySlider != null) {
 			mainLayout.add(descDiv, startButton, resultDiv, sliderLabel, surveySlider, summary, saveButton);
@@ -364,8 +373,19 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		return request.getRequestURL().toString();
 	}
 
+	public static Component getSummary() {
+		return summary;
+	}
+
 	private Component createSurveySummary(Survey survey) {
 		chart = new RadarChart(survey).build();
+		HorizontalLayout layout = new HorizontalLayout(chart);
+		layout.setWidth("60%");
+		return layout;
+	}
+
+	private Component createSurveySummary(SurveyScore score) {
+		chart = new RadarChart(score).build();
 		HorizontalLayout layout = new HorizontalLayout(chart);
 		layout.setWidth("60%");
 		return layout;

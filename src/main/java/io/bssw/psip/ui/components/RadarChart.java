@@ -46,48 +46,61 @@ import com.github.appreciated.apexcharts.config.xaxis.builder.LabelsBuilder;
 import com.github.appreciated.apexcharts.config.xaxis.labels.builder.StyleBuilder;
 import com.github.appreciated.apexcharts.helper.Series;
 
-import io.bssw.psip.backend.model.Category;
-import io.bssw.psip.backend.model.Item;
-import io.bssw.psip.backend.model.Survey;
+import io.bssw.psip.backend.model.*;
 
 public class RadarChart extends ApexChartsBuilder {
 	
 	List<Double> scores = new ArrayList<>();
 	List<String> labels = new ArrayList<>();
 
+	//Took in Survey at first
+	public RadarChart(SurveyScore surveyScore) {
+		for (CategoryScore score: surveyScore.getCategoryScores()) {
+			scores.add(getCategorySummaryScore(score));
+			//TODO: need implementation of a get name here for the
+			// label instead of getPath
+			labels.add(score.getPath());
+		}
+		buildChart();
+	}
+	//Keep this constructor for times when the user is not logged in
 	public RadarChart(Survey survey) {
 		survey.getCategories().forEach(c -> {
 			scores.add(getCategorySummaryScore(c));
 			labels.add(c.getName());
 		});
-        withChart(ChartBuilder.get()
-        		.withToolbar(ToolbarBuilder.get().withShow(false).build())
-	        		.withBackground("#f3f5f7") // Background of chart area
-	                .withType(Type.RADAR)
-	                .build())
-                .withSeries(new Series<>(scores.toArray()))
-                .withXaxis(XAxisBuilder.get()
-                		.withLabels(LabelsBuilder.get()
-                				.withStyle(StyleBuilder.get()
-                						.withColors(labels.stream().map(l -> "black").collect(Collectors.toList()))
-                						.withFontSize("12px")
-                						.build())
-                				.build())
-                		.build())
-                .withLabels(labels.toArray(new String[0]))
-                .withYaxis(YAxisBuilder.get()
-                		.withMin(0.0)
-                		.withMax(100.0)
-                		.withTickAmount(5.0)
-                		.build())
+		buildChart();
+	}
+
+	private void buildChart() {
+		withChart(ChartBuilder.get()
+				.withToolbar(ToolbarBuilder.get().withShow(false).build())
+				.withBackground("#f3f5f7") // Background of chart area
+				.withType(Type.RADAR)
+				.build())
+				.withSeries(new Series<>(scores.toArray()))
+				.withXaxis(XAxisBuilder.get()
+						.withLabels(LabelsBuilder.get()
+								.withStyle(StyleBuilder.get()
+										.withColors(labels.stream().map(l -> "black").collect(Collectors.toList()))
+										.withFontSize("12px")
+										.build())
+								.build())
+						.build())
+				.withLabels(labels.toArray(new String[0]))
+				.withYaxis(YAxisBuilder.get()
+						.withMin(0.0)
+						.withMax(100.0)
+						.withTickAmount(5.0)
+						.build())
 				// try to reduce the padding around the chart
 				.withGrid(GridBuilder.get()
 						.withPadding(PaddingBuilder.get()
-							.withTop(-50.0)
-							.withBottom(-50.0)
-							.build())
+								.withTop(-50.0)
+								.withBottom(-50.0)
+								.build())
 						.build())
-                .build();	
+				.build();
 	}
 
 	
@@ -99,6 +112,13 @@ public class RadarChart extends ApexChartsBuilder {
 	 * @param category
 	 * @return scaled summary score
 	 */
+	private Double getCategorySummaryScore(CategoryScore score) {
+		int value = 0;
+		for (ItemScore itemScore: score.getItemScores()) {
+			value += Integer.parseInt(itemScore.getValue());
+		}
+		return (double) (value / score.getItemScores().size());
+	}
 	private Double getCategorySummaryScore(Category category) {
 		if (!category.getItems().isEmpty()) {
 			int score = 0;

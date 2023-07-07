@@ -30,6 +30,7 @@
  *******************************************************************************/
 package io.bssw.psip.ui.components;
 
+import com.github.appreciated.apexcharts.ApexCharts;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.HasSize;
@@ -44,7 +45,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.bssw.psip.backend.model.*;
 import io.bssw.psip.backend.service.SurveyService;
+import io.bssw.psip.ui.layout.size.Horizontal;
 import io.bssw.psip.ui.util.UIUtils;
+import io.bssw.psip.ui.views.Assessment;
 import org.vaadin.pekkam.Canvas;
 import org.vaadin.pekkam.CanvasRenderingContext2D;
 
@@ -74,6 +77,8 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
     private int lastButtonPos;
     private int startingPoint;
     private Integer zeroIndexPos;
+    private Component summary;
+    private ApexCharts chart;
 
     public SurveySlider(SurveyService service) {
         this.service = service;
@@ -90,6 +95,7 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
         this.currentIndex = (SURVEY_LIMIT - 1) + diff;
         this.bookMarkIndex = currentIndex;
         this.zeroIndexPos = 0;
+        this.summary = Assessment.getSummary();
 
 
         VerticalLayout verticalLayout = new VerticalLayout();
@@ -174,6 +180,13 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
                                         .addThemeVariants(NotificationVariant.LUMO_CONTRAST);
                             }
                         }
+
+
+                        ((HorizontalLayout) summary).removeAll();
+//                        chart = new RadarChart(surveyScores.get(12)).build();
+//                        ((HorizontalLayout) summary).add(chart);
+//                        (HorizontalLayout (summary)).setWidth("60%");
+
                         if (currentIndex >= 0) {
                             bookMarkIndex = currentIndex;
                         }
@@ -394,6 +407,8 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
             access the most recent surveys first. For instance, if the list length is
             greater than the survey max, the most recent surveys will not be displayed.
          */
+        Component summary = Assessment.getSummary();
+        HorizontalLayout layout = (HorizontalLayout) summary;
         for (int i = startingPoint - 1; startingPoint - i <= limit; i--) {
             //TODO: see if a locale can be passed into getTimestamp
 //            System.out.println("starting point is: " + startingPoint);
@@ -405,6 +420,11 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
                 label.setText(surveyScores.get(i).getFriendlyTimestamp());
                 label.getElement().getStyle().set("color", BUTTON_COLOR);
                 //TODO: worry about apex chart implementation after PR
+                layout.removeAll();
+                chart = new RadarChart(surveyScores.get(i)).build();
+                layout.add(chart);
+//                layout = new HorizontalLayout(chart);
+                layout.setWidth("60%");
                 //survey = scoreList.get(i).getSurvey();
                 //setCurrentSurvey(survey);
             } else {
