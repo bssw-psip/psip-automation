@@ -258,6 +258,7 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
             if (currentIndex >= (surveyScores.size() - 1)) {
                 next.setEnabled(false);
             }
+            bookMarkIndex = currentIndex;
             lastButtonPos = buttonPosition;
         });
 
@@ -292,19 +293,6 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
         }
         setWidth("100%");
     }
-
-    public Button getPrev() {
-        return prev;
-    }
-    public Button getNext() {
-        return next;
-    }
-    public void setLabel(String text) {
-        label.setText(text);
-    }
-    public int getDiff() {
-        return diff;
-    }
     /**
      * Set the date of the survey that was selected
      * @param timestamp the timestamp of the selected survey on the slider,
@@ -325,7 +313,6 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
         service.setDate(value, index);
         drawButtons(ctx, service, index);
     }
-
     private int buttonPosX(int idx) {
         int span = (CANVAS_WIDTH - (BUTTON_RADIUS * 2)) / (SURVEY_LIMIT - 1);
         return BUTTON_RADIUS + span * idx;
@@ -379,7 +366,7 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
                 label.getElement().getStyle().set("color", BUTTON_COLOR);
                 //prevents the scores from being drawn on the chart when
                 //there are no more scores left in the list
-                if (currentIndex != 0 || bookMarkIndex != 0) {
+                if (!(currentIndex == bookMarkIndex)) {
                     layout.removeAll();
                     chart = new RadarChart(surveyScores.get(i)).build();
                     layout.add(chart);
@@ -408,7 +395,7 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
                 label.getElement().getStyle().set("color", BUTTON_COLOR);
                 //prevents the scores from being drawn on the chart when
                 //there are no more scores left in the list
-                if (currentIndex != 0 || bookMarkIndex != 0) {
+                if (!(currentIndex == bookMarkIndex)) {
                     layout.removeAll();
                     chart = new RadarChart(surveyScores.get(i)).build();
                     layout.add(chart);
