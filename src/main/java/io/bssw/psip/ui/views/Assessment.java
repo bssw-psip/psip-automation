@@ -33,11 +33,18 @@ package io.bssw.psip.ui.views;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import com.vaadin.flow.component.notification.NotificationVariant;
+import io.bssw.psip.backend.model.*;
+import io.bssw.psip.backend.service.RepositoryProvider;
+import io.bssw.psip.ui.components.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.addons.componentfactory.PaperSlider;
 import org.vaadin.olli.ClipboardHelper;
 
 import com.github.appreciated.apexcharts.ApexCharts;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -70,18 +77,10 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
-import io.bssw.psip.backend.model.Activity;
-import io.bssw.psip.backend.model.Category;
-import io.bssw.psip.backend.model.Item;
-import io.bssw.psip.backend.model.Survey;
 import io.bssw.psip.backend.service.ActivityService;
 import io.bssw.psip.backend.service.RepositoryProviderManager;
 import io.bssw.psip.backend.service.SurveyService;
 import io.bssw.psip.ui.MainLayout;
-import io.bssw.psip.ui.components.FlexBoxLayout;
-import io.bssw.psip.ui.components.RadarChart;
-import io.bssw.psip.ui.components.ScoreItem;
-import io.bssw.psip.ui.components.ScoreSlider;
 import io.bssw.psip.ui.layout.size.Horizontal;
 import io.bssw.psip.ui.layout.size.Uniform;
 import io.bssw.psip.ui.util.Strong;
@@ -94,12 +93,20 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 	private Label description;
 	private VerticalLayout mainLayout;
 
+	private SurveySlider surveySlider;
+
+	private ApexCharts chart;
+
+	private static Component summary;
+
 	@Autowired
 	private ActivityService activityService;
 	@Autowired
 	private SurveyService surveyService;
 	@Autowired
 	private RepositoryProviderManager repositoryManager;
+
+
 
 	public Assessment() {
 		setViewContent(createContent());
@@ -235,10 +242,37 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 				new Emphasis(new Strong("We do not save your data in any way. If you refresh or close your browser, "
 						+ "your assessment will be lost. Click on the button below to save your assessment once it is completed."))));
 
-		Component summary = createSurveySummary(survey);
+		//TODO: Implement the slider bar component before the apex chart
+		Label sliderLabel = new Label("Use the slider below to view your survey scores history");
+		sliderLabel.add(new Icon(VaadinIcon.ARROW_DOWN));
 
+		//NOTE: pay attention to this for the radar chart
+		if (surveyService.getSurvey() != null) {
+			//TODO: radar chart stuff after PR
+		}
+
+
+		if (repositoryManager != null && repositoryManager.isLoggedIn()) {
+			if (surveyService.getHistory().getScores().size() > 0) {
+				summary = createSurveySummary(surveyService.getHistory().getScores().
+						get(surveyService.getHistory().getScores().size() - 1));
+			} else {
+				summary = createSurveySummary(survey);
+			}
+			surveySlider = new SurveySlider(surveyService);
+		} else {
+			summary = createSurveySummary(survey);
+		}
+
+
+		 if (surveySlider != null) {
+			mainLayout.add(descDiv, startButton, resultDiv, sliderLabel, surveySlider, summary, saveButton);
+			mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startButton, saveButton,
+					sliderLabel, surveySlider, summary);
+		} else {
 		mainLayout.add(descDiv, startButton, resultDiv, summary, saveButton);
 		mainLayout.setHorizontalComponentAlignment(Alignment.CENTER, startButton, saveButton, summary);
+		}
 	}
 
 	/**
@@ -338,8 +372,19 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 		return request.getRequestURL().toString();
 	}
 
+	public static Component getSummary() {
+		return summary;
+	}
+
 	private Component createSurveySummary(Survey survey) {
-		ApexCharts chart = new RadarChart(survey).build();
+		chart = new RadarChart(survey).build();
+		HorizontalLayout layout = new HorizontalLayout(chart);
+		layout.setWidth("60%");
+		return layout;
+	}
+
+	private Component createSurveySummary(SurveyScore score) {
+		chart = new RadarChart(score).build();
 		HorizontalLayout layout = new HorizontalLayout(chart);
 		layout.setWidth("60%");
 		return layout;
