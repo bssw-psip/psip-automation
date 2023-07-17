@@ -180,6 +180,7 @@ public class SurveyService implements ApplicationListener<AuthChangeEvent> {
             Category category = categoryIter.next();
             CategoryScore catScore = new CategoryScore();
             catScore.setPath(category.getPath());
+            catScore.setName(category.getName());
             Iterator<Item> itemIter = category.getItems().iterator();
             while (itemIter.hasNext()) {
                 Item item = itemIter.next();

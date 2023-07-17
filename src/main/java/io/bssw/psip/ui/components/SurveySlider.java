@@ -147,7 +147,7 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
                         }
 
 //                        System.out.println("x: " + x);
-                        System.out.println("buttonPosition: " + buttonPosition);
+//                        System.out.println("buttonPosition: " + buttonPosition);
                         if (currentIndex >= 0 && currentIndex < surveyScores.size()) {
                             setDate(Optional.of(surveyScores.get(currentIndex).getTimestamp()));
                         }
@@ -190,8 +190,8 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
                         if (currentIndex >= 0) {
                             bookMarkIndex = currentIndex;
                         }
-                        System.out.println("bookmark is " + bookMarkIndex);
-                        System.out.println("current index is " + currentIndex);
+//                        System.out.println("bookmark is " + bookMarkIndex);
+//                        System.out.println("current index is " + currentIndex);
 //                        if (currentIndex >= 0) {
 //                            lastButtonPos = buttonPosition;
 //                        }
@@ -221,9 +221,9 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
             if (currentIndex > 0) {
                 currentIndex = currentIndex - 1;
             }
-            System.out.println("after clicking prev, current index is: " + currentIndex);
+//            System.out.println("after clicking prev, current index is: " + currentIndex);
 
-            System.out.println("after hitting prev buttonPos is " + buttonPosition);
+//            System.out.println("after hitting prev buttonPos is " + buttonPosition);
             if (surveyScores.size() <= SURVEY_LIMIT && currentIndex
                     >= 0 && currentIndex < surveyScores.size()) {
                 setDate(Optional.of(surveyScores.get(currentIndex).getTimestamp()));
@@ -423,10 +423,7 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
                 layout.removeAll();
                 chart = new RadarChart(surveyScores.get(i)).build();
                 layout.add(chart);
-//                layout = new HorizontalLayout(chart);
                 layout.setWidth("60%");
-                //survey = scoreList.get(i).getSurvey();
-                //setCurrentSurvey(survey);
             } else {
                 drawButton(ctx, (SURVEY_LIMIT - (startingPoint - i)), BACKGROUND_COLOR);
             }
@@ -434,12 +431,17 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
     }
 
     private void iterateHistoryUnderLimit(CanvasRenderingContext2D ctx, SurveyService service, int index, int limit) {
+        Component summary = Assessment.getSummary();
+        HorizontalLayout layout = (HorizontalLayout) summary;
         for (int i = surveyScores.size() - 1; i >= 0; i--) {
             if (surveyScores.get(i).getTimestamp().equals(service.getTimestamp(index))) {
                 drawButton(ctx, ((SURVEY_LIMIT - surveyScores.size()) + i), BUTTON_COLOR);
                 label.setText(surveyScores.get(i).getFriendlyTimestamp());
                 label.getElement().getStyle().set("color", BUTTON_COLOR);
-                //TODO: worry about apex chart implementation after PR
+                layout.removeAll();
+                chart = new RadarChart(surveyScores.get(i)).build();
+                layout.add(chart);
+                layout.setWidth("60%");
             } else {
                 drawButton(ctx, ((SURVEY_LIMIT - surveyScores.size()) + i), BACKGROUND_COLOR);
             }

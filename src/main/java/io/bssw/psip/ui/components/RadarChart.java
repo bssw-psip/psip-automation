@@ -57,9 +57,7 @@ public class RadarChart extends ApexChartsBuilder {
 	public RadarChart(SurveyScore surveyScore) {
 		for (CategoryScore score: surveyScore.getCategoryScores()) {
 			scores.add(getCategorySummaryScore(score));
-			//TODO: need implementation of a get name here for the
-			// label instead of getPath
-			labels.add(score.getPath());
+			labels.add(score.getName());
 		}
 		buildChart();
 	}
@@ -103,13 +101,13 @@ public class RadarChart extends ApexChartsBuilder {
 				.build();
 	}
 
-	
+
 	/**
 	 * Calculate scaled summary score for the category. The score is the sum
 	 * of the item scores divided by the number of scores. This should always
 	 * give a value between 0 and 100.
-	 * 
-	 * @param category
+	 *
+	 * @param score
 	 * @return scaled summary score
 	 */
 	private Double getCategorySummaryScore(CategoryScore score) {
@@ -119,6 +117,14 @@ public class RadarChart extends ApexChartsBuilder {
 		}
 		return (double) (value / score.getItemScores().size());
 	}
+	/**
+	 * Calculate scaled summary score for the category. The score is the sum
+	 * of the item scores divided by the number of scores. This should always
+	 * give a value between 0 and 100.
+	 *
+	 * @param category
+	 * @return scaled summary score
+	 */
 	private Double getCategorySummaryScore(Category category) {
 		if (!category.getItems().isEmpty()) {
 			int score = 0;

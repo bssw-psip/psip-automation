@@ -36,6 +36,7 @@ import java.util.List;
 public class CategoryScore {
     private String path = "";
     private String score = "";
+    private String name = "";
     private List<ItemScore> surveyScores = new ArrayList<>();
 
     public String getPath() {
@@ -50,6 +51,13 @@ public class CategoryScore {
     public void setScore(String score) {
         this.score = score;
     }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public List<ItemScore> getItemScores() {
         return surveyScores;
     }
