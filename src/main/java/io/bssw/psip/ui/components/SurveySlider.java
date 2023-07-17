@@ -45,7 +45,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.bssw.psip.backend.model.*;
 import io.bssw.psip.backend.service.SurveyService;
-import io.bssw.psip.ui.layout.size.Horizontal;
 import io.bssw.psip.ui.util.UIUtils;
 import io.bssw.psip.ui.views.Assessment;
 import org.vaadin.pekkam.Canvas;
@@ -107,7 +106,8 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
             canvas.getElement().addEventListener("click", e ->
                     {
                         double x = e.getEventData().getNumber("event.offsetX");
-                        buttonPosition = (int) Math.round(x) / (CANVAS_WIDTH / SURVEY_LIMIT);
+                        int buttonVal = (int) Math.round(x) / (CANVAS_WIDTH / SURVEY_LIMIT);
+                        buttonPosition = buttonVal;
                         if (surveyScores.size() > SURVEY_LIMIT) {
 
                             if (currentIndex < surveyScores.size() % SURVEY_LIMIT) {
@@ -129,35 +129,22 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
                             currentIndex = currentIndex - (lastButtonPos - buttonPosition);
                         }
 
-//                        System.out.println("after clicking a button, current index from slider is: " + currentIndex);
-
                         if ((buttonPosition <= (SURVEY_LIMIT - (surveyScores.size() % SURVEY_LIMIT))) &&
                                 (currentIndex < (surveyScores.size() % SURVEY_LIMIT)) && !(bookMarkIndex > 0)) {
                             prev.setEnabled(false);
-                            //when size is divisible by 5
-                        } else if (currentIndex == 0) {
-                            prev.setEnabled(false);
-                        } else {
-                            prev.setEnabled(true);
-                        }
-                        if (currentIndex == surveyScores.size() - 1) {
-                            next.setEnabled(false);
-                        } else {
-                            next.setEnabled(true);
-                        }
 
-//                        System.out.println("x: " + x);
-//                        System.out.println("buttonPosition: " + buttonPosition);
+                        } else prev.setEnabled(currentIndex != 0);
+                        next.setEnabled(currentIndex != surveyScores.size() - 1);
                         if (currentIndex >= 0 && currentIndex < surveyScores.size()) {
                             setDate(Optional.of(surveyScores.get(currentIndex).getTimestamp()));
                         }
 
                         int lowThreshold = buttonPosX(SURVEY_LIMIT - surveyScores.size() - 1);
-//                        System.out.println("the low is: " + lowThreshold);
+
                         int highThreshold = buttonPosX(SURVEY_LIMIT - surveyScores.size());
-//                        System.out.println("the high threshold is: " + highThreshold);
+
                         int errorThreshold = (lowThreshold + highThreshold) / 2;
-//                        System.out.println("errorThreshold: " + errorThreshold);
+
                         if (surveyScores.size() < SURVEY_LIMIT && x < errorThreshold) {
                             if (surveyScores.size() == 1) {
                                 Notification.show("There is only 1 survey to display",
@@ -170,7 +157,7 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
                             }
                         }
                         if (surveyScores.size() > SURVEY_LIMIT) {
-                            if (currentIndex == 0) {
+                            if (currentIndex == 0 && (buttonVal < buttonPosition)) {
                                 Notification.show("There are no more surveys left to display",
                                                 3000, Notification.Position.BOTTOM_START).
                                         addThemeVariants(NotificationVariant.LUMO_CONTRAST);
@@ -180,23 +167,10 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
                                         .addThemeVariants(NotificationVariant.LUMO_CONTRAST);
                             }
                         }
-
-
-                        ((HorizontalLayout) summary).removeAll();
-//                        chart = new RadarChart(surveyScores.get(12)).build();
-//                        ((HorizontalLayout) summary).add(chart);
-//                        (HorizontalLayout (summary)).setWidth("60%");
-
                         if (currentIndex >= 0) {
                             bookMarkIndex = currentIndex;
                         }
-//                        System.out.println("bookmark is " + bookMarkIndex);
-//                        System.out.println("current index is " + currentIndex);
-//                        if (currentIndex >= 0) {
-//                            lastButtonPos = buttonPosition;
-//                        }
                         lastButtonPos = buttonPosition;
-                        //TODO: Update the apex chart right here when the user clicks
                     }
             ).addEventData("event.offsetX").addEventData("event.offsetY");
         }
@@ -221,9 +195,7 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
             if (currentIndex > 0) {
                 currentIndex = currentIndex - 1;
             }
-//            System.out.println("after clicking prev, current index is: " + currentIndex);
 
-//            System.out.println("after hitting prev buttonPos is " + buttonPosition);
             if (surveyScores.size() <= SURVEY_LIMIT && currentIndex
                     >= 0 && currentIndex < surveyScores.size()) {
                 setDate(Optional.of(surveyScores.get(currentIndex).getTimestamp()));
@@ -250,7 +222,6 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
                 }
             bookMarkIndex = currentIndex;
             lastButtonPos = buttonPosition;
-            //TODO: IMPLEMENT THE ERROR NOTIFICATIONS FOR WHEN THERE IS LESS THAN FIVE SURVEYS TO DISPLAY
         });
 
         next.addClickListener(e -> {
@@ -264,10 +235,8 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
             }
             if (currentIndex < surveyScores.size() - 1) {
                 currentIndex = currentIndex + 1;
-//                System.out.println("after clicking next, current index is: " + currentIndex);
             }
-//            System.out.println("after hitting next buttonPos is " + buttonPosition);
-//            System.out.println("after hitting next lastButtonPos is " + lastButtonPos);
+
             if (surveyScores.size() > SURVEY_LIMIT &&
                     currentIndex < surveyScores.size() - 1 && buttonPosition == SURVEY_LIMIT - 1) {
                 //NOTE: is it problematic to hardcode 0?
@@ -282,7 +251,7 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
             }
             if (surveyScores.size() > SURVEY_LIMIT) {
 					if (buttonPosition == 0 && lastButtonPos == SURVEY_LIMIT - 1) {
-                        startingPoint = startingPoint + 5;;
+                        startingPoint = startingPoint + 5;
 					}
                 setDate(Optional.of(surveyScores.get(currentIndex).getTimestamp()));
             }
@@ -294,9 +263,6 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
 
         ctx = canvas.getContext();
         ctx.setFillStyle(BACKGROUND_COLOR);
-        /**
-         * Builds the bar and fills the bar that the buttons are on (draws a rectangle)
-         */
         ctx.fillRect(BUTTON_RADIUS, BUTTON_RADIUS - BUTTON_TRACK_WIDTH / 2, CANVAS_WIDTH - BUTTON_RADIUS * 2, BUTTON_TRACK_WIDTH);
 
         canvas.getElement().getStyle().set("align-self", "center"); // Avoid canvas scaling horizontally only
@@ -311,10 +277,7 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
         if (surveyScores.size() == 1 || surveyScores.size() == 0) {
             prev.setEnabled(false);
         }
-        //Since the slider is constructed with the button all the way to the right, initially there is no next
         next.setEnabled(false);
-
-        //TODO: add a click listener for the chevrons
 
         if (surveyScores.size() == 0) {
             for (int i = 0; i < SURVEY_LIMIT; i++) {
@@ -322,10 +285,8 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
             }
             label.setText("There are no survey scores saved in the specified repository. Take a survey and save to view scores");
             label.getElement().getStyle().set("color", BUTTON_COLOR);
-            canvas.getElement().addEventListener("click", event -> {
-                Notification.show("There are no survey scores saved in the specified repository.",
-                        5000, Notification.Position.BOTTOM_START).addThemeVariants(NotificationVariant.LUMO_ERROR);
-            });
+            canvas.getElement().addEventListener("click", event -> Notification.show("There are no survey scores saved in the specified repository.",
+                    5000, Notification.Position.BOTTOM_START).addThemeVariants(NotificationVariant.LUMO_ERROR));
         } else {
             setDate(Optional.empty());
         }
@@ -384,53 +345,60 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
      * @param service the SurveyService instance
      * @param index the value on the slider to draw the button
      */
-    /**
-     * Here, find the number of histories instead of the number of scores and iterate
-     * through the number of histories. Condition to fill in the button should be
-     * whether the current history is equal to the new history.
-     * current history needs to be configured to trigger a change in the spider branch
-     */
     private void drawButtons(CanvasRenderingContext2D ctx, SurveyService service, int index) {
 
         if (surveyScores.size() >= SURVEY_LIMIT) {
-            iterateHistoryOverLimit(ctx, service, index, SURVEY_LIMIT);
+            iterateHistoryOverLimit(ctx, service, index);
         } else {
-            iterateHistoryUnderLimit(ctx, service, index, SURVEY_LIMIT);
+            iterateHistoryUnderLimit(ctx, service, index);
         }
     }
 
-    private void iterateHistoryOverLimit(CanvasRenderingContext2D ctx, SurveyService service, int index, int limit) {
+    /**
+     * Add the buttons to the slider bar when there are more than five surveys to display
+     * @param ctx CanvasRenderingContext2D instance used to draw the buttons
+     * @param service Instance of SurveyService used to evaluate the timestamps
+     * @param index the index of the timestamp being checked
+     */
+    private void iterateHistoryOverLimit(CanvasRenderingContext2D ctx, SurveyService service, int index) {
         /*
            NOTE: Going backwards, so we can display the most recent surveys.
             The surveys are read and added to the list from earliest to most
             recent, so we must loop through the list backwards in order to
             access the most recent surveys first. For instance, if the list length is
-            greater than the survey max, the most recent surveys will not be displayed.
+            greater than the survey max, the most recent surveys will not be displayed
+            within the five button limit.
          */
         Component summary = Assessment.getSummary();
         HorizontalLayout layout = (HorizontalLayout) summary;
-        for (int i = startingPoint - 1; startingPoint - i <= limit; i--) {
+        for (int i = startingPoint - 1; startingPoint - i <= SURVEY_LIMIT; i--) {
             //TODO: see if a locale can be passed into getTimestamp
-//            System.out.println("starting point is: " + startingPoint);
-//            System.out.println("i is: " + i);
             if (i >= 0 && surveyScores.get(i).getTimestamp().equals(service.getTimestamp(index))) {
-//                System.out.println("index is: " + index);
-//                System.out.println(currentIndex);
                 drawButton(ctx, (SURVEY_LIMIT - (startingPoint - i)), BUTTON_COLOR);
                 label.setText(surveyScores.get(i).getFriendlyTimestamp());
                 label.getElement().getStyle().set("color", BUTTON_COLOR);
-                //TODO: worry about apex chart implementation after PR
-                layout.removeAll();
-                chart = new RadarChart(surveyScores.get(i)).build();
-                layout.add(chart);
-                layout.setWidth("60%");
+                //prevents the scores from being drawn on the chart when
+                //there are no more scores left in the list
+                if (currentIndex != 0 || bookMarkIndex != 0) {
+                    layout.removeAll();
+                    chart = new RadarChart(surveyScores.get(i)).build();
+                    layout.add(chart);
+                    layout.setWidth("60%");
+                }
             } else {
                 drawButton(ctx, (SURVEY_LIMIT - (startingPoint - i)), BACKGROUND_COLOR);
             }
         }
     }
 
-    private void iterateHistoryUnderLimit(CanvasRenderingContext2D ctx, SurveyService service, int index, int limit) {
+    /**
+     * Add the buttons to the slider bar when there are five surveys or fewer. The loop
+     * implementation is different from that of iterateHistoryOverLimit()
+     * @param ctx CanvasRenderingContext2D instance used to draw the buttons
+     * @param service Instance of SurveyService used to evaluate the timestamps
+     * @param index the index of the timestamp being checked
+     */
+    private void iterateHistoryUnderLimit(CanvasRenderingContext2D ctx, SurveyService service, int index) {
         Component summary = Assessment.getSummary();
         HorizontalLayout layout = (HorizontalLayout) summary;
         for (int i = surveyScores.size() - 1; i >= 0; i--) {
@@ -438,10 +406,14 @@ public class SurveySlider extends Component implements HasComponents, HasSize {
                 drawButton(ctx, ((SURVEY_LIMIT - surveyScores.size()) + i), BUTTON_COLOR);
                 label.setText(surveyScores.get(i).getFriendlyTimestamp());
                 label.getElement().getStyle().set("color", BUTTON_COLOR);
-                layout.removeAll();
-                chart = new RadarChart(surveyScores.get(i)).build();
-                layout.add(chart);
-                layout.setWidth("60%");
+                //prevents the scores from being drawn on the chart when
+                //there are no more scores left in the list
+                if (currentIndex != 0 || bookMarkIndex != 0) {
+                    layout.removeAll();
+                    chart = new RadarChart(surveyScores.get(i)).build();
+                    layout.add(chart);
+                    layout.setWidth("60%");
+                }
             } else {
                 drawButton(ctx, ((SURVEY_LIMIT - surveyScores.size()) + i), BACKGROUND_COLOR);
             }

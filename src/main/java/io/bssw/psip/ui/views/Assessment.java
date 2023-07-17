@@ -251,16 +251,15 @@ public class Assessment extends ViewFrame implements HasUrlParameter<String> {
 			//TODO: radar chart stuff after PR
 		}
 
-//		summary = createSurveySummary(survey);
 
 		if (repositoryManager != null && repositoryManager.isLoggedIn()) {
-			surveySlider = new SurveySlider(surveyService);
 			if (surveyService.getHistory().getScores().size() > 0) {
 				summary = createSurveySummary(surveyService.getHistory().getScores().
 						get(surveyService.getHistory().getScores().size() - 1));
 			} else {
 				summary = createSurveySummary(survey);
 			}
+			surveySlider = new SurveySlider(surveyService);
 		} else {
 			summary = createSurveySummary(survey);
 		}
