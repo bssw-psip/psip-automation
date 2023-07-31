@@ -73,9 +73,11 @@ import io.bssw.psip.ui.util.UIUtils;
 @AnonymousAllowed
 public class Home extends ViewFrame {
 	private static final String DEFAULT_BRANCH = "main";
-
+	private static String branch;
+	private static String repo;
 	private final RepositoryProviderManager repositoryManager;
 	private final SurveyService surveyService;
+
 
 	@Autowired
 	public Home(RepositoryProviderManager repositoryManager, SurveyService surveyService) {
@@ -84,6 +86,14 @@ public class Home extends ViewFrame {
 		setId("home");
 		setViewContent(createContent());
 	}
+
+	public static String getBranch() {
+		return branch;
+	}
+	public static String getRepo() {
+		return repo;
+	}
+
 
 	private Component createContent() {
 		Div intro = new Div();
@@ -182,11 +192,12 @@ public class Home extends ViewFrame {
 		button.addClickListener(buttonClickEvent -> {
 			try {
 				if (!repoField.isEmpty()) {
-					String branch = DEFAULT_BRANCH;
+					branch = DEFAULT_BRANCH;
 					if (!branchField.isEmpty()) {
 						branch = branchField.getValue();
 					}
-					repositoryManager.getRepositoryProvider().connect(repoField.getValue(), branch);
+					repo = repoField.getValue();
+					repositoryManager.getRepositoryProvider().connect(repo, branch);
 					surveyService.reset();
 				}
 				button.getUI().ifPresent(ui -> ui.navigate("assessment"));
