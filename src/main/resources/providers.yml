@@ -34,3 +34,15 @@ providers:
    userInfoUri: https://api.github.com/user
    userNameAttributeName: id
    scope: read:user,repo
+
+ - type: gitlab
+   registrationId: gitlab_test
+   clientName: code.ornl.gov (test)
+   clientId: ${GITLAB_CLIENT_ID}
+   clientSecret: ${GITLAB_CLIENT_SECRET}
+   redirectUri: '{baseUrl}/login/oauth2/code/{registrationId}'
+   authorizationUri: https://code.ornl.gov/oauth/authorize
+   tokenUri: https://code.ornl.gov/oauth/token
+   userInfoUri: https://code.ornl.gov/api/v4/user
+   userNameAttributeName: username
+   scope: read_user
